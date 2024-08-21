@@ -25,6 +25,8 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaIoBaseDownload
+import io
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = [
@@ -58,8 +60,9 @@ def main():
         # Call the Classroom API
         service = build("classroom", "v1", credentials=creds)
 
-        classroom_id = '' # Change to the id of the classroom you want to access
-        coursework_id = '' # Change to the id of the work you want to access
+
+        classroom_id = '541491277036' # Change to the id of the classroom you want to access
+        coursework_id = '595557446744' # Change to the id of the work you want to access
 
         #results = service.courses().list().execute()
         #courses = results.get("courses", [])
@@ -67,6 +70,7 @@ def main():
         #assignments = service.courses().courseWork().list(courseId=classroom_id).execute()
         submissions = service.courses().courseWork().studentSubmissions().list(courseId=classroom_id, courseWorkId=coursework_id).execute()
 
+      
 
         """if not courses:
             print("No courses found.")
@@ -137,3 +141,6 @@ def extract_prefix(s):
 
 if __name__ == "__main__":
     main()
+
+
+
