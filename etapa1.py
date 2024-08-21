@@ -92,8 +92,8 @@ def main():
         classroom_service = build("classroom", "v1", credentials=creds)
         drive_service = build("drive", "v3", credentials=creds)
 
-        classroom_id = ''
-        coursework_id = ''
+        classroom_id = input("Digite o ID da turma (classroom_id): ")
+        coursework_id = input("Digite o ID do trabalho (coursework_id): ")
 
         submissions = classroom_service.courses().courseWork().studentSubmissions().list(courseId=classroom_id, courseWorkId=coursework_id).execute()
 
