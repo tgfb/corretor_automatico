@@ -1,6 +1,7 @@
 import os
 import io
-
+import zipfile
+import shutil
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -85,6 +86,59 @@ def download_submissions(classroom_service, drive_service, submissions, download
             
 def extract_prefix(email):
     return email.split('@')[0]
+
+def extract_zip_files(download_folder):
+    submissions_folder = os.path.join(download_folder, 'submissions')
+    if not os.path.exists(submissions_folder):
+        os.makedirs(submissions_folder)
+
+    for file_name in os.listdir(download_folder):
+        file_path = os.path.join(download_folder, file_name)
+        if file_name.endswith('.zip'):
+            try:
+            
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    zip_ref.extractall(submissions_folder)
+                    print(f"Extracted {file_name} to {submissions_folder}")
+                validate_extracted_folder(submissions_folder, file_name)
+            except zipfile.BadZipFile:
+                print(f"File {file_name} is not a valid zip file and was skipped.")
+            except Exception as e:
+                print(f"An error occurred while extracting {file_name}: {e}")
+
+def validate_extracted_folder(submissions_folder, zip_file_name):
+    student_login = zip_file_name[:-4] 
+    extracted_folder = os.path.join(submissions_folder, student_login)
+    
+    if not os.path.isdir(extracted_folder):
+       
+        os.makedirs(extracted_folder)
+        print(f"Created folder for {student_login} in {submissions_folder}")
+
+    # Move all .c files to the student_login folder
+    move_c_files_to_folder(submissions_folder, student_login)
+
+def move_c_files_to_folder(submissions_folder, student_login):
+    # Create the destination folder for .c files if it does not exist
+    student_folder = os.path.join(submissions_folder, student_login)
+    
+    for item in os.listdir(submissions_folder):
+        item_path = os.path.join(submissions_folder, item)
+        if os.path.isfile(item_path) and item.endswith('.c'):
+            destination_path = os.path.join(student_folder, item)
+            shutil.move(item_path, destination_path)
+            print(f"Moved {item} to {student_folder}")
+
+def move_non_zip_files(download_folder):
+    submissions_folder = os.path.join(download_folder, 'submissions')
+    for item in os.listdir(download_folder):
+        item_path = os.path.join(download_folder, item)
+        if os.path.isdir(item_path) and item != 'submissions':
+            destination_folder = os.path.join(submissions_folder, item)
+            if not os.path.exists(destination_folder):
+                os.rename(item_path, destination_folder)
+                print(f"Moved {item} to {destination_folder}")
+
     
 def main():
     creds = get_credentials()
@@ -104,6 +158,11 @@ def main():
         download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id)
 
         print("Download completo. Arquivos salvos em:", os.path.abspath(download_folder))
+
+        extract_zip_files(download_folder)
+        move_non_zip_files(download_folder)
+
+        print("Processo concluído. Arquivos salvos em:", os.path.abspath(download_folder))
 
     except HttpError as error:
         print(f"Um erro ocorreu: {error}")
