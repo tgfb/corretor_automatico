@@ -111,15 +111,14 @@ def validate_extracted_folder(submissions_folder, zip_file_name):
     extracted_folder = os.path.join(submissions_folder, student_login)
     
     if not os.path.isdir(extracted_folder):
-       
+       #Tentar algum código que funcione aqui pra renomear a pasta quando a pasta extraida não for o student_login
         os.makedirs(extracted_folder)
         print(f"Created folder for {student_login} in {submissions_folder}")
 
-    # Move all .c files to the student_login folder
     move_c_files_to_folder(submissions_folder, student_login)
 
 def move_c_files_to_folder(submissions_folder, student_login):
-    # Create the destination folder for .c files if it does not exist
+   
     student_folder = os.path.join(submissions_folder, student_login)
     
     for item in os.listdir(submissions_folder):
@@ -139,7 +138,38 @@ def move_non_zip_files(download_folder):
                 os.rename(item_path, destination_folder)
                 print(f"Moved {item} to {destination_folder}")
 
+def list_questions():
+    questions_dict = {}
+    num_questions = int(input("Quantas questões tem a lista: "))
+
+    for i in range(1, num_questions + 1):
+        question_data = []
+        
+        question_data.append(f'q{i}')
+        question_data.append(f'questao{i}')
+        question_data.append(f'questão{i}')
+        
+        question_number = input(f"Qual o número da questão {i} no beecrowd: ").strip()
+        question_data.append(question_number)
+        
+        question_name = input("Qual o nome da questão no beecrowd: ").strip()
+        question_data.append(question_name)
+        #talvez salvar sem os espaços em branco??
+        
+        while True:
+            additional_names = input("Quer digitar outro nome para esta questão? (s/n): ").strip().lower()
+            if additional_names == 's':
+                additional_name = input("Digite o novo nome da questão: ").strip()
+                question_data.append(additional_name)
+            elif additional_names == 'n':
+                break
+            else:
+                print("Resposta inválida. Por favor, digite 's' para sim ou 'n' para não.")
+        
+        questions_dict[i] = question_data
     
+    return questions_dict
+
 def main():
     creds = get_credentials()
     try:
@@ -163,6 +193,10 @@ def main():
         move_non_zip_files(download_folder)
 
         print("Processo concluído. Arquivos salvos em:", os.path.abspath(download_folder))
+
+        questions_data = list_questions()
+        print(questions_data)
+
 
     except HttpError as error:
         print(f"Um erro ocorreu: {error}")
