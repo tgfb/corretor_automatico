@@ -207,7 +207,6 @@ def list_questions():
         
         question_name = input("Qual o nome da questão no beecrowd: ").strip()
         question_data.append(question_name)
-        #talvez salvar sem os espaços em branco??
         
         while True:
             additional_names = input("Quer digitar outro nome para esta questão? (s/n): ").strip().lower()
@@ -222,6 +221,43 @@ def list_questions():
         questions_dict[i] = question_data
     
     return questions_dict
+
+def rename_files_based_on_dictionary(submissions_folder, questions_dict):
+    for student_login in os.listdir(submissions_folder):
+        student_folder_path = os.path.join(submissions_folder, student_login)
+
+        if os.path.isdir(student_folder_path):
+            print(f"Verificando pasta do estudante: {student_folder_path}")
+            
+            for filename in os.listdir(student_folder_path):
+                file_path = os.path.join(student_folder_path, filename)
+
+                if os.path.isfile(file_path) and not filename.startswith('.'):
+                    print(f"Verificando arquivo: {filename}")
+
+                    base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ")
+
+                    found_match = False  
+                    for question_number, possible_names in questions_dict.items():
+                        for possible_name in possible_names:
+                            possible_name_clean = possible_name.lower()
+                            possible_name_parts = possible_name_clean.split()
+
+                            if any(part in base_filename_clean for part in possible_name_parts):
+                                new_filename = f"q{question_number}_{student_login}.c"
+                                new_file_path = os.path.join(student_folder_path, new_filename)
+
+                                os.rename(file_path, new_file_path)
+                                print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
+
+                                found_match = True
+                                break  
+                        if found_match:
+                            break  
+
+                    if not found_match:
+                        print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
+
 
 def main():
     creds = get_credentials()
@@ -252,6 +288,9 @@ def main():
         questions_data = list_questions()
         print(questions_data)
 
+        submissions_folder = os.path.join(download_folder, 'submissions')
+
+        rename_files_based_on_dictionary(submissions_folder, questions_data)
 
     except HttpError as error:
         print(f"Um erro ocorreu: {error}")
