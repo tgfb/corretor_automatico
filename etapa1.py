@@ -147,39 +147,66 @@ def extract_zip_files(download_folder):
 
     for file_name in os.listdir(download_folder):
         file_path = os.path.join(download_folder, file_name)
+
         if file_name.endswith('.zip'):
             try:
-            
                 with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    zip_contents = zip_ref.namelist()
+                    single_folder = None
+                    extracted = False
+                    
+                    # Verifica se o conteúdo do zip é uma única pasta
+                    if len(zip_contents) == 1 and zip_contents[0].endswith('/'):
+                        single_folder = zip_contents[0]
+                    
                     zip_ref.extractall(submissions_folder)
                     print(f"Extracted {file_name} to {submissions_folder}")
-                validate_extracted_folder(submissions_folder, file_name)
+                    extracted = True
+                
+                # Se há uma única pasta no zip, renomeia para o login do estudante
+                if single_folder:
+                    validate_extracted_folder(submissions_folder, file_name, single_folder)
+                else:
+                    validate_extracted_folder(submissions_folder, file_name)
+
             except zipfile.BadZipFile:
                 print(f"File {file_name} is not a valid zip file and was skipped.")
             except Exception as e:
                 print(f"An error occurred while extracting {file_name}: {e}")
 
-def validate_extracted_folder(submissions_folder, zip_file_name):
-    student_login = zip_file_name[:-4] 
-    extracted_folder = os.path.join(submissions_folder, student_login)
+def validate_extracted_folder(submissions_folder, zip_file_name, extracted_folder=None):
+    student_login = zip_file_name[:-4]  
+    extracted_content_path = os.path.join(submissions_folder, student_login)
     
-    if not os.path.isdir(extracted_folder):
-       #Tentar algum código que funcione aqui pra renomear a pasta quando a pasta extraida não for o student_login
-        os.makedirs(extracted_folder)
-        print(f"Created folder for {student_login} in {submissions_folder}")
+    
+    if not os.path.exists(extracted_content_path):
+        os.makedirs(extracted_content_path)
+        print(f"Created directory for student: {extracted_content_path}")
 
-    move_c_files_to_folder(submissions_folder, student_login)
+    # Verifica se uma pasta extraída precisa ser renomeada
+    if extracted_folder:
+        original_folder_path = os.path.join(submissions_folder, extracted_folder)
+        if os.path.exists(original_folder_path):
+            os.rename(original_folder_path, extracted_content_path)
+            print(f"Renamed folder '{extracted_folder}' to '{student_login}'")
+    else:
+        move_c_files_to_folder(submissions_folder, student_login)
 
 def move_c_files_to_folder(submissions_folder, student_login):
-   
     student_folder = os.path.join(submissions_folder, student_login)
-    
+
+    if not os.path.exists(student_folder):
+        os.makedirs(student_folder)
+
     for item in os.listdir(submissions_folder):
         item_path = os.path.join(submissions_folder, item)
+
         if os.path.isfile(item_path) and item.endswith('.c'):
             destination_path = os.path.join(student_folder, item)
             shutil.move(item_path, destination_path)
             print(f"Moved {item} to {student_folder}")
+        elif os.path.isdir(item_path) and item != student_login:
+            print(f"Found extra directory '{item}' not related to current student, no action taken.")
 
 def move_non_zip_files(download_folder):
     submissions_folder = os.path.join(download_folder, 'submissions')
@@ -221,6 +248,14 @@ def list_questions():
         questions_dict[i] = question_data
     
     return questions_dict
+
+def remove_empty_folders(submissions_folder):
+    for folder_name in os.listdir(submissions_folder):
+        folder_path = os.path.join(submissions_folder, folder_name)
+        if os.path.isdir(folder_path):
+            if not os.listdir(folder_path):  
+                shutil.rmtree(folder_path)  
+                print(f"A pasta '{folder_name}' foi deletada por não ter nenhum arquivo dentro.")
 
 def rename_files_based_on_dictionary(submissions_folder, questions_dict):
     for student_login in os.listdir(submissions_folder):
@@ -285,11 +320,13 @@ def main():
 
         print("Processo concluído. Arquivos salvos em:", os.path.abspath(download_folder))
 
+        submissions_folder = os.path.join(download_folder, 'submissions')
+        
+        remove_empty_folders(submissions_folder)
+
         questions_data = list_questions()
         print(questions_data)
-
-        submissions_folder = os.path.join(download_folder, 'submissions')
-
+        
         rename_files_based_on_dictionary(submissions_folder, questions_data)
 
     except HttpError as error:
