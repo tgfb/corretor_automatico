@@ -8,6 +8,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 SCOPES = [
     "https://www.googleapis.com/auth/classroom.student-submissions.students.readonly",
@@ -218,32 +220,32 @@ def move_non_zip_files(download_folder):
                 os.rename(item_path, destination_folder)
                 print(f"Moved {item} to {destination_folder}")
 
-def list_questions():
-    questions_dict = {}
-    num_questions = int(input("Quantas questões tem a lista: "))
+def get_gspread_client():
+    creds = get_credentials()
+    return gspread.authorize(creds)
 
-    for i in range(1, num_questions + 1):
+def list_questions(sheet_id, sheet_name):
+    client = get_gspread_client()
+    sheet = client.open_by_key(sheet_id).worksheet(sheet_name) 
+    rows = sheet.get_all_values()[1:] 
+
+    questions_dict = {}
+    for i, row in enumerate(rows, start=1):
         question_data = []
-        
         question_data.append(f'q{i}')
         question_data.append(f'questao{i}')
         question_data.append(f'questão{i}')
         
-        question_number = input(f"Qual o número da questão {i} no beecrowd: ").strip()
+        question_number = row[1].strip() if len(row) > 1 else ""
         question_data.append(question_number)
         
-        question_name = input("Qual o nome da questão no beecrowd: ").strip()
+        question_name = row[2].strip() if len(row) > 2 else ""
         question_data.append(question_name)
         
-        while True:
-            additional_names = input("Quer digitar outro nome para esta questão? (s/n): ").strip().lower()
-            if additional_names == 's':
-                additional_name = input("Digite o novo nome da questão: ").strip()
-                question_data.append(additional_name)
-            elif additional_names == 'n':
-                break
-            else:
-                print("Resposta inválida. Por favor, digite 's' para sim ou 'n' para não.")
+        additional_names = row[3:]
+        for name in additional_names:
+            if name.strip():
+                question_data.append(name.strip())
         
         questions_dict[i] = question_data
     
@@ -324,7 +326,9 @@ def main():
         
         remove_empty_folders(submissions_folder)
 
-        questions_data = list_questions()
+        sheet_id = input("Digite o ID da planilha (sheet_id): ")
+        sheet_name = input("Digite o nome da aba: ")
+        questions_data = list_questions(sheet_id, sheet_name)
         print(questions_data)
         
         rename_files_based_on_dictionary(submissions_folder, questions_data)
