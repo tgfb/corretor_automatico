@@ -201,7 +201,6 @@ def organize_extracted_files(download_folder):
                 print(f"Arquivo não é um zip válido: {zip_file_path}")
                 continue
 
-            # Verificar se o conteúdo extraído está diretamente na pasta ou em uma subpasta
             extracted_items = os.listdir(extraction_path)
             print(f"Arquivos extraídos de {student_login}: {extracted_items}")
 
@@ -236,7 +235,6 @@ def organize_extracted_files(download_folder):
                     print(f"Pasta deletada: {extracted_folder}")
 
             else:
-                # Se não houver uma pasta extra, criar uma e mover os arquivos
                 temp_folder = os.path.join(submissions_folder, student_login)
                 create_folder_if_not_exists(temp_folder)
                 
@@ -246,50 +244,37 @@ def organize_extracted_files(download_folder):
                     print(f"Movendo {file} para a pasta {temp_folder}")
                     move_file(source_file_path, destination_file_path)
                 
-                # Remover a pasta vazia de extração, se aplicável
                 if not os.listdir(extraction_path):
                     os.rmdir(extraction_path)
                     print(f"Pasta de extração vazia removida: {extraction_path}")
 
-
-def if_there_is_a_folder_inside(directory):
-    def move_files_to_inicial_folder(root_folder):
-        # Verifica se a pasta é oculta
-        if os.path.basename(root_folder).startswith('.'):
+def if_there_is_a_folder_inside(submissions_folder):
+    def move_files_to_inicial_folder(first_folder):
+        if os.path.basename(first_folder).startswith('.'):
             return
 
-        # Lista todos os itens dentro do diretório atual
-        items = os.listdir(root_folder)
+        items = os.listdir(first_folder)
         
-        # Se houver subpastas, continue verificando recursivamente
-        subfolders = [item for item in items if os.path.isdir(os.path.join(root_folder, item)) and not item.startswith('.')]
+        subfolders = [item for item in items if os.path.isdir(os.path.join(first_folder, item)) and not item.startswith('.')]
         
         if subfolders:
             for subfolder in subfolders:
-                subfolder_path = os.path.join(root_folder, subfolder)
+                subfolder_path = os.path.join(first_folder, subfolder)
                 move_files_to_inicial_folder(subfolder_path)
         
-        # Mover arquivos não ocultos para a pasta inicial
-        files = [item for item in items if os.path.isfile(os.path.join(root_folder, item)) and not item.startswith('.')]
+        files = [item for item in items if os.path.isfile(os.path.join(first_folder, item)) and not item.startswith('.')]
         for file in files:
-            file_path = os.path.join(root_folder, file)
-            destination = os.path.join(directory, os.path.basename(root_folder), file)
+            file_path = os.path.join(first_folder, file)
+            destination = os.path.join(submissions_folder, os.path.basename(first_folder), file)
             shutil.move(file_path, destination)
         
-        # Após mover os arquivos, verificar se a pasta está vazia e excluí-la se estiver
-        if root_folder != directory and not os.listdir(root_folder):
-            os.rmdir(root_folder)
+        if first_folder != submissions_folder and not os.listdir(first_folder):
+            os.rmdir(first_folder)
 
-    # Lista todas as pastas A dentro do diretório X
-    for folder_name in os.listdir(directory):
-        folder_path = os.path.join(directory, folder_name)
-        # Verifica se é uma pasta e não é oculta
+    for folder_name in os.listdir(submissions_folder):
+        folder_path = os.path.join(submissions_folder, folder_name)
         if os.path.isdir(folder_path) and not folder_name.startswith('.'):
             move_files_to_inicial_folder(folder_path)
-
-
-
-
 
 def move_non_zip_files(download_folder):
     submissions_folder = os.path.join(download_folder, 'submissions')
