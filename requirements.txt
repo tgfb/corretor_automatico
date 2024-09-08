@@ -2,3 +2,15 @@ google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
 gspread oauth2client
+pip install rarfile
+
+#instale o UnRAR
+
+#Linux 
+sudo apt-get install unrar
+
+#MacOS
+brew install unrar
+
+#Windows
+https://www.rarlab.com/rar_add.htm
