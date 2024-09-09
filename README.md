@@ -13,7 +13,7 @@ Para usar esta aplicação, é necessário instalar `google-api-python-client`, 
 pip3 install -r requirements.txt
 ```
 
-Instale o UnRAR, de acordo com o seu sistema operacional:
+Instale o UnRAR de acordo com o seu sistema operacional:
 
 #Linux 
 ```bash
