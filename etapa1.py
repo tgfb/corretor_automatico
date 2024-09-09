@@ -83,10 +83,8 @@ def list_classroom_data(service):
                 for assignment in course_work:
                     title = assignment['title']
                     
-                    if any(keyword in title for keyword in ['NOTA', 'NOTAS']) or re.match(r'^AV', title.split(' - ')[0]):
-                        continue
-                    
-                    valid_assignments.append(assignment)
+                    if any(keyword in title for keyword in ['LISTA', 'LISTAS']):
+                        valid_assignments.append(assignment)
                 
                 if not valid_assignments:
                     print("Nenhuma atividade válida encontrada para este curso.")
@@ -476,8 +474,17 @@ def no_c_files_in_directory(submissions_folder):
         for file in files:
             file_path = os.path.join(root, file)
             file_name, file_extension = os.path.splitext(file)
-            
-            if file_extension != '.c':
+
+            if file_name.lower() == 'makefile':
+                print(f"Deletando arquivo Makefile: {file_path}")
+                os.remove(file_path)
+                continue  
+
+            if file_extension == '.C':
+                new_file_path = os.path.join(root, file_name + '.c')
+                os.rename(file_path, new_file_path)
+
+            elif file_extension != '.c':
                 if file_extension:
                     print(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
@@ -492,6 +499,12 @@ def no_hs_files_in_directory(submissions_folder):
             file_path = os.path.join(root, file)
             file_name, file_extension = os.path.splitext(file)
             print("\n \n entrando na função \n \n")
+
+            if file_name.lower() == 'makefile':
+                print(f"Deletando arquivo Makefile: {file_path}")
+                os.remove(file_path)
+                continue  
+
             if file_extension != '.hs':
                 if file_extension:
                     print(f"Deletando arquivo: {file_path}")
