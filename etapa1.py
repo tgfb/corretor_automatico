@@ -504,8 +504,12 @@ def no_hs_files_in_directory(submissions_folder):
                 print(f"Deletando arquivo Makefile: {file_path}")
                 os.remove(file_path)
                 continue  
+            
+            if file_extension == '.HS':
+                new_file_path = os.path.join(root, file_name + '.c')
+                os.rename(file_path, new_file_path)
 
-            if file_extension != '.hs':
+            elif file_extension != '.hs':
                 if file_extension:
                     print(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
