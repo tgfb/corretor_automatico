@@ -336,11 +336,11 @@ def delete_subfolders_in_student_folders(submissions_folder):
     for student_folder in os.listdir(submissions_folder):
         student_folder_path = os.path.join(submissions_folder, student_folder)
 
-        if os.path.isdir(student_folder_path):  # Certifique-se de que seja uma pasta
+        if os.path.isdir(student_folder_path): 
             for item in os.listdir(student_folder_path):
                 item_path = os.path.join(student_folder_path, item)
 
-                if os.path.isdir(item_path):  # Verifica se é uma subpasta
+                if os.path.isdir(item_path): 
                     print(f"Deletando subpasta: {item_path}")
                     shutil.rmtree(item_path)
 
@@ -472,7 +472,7 @@ def rename_hs_files(submissions_folder, questions_dict):
                         print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
 
 def no_c_files_in_directory(submissions_folder):
-    for root, dirs, files in os.walk(submissions_folder):
+    for root, files in os.walk(submissions_folder):
         for file in files:
             file_path = os.path.join(root, file)
             file_name, file_extension = os.path.splitext(file)
@@ -487,7 +487,7 @@ def no_c_files_in_directory(submissions_folder):
                     os.rename(file_path, new_file_path)
     
 def no_hs_files_in_directory(submissions_folder):
-    for root, dirs, files in os.walk(submissions_folder):
+    for root, files in os.walk(submissions_folder):
         for file in files:
             file_path = os.path.join(root, file)
             file_name, file_extension = os.path.splitext(file)
@@ -501,7 +501,6 @@ def no_hs_files_in_directory(submissions_folder):
                     print(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                     os.rename(file_path, new_file_path)
                  
-
 def if_haskell(submissions_folder, list_title, questions_data):
     if 'HASKELL' in list_title:
         no_hs_files_in_directory(submissions_folder)
@@ -512,7 +511,6 @@ def if_haskell(submissions_folder, list_title, questions_data):
             no_c_files_in_directory(submissions_folder)
         rename_c_files_based_on_dictionary(submissions_folder, questions_data)
         
-
 def read_sheet_id_from_file(filename):
     try:
         with open(filename, 'r') as file:
@@ -558,7 +556,6 @@ def main():
             submissions_folder = os.path.join(download_folder, 'submissions')
             if_there_is_a_folder_inside(submissions_folder)
             delete_subfolders_in_student_folders(submissions_folder)
-            #if_arquivos(submissions_folder, list_title)
             remove_empty_folders(submissions_folder)
 
             sheet_id = read_sheet_id_from_file('sheet_id.txt')
