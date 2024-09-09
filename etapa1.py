@@ -399,7 +399,7 @@ def remove_empty_folders(submissions_folder):
                 shutil.rmtree(folder_path)  
                 print(f"A pasta '{folder_name}' foi deletada por não ter nenhum arquivo dentro.")
 
-def rename_files_based_on_dictionary(submissions_folder, questions_dict):
+def rename_c_files_based_on_dictionary(submissions_folder, questions_dict):
     for student_login in os.listdir(submissions_folder):
         student_folder_path = os.path.join(submissions_folder, student_login)
 
@@ -435,36 +435,83 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict):
                     if not found_match:
                         print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
 
+def rename_hs_files(submissions_folder, questions_dict):
+    for student_login in os.listdir(submissions_folder):
+        student_folder_path = os.path.join(submissions_folder, student_login)
+
+        if os.path.isdir(student_folder_path):
+            print(f"Verificando pasta do estudante: {student_folder_path}")
+            
+            for filename in os.listdir(student_folder_path):
+                file_path = os.path.join(student_folder_path, filename)
+
+                if os.path.isfile(file_path) and not filename.startswith('.'):
+                    print(f"Verificando arquivo: {filename}")
+
+                    base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ")
+
+                    found_match = False  
+                    for question_number, possible_names in questions_dict.items():
+                        for possible_name in possible_names:
+                            possible_name_clean = possible_name.lower()
+                            possible_name_parts = possible_name_clean.split()
+
+                            if any(part in base_filename_clean for part in possible_name_parts):
+                                new_filename = f"q{question_number}_{student_login}.hs"
+                                new_file_path = os.path.join(student_folder_path, new_filename)
+
+                                os.rename(file_path, new_file_path)
+                                print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
+
+                                found_match = True
+                                break  
+                        if found_match:
+                            break  
+
+                    if not found_match:
+                        print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
+
 def no_c_files_in_directory(submissions_folder):
-    for root, dirs, files in os.walk(submissions_folder, topdown=False):
-        # Processar arquivos não ocultos
+    for root, dirs, files in os.walk(submissions_folder):
         for file in files:
-            if not file.startswith('.'):  # Ignorar arquivos ocultos
-                file_path = os.path.join(root, file)
-                file_name, file_extension = os.path.splitext(file)
-
-                if file_name.lower() == 'makefile':
-                    print(f"Deletando arquivo Makefile: {file_path}")
+            file_path = os.path.join(root, file)
+            file_name, file_extension = os.path.splitext(file)
+            
+            if file_extension != '.c':
+                if file_extension:
+                    print(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
-                elif file_extension and file_extension != '.c' and '.C':
-                    print(f"Deletando arquivo com extensão diferente de .c: {file_path}")
+                else:
+                    new_file_path = os.path.join(root, file_name + '.c')
+                    print(f"Renomeando arquivo: {file_path} -> {new_file_path}")
+                    os.rename(file_path, new_file_path)
+    
+def no_hs_files_in_directory(submissions_folder):
+    for root, dirs, files in os.walk(submissions_folder):
+        for file in files:
+            file_path = os.path.join(root, file)
+            file_name, file_extension = os.path.splitext(file)
+            
+            if file_extension != '.hs':
+                if file_extension:
+                    print(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
-                # Arquivos sem extensão são mantidos
+                else:
+                    new_file_path = os.path.join(root, file_name + '.hs')
+                    print(f"Renomeando arquivo: {file_path} -> {new_file_path}")
+                    os.rename(file_path, new_file_path)
+                 
 
-        # Remover pastas não ocultas e vazias
-        for dir in dirs:
-            if not dir.startswith('.'):  # Ignorar pastas ocultas
-                dir_path = os.path.join(root, dir)
-                if not os.listdir(dir_path):  # Verifica se a pasta está vazia
-                    print(f"Deletando pasta vazia: {dir_path}")
-                    os.rmdir(dir_path)                   
-
-def if_arquivos(submissions_folder, list_title):
-    if 'ARQUIVOS' in list_title:
+def if_haskell(submissions_folder, list_title, questions_data):
+    if 'HASKELL' in list_title:
+        no_hs_files_in_directory(submissions_folder)
+        rename_hs_files(submissions_folder, questions_data)
         return
     else:
-
-        no_c_files_in_directory(submissions_folder)
+        if 'ARQUIVOS' not in list_title:
+            no_c_files_in_directory(submissions_folder)
+        rename_c_files_based_on_dictionary(submissions_folder, questions_data)
+        
 
 def read_sheet_id_from_file(filename):
     try:
@@ -520,7 +567,7 @@ def main():
             if not questions_data:
                 return
             else:
-                rename_files_based_on_dictionary(submissions_folder, questions_data)
+              if_haskell(submissions_folder, list_title, questions_data)  
             
             try:
                 num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
