@@ -472,7 +472,7 @@ def rename_hs_files(submissions_folder, questions_dict):
                         print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
 
 def no_c_files_in_directory(submissions_folder):
-    for root, files in os.walk(submissions_folder):
+    for root, dirs, files in os.walk(submissions_folder): 
         for file in files:
             file_path = os.path.join(root, file)
             file_name, file_extension = os.path.splitext(file)
@@ -487,11 +487,11 @@ def no_c_files_in_directory(submissions_folder):
                     os.rename(file_path, new_file_path)
     
 def no_hs_files_in_directory(submissions_folder):
-    for root, files in os.walk(submissions_folder):
+    for root, dirs, files in os.walk(submissions_folder): 
         for file in files:
             file_path = os.path.join(root, file)
             file_name, file_extension = os.path.splitext(file)
-            
+            print("\n \n entrando na função \n \n")
             if file_extension != '.hs':
                 if file_extension:
                     print(f"Deletando arquivo: {file_path}")
