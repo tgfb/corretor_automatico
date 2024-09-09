@@ -224,35 +224,45 @@ def organize_extracted_files(download_folder):
     for item in os.listdir(download_folder):
         item_path = os.path.join(download_folder, item)
 
-        if item.endswith('.zip'):
+        if item.endswith('.zip') or item.endswith('.rar'):
             student_login = os.path.splitext(item)[0]
             extraction_path = os.path.join(submissions_folder, student_login)
             create_folder_if_not_exists(extraction_path)
 
             try:
-                extract_zip(item_path, extraction_path)
-            except zipfile.BadZipFile:
-                print(f"Arquivo não é um zip válido: {item_path}")
+                if item.endswith('.zip'):
+                    extract_zip(item_path, extraction_path)
+                elif item.endswith('.rar'):
+                    extract_rar(item_path, extraction_path)
+            except (zipfile.BadZipFile, rarfile.Error) as e:
+                print(f"Erro ao extrair o arquivo {item}: {e}")
                 continue
 
-        elif item.endswith('.rar'):
-            student_login = os.path.splitext(item)[0]
-            extraction_path = os.path.join(submissions_folder, student_login)
-            create_folder_if_not_exists(extraction_path)
-
-            try:
-                extract_rar(item_path, extraction_path)
-            except rarfile.Error:
-                print(f"Erro ao extrair o arquivo .rar: {item_path}")
-                continue
+            extracted_items = os.listdir(extraction_path)
+            for extracted_item in extracted_items:
+                extracted_item_path = os.path.join(extraction_path, extracted_item)
+                if extracted_item.endswith('.zip'):
+                    print(f"Extraindo arquivo zip aninhado: {extracted_item}")
+                    try:
+                        extract_zip(extracted_item_path, extraction_path)
+                        os.remove(extracted_item_path) 
+                    except zipfile.BadZipFile:
+                        print(f"Erro ao extrair zip aninhado: {extracted_item_path}")
+                elif extracted_item.endswith('.rar'):
+                    print(f"Extraindo arquivo rar aninhado: {extracted_item}")
+                    try:
+                        extract_rar(extracted_item_path, extraction_path)
+                        os.remove(extracted_item_path) 
+                    except rarfile.Error:
+                        print(f"Erro ao extrair rar aninhado: {extracted_item_path}")
 
         else:
             continue
 
-        
         extracted_items = os.listdir(extraction_path)
         print(f"Arquivos extraídos de {student_login}: {extracted_items}")
 
+        # Verificação para mover arquivos
         if len(extracted_items) == 1 and os.path.isdir(os.path.join(extraction_path, extracted_items[0])):
             extracted_folder = os.path.join(extraction_path, extracted_items[0])
 
@@ -347,6 +357,7 @@ def list_questions(sheet_id, sheet_name):
             question_data = []
             question_data.append(f'{i}')
             question_data.append(f'q{i}')
+            question_data.append(f'Q{i}')
             question_data.append(f'questao{i}')
             question_data.append(f'questão{i}')
         
@@ -389,9 +400,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict):
                 if os.path.isfile(file_path) and not filename.startswith('.'):
                     print(f"Verificando arquivo: {filename}")
 
-                    # Separar nome do arquivo e extensão
-                    base_filename_clean, file_extension = os.path.splitext(filename)
-                    base_filename_clean = base_filename_clean.lower().replace("_", " ")
+                    base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ")
 
                     found_match = False  
                     for question_number, possible_names in questions_dict.items():
@@ -400,15 +409,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict):
                             possible_name_parts = possible_name_clean.split()
 
                             if any(part in base_filename_clean for part in possible_name_parts):
-                                # Verifica se a extensão é .hs ou .c e define o novo nome de acordo
-                                if file_extension == '.hs':
-                                    new_filename = f"q{question_number}_{student_login}.hs"
-                                elif file_extension == '.c':
-                                    new_filename = f"q{question_number}_{student_login}.c"
-                                else:
-                                    print(f"Extensão de arquivo '{file_extension}' não suportada, ignorando.")
-                                    continue
-
+                                new_filename = f"q{question_number}_{student_login}.c"
                                 new_file_path = os.path.join(student_folder_path, new_filename)
 
                                 os.rename(file_path, new_file_path)
@@ -424,9 +425,9 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict):
 
 def no_c_files_in_directory(submissions_folder):
     for root, dirs, files in os.walk(submissions_folder, topdown=False):
-    
+        # Processar arquivos não ocultos
         for file in files:
-            if not file.startswith('.'):  
+            if not file.startswith('.'):  # Ignorar arquivos ocultos
                 file_path = os.path.join(root, file)
                 file_name, file_extension = os.path.splitext(file)
 
@@ -436,13 +437,13 @@ def no_c_files_in_directory(submissions_folder):
                 elif file_extension and file_extension != '.c' and '.C':
                     print(f"Deletando arquivo com extensão diferente de .c: {file_path}")
                     os.remove(file_path)
-         
+                # Arquivos sem extensão são mantidos
 
-        
+        # Remover pastas não ocultas e vazias
         for dir in dirs:
-            if not dir.startswith('.'):  
+            if not dir.startswith('.'):  # Ignorar pastas ocultas
                 dir_path = os.path.join(root, dir)
-                if not os.listdir(dir_path): 
+                if not os.listdir(dir_path):  # Verifica se a pasta está vazia
                     print(f"Deletando pasta vazia: {dir_path}")
                     os.rmdir(dir_path)                   
 
@@ -450,6 +451,7 @@ def if_arquivos(submissions_folder, list_title):
     if 'ARQUIVOS' in list_title:
         return
     else:
+
         no_c_files_in_directory(submissions_folder)
 
 def read_sheet_id_from_file(filename):
