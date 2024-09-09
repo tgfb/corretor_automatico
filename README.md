@@ -13,10 +13,25 @@ Para usar esta aplicação, é necessário instalar `google-api-python-client`, 
 pip3 install -r requirements.txt
 ```
 
+#instale o UnRAR
+
+#Linux 
+```bash
+sudo apt-get install unrar
+```
+
+#MacOS
+```bash
+brew install unrar
+```
+
+#Windows
+https://www.rarlab.com/rar_add.htm
+
 ### Execução do script
 
 Execute o script via linha de comando:
 
 ```bash
-python3 corretor_automatico.py 
+python3 etapa1.py 
 ```
