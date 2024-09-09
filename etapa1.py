@@ -332,6 +332,18 @@ def if_there_is_a_folder_inside(submissions_folder):
         if os.path.isdir(folder_path) and not folder_name.startswith('.'):
             move_files_to_inicial_folder(folder_path)
 
+def delete_subfolders_in_student_folders(submissions_folder):
+    for student_folder in os.listdir(submissions_folder):
+        student_folder_path = os.path.join(submissions_folder, student_folder)
+
+        if os.path.isdir(student_folder_path):  # Certifique-se de que seja uma pasta
+            for item in os.listdir(student_folder_path):
+                item_path = os.path.join(student_folder_path, item)
+
+                if os.path.isdir(item_path):  # Verifica se é uma subpasta
+                    print(f"Deletando subpasta: {item_path}")
+                    shutil.rmtree(item_path)
+
 def move_non_zip_files(download_folder):
     submissions_folder = os.path.join(download_folder, 'submissions')
     for item in os.listdir(download_folder):
@@ -498,7 +510,7 @@ def main():
 
             submissions_folder = os.path.join(download_folder, 'submissions')
             if_there_is_a_folder_inside(submissions_folder)
-
+            delete_subfolders_in_student_folders(submissions_folder)
             #if_arquivos(submissions_folder, list_title)
             remove_empty_folders(submissions_folder)
 
