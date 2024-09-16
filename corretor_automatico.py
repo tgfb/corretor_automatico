@@ -596,6 +596,7 @@ def main():
                 print("Entrada inválida. Encerrando processo.")
                 break
 
+                #teste pra ver se sobe .DS
     except HttpError as error:
         print(f"Um erro ocorreu: {error}")
         
