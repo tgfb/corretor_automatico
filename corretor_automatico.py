@@ -522,7 +522,7 @@ def no_hs_files_in_directory(submissions_folder):
                     print(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                     os.rename(file_path, new_file_path)
                  
-def if_haskell(submissions_folder, list_title, questions_data):
+def rename_files(submissions_folder, list_title, questions_data):
     if 'HASKELL' in list_title:
         no_hs_files_in_directory(submissions_folder)
         rename_hs_files(submissions_folder, questions_data)
@@ -583,9 +583,9 @@ def main():
             questions_data = list_questions(sheet_id, list_name)
 
             if not questions_data:
-                return
+                continue
             else:
-              if_haskell(submissions_folder, list_title, questions_data)  
+              rename_files(submissions_folder, list_title, questions_data)  
             
             try:
                 num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
@@ -596,7 +596,7 @@ def main():
                 print("Entrada inválida. Encerrando processo.")
                 break
 
-                #teste pra ver se sobe .DS
+            
     except HttpError as error:
         print(f"Um erro ocorreu: {error}")
         
