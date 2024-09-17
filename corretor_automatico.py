@@ -510,7 +510,7 @@ def no_hs_files_in_directory(submissions_folder):
                 continue  
             
             if file_extension == '.HS':
-                new_file_path = os.path.join(root, file_name + '.c')
+                new_file_path = os.path.join(root, file_name + '.hs')
                 os.rename(file_path, new_file_path)
 
             elif file_extension != '.hs':
