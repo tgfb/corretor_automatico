@@ -6,8 +6,18 @@ Esta aplicação acessa uma turma do Google Classroom, lista as atividades dos a
 
 ### Pre-requisitos
 
-Esta aplicação depende das [APIs do Google](https://developers.google.com/workspace/guides/get-started). É necessário seguir os passos do [Quick Start Guide python](https://developers.google.com/docs/api/quickstart/python) para criar o arquivo `credentials.json`.
-Para usar esta aplicação, é necessário instalar `google-api-python-client`,  `google-auth-httplib2` e `google-auth-oauthlib`:
+Esta aplicação depende das [APIs do Google](https://developers.google.com/workspace/guides/get-started). É necessário seguir os passos do [Quick Start Guide python](https://developers.google.com/docs/api/quickstart/python) para criar o arquivo `credentials.json` contendo os seguintes escopos:
+
+```bash
+    "https://www.googleapis.com/auth/classroom.student-submissions.students.readonly"
+    "https://www.googleapis.com/auth/classroom.profile.emails"
+    "https://www.googleapis.com/auth/classroom.rosters.readonly"
+    "https://www.googleapis.com/auth/classroom.courses.readonly"
+    "https://www.googleapis.com/auth/drive"
+    "https://www.googleapis.com/auth/spreadsheets"
+```
+
+Para usar esta aplicação, é necessário instalar as bibliotecas python listadas no arquivo `requirements.txt`:
 
 ```bash
 pip3 install -r requirements.txt
@@ -33,5 +43,5 @@ https://www.rarlab.com/rar_add.htm
 Execute o script via linha de comando:
 
 ```bash
-python3 etapa1.py 
+python3 corretor_automatico.py 
 ```
