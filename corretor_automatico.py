@@ -452,14 +452,21 @@ def remove_empty_folders(submissions_folder):
     except Exception as e:
         log_error(f"Erro em remover pastas vazias {str(e)}")
 
-def rename_c_files_based_on_dictionary(submissions_folder, questions_dict):
+def verification_renamed(message):
+    try:
+        with open("verifiqueRenomeacao.txt", "a") as renamed_verification:
+            renamed_verification.write(f"{message}\n")
+    except Exception as e:
+        log_error(f"Não foi possível criar ou escrever no arquivo de verificação: {str(e)}")
+
+def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell=None):
     try:
         for student_login in os.listdir(submissions_folder):
             student_folder_path = os.path.join(submissions_folder, student_login)
 
             if os.path.isdir(student_folder_path):
                 print(f"Verificando pasta do estudante: {student_folder_path}")
-                
+    
                 used_questions = set()
 
                 for filename in os.listdir(student_folder_path):
@@ -469,25 +476,33 @@ def rename_c_files_based_on_dictionary(submissions_folder, questions_dict):
                         print(f"Verificando arquivo: {filename}")
                         
                         for i in range(1, 5):
-                            expected_filename = f"q{i}_{student_login}.c"
+                            if haskell == 1:
+                                expected_filename = f"q{i}_{student_login}.hs"
+                            else:
+                                expected_filename = f"q{i}_{student_login}.c"
+                            
                             if filename == expected_filename:
                                 print(f"O arquivo '{filename}' já está no formato correto.")
-                                break 
+                                break  
+
                         else:  
                             base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ").replace(student_login.lower(), "").strip()
 
                             found_match = False  
                             for question_number, possible_names in questions_dict.items():
-                    
                                 if question_number in used_questions:
-                                    print(f"Chave q{question_number} já foi usada para {student_login}, pulando.")
+                                    #print(f"Chave q{question_number} já foi usada para {student_login}, pulando.")
                                     continue
 
                                 for possible_name in reversed(possible_names):
                                     possible_name_clean = possible_name.lower().strip()
 
                                     if base_filename_clean == possible_name_clean:
-                                        new_filename = f"q{question_number}_{student_login}.c"
+                                        if haskell == 1:
+                                            new_filename = f"q{question_number}_{student_login}.hs"
+                                        else:
+                                            new_filename = f"q{question_number}_{student_login}.c"
+
                                         new_file_path = os.path.join(student_folder_path, new_filename)
 
                                         if filename != new_filename:
@@ -503,7 +518,6 @@ def rename_c_files_based_on_dictionary(submissions_folder, questions_dict):
                                     break  
                         
                             if not found_match:
-
                                 verification_renamed(f"{student_login}: {filename}")
 
                                 print(f"Tentando correspondência parcial para o arquivo {filename}")
@@ -518,13 +532,17 @@ def rename_c_files_based_on_dictionary(submissions_folder, questions_dict):
                                         print(f"{possible_name_parts}")
 
                                         if any(part in base_filename_clean for part in possible_name_parts):
-                                            new_filename = f"q{question_number}_{student_login}.c"
+                                            if haskell == 1:
+                                                new_filename = f"q{question_number}_{student_login}.hs"
+                                            else:
+                                                new_filename = f"q{question_number}_{student_login}.c"
+                                            
                                             new_file_path = os.path.join(student_folder_path, new_filename)
 
                                             if filename != new_filename:
                                                 os.rename(file_path, new_file_path)
                                                 print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
-                                                used_questions.add(question_number)  
+                                                used_questions.add(question_number) 
                                             else:
                                                 print(f"O arquivo '{filename}' já está com o nome correto.")
                                             found_match = True
@@ -536,53 +554,8 @@ def rename_c_files_based_on_dictionary(submissions_folder, questions_dict):
                             if not found_match:
                                 print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
     except Exception as e:
-        log_error(f"Erro em renomear arquivos .c baseado nos nomes do dicionario {str(e)}")
+        log_error(f"Erro em renomear arquivos baseado nos nomes do dicionario {str(e)}")
 
-def verification_renamed(message):
-    try:
-        with open("verifiqueRenomeacao.txt", "a") as renamed_verification:
-            renamed_verification.write(f"{message}\n")
-    except Exception as e:
-        log_error(f"Não foi possível criar ou escrever no arquivo de verificação: {str(e)}")
-
-def rename_hs_files(submissions_folder, questions_dict):
-    try:
-        for student_login in os.listdir(submissions_folder):
-            student_folder_path = os.path.join(submissions_folder, student_login)
-
-            if os.path.isdir(student_folder_path):
-                print(f"Verificando pasta do estudante: {student_folder_path}")
-                
-                for filename in os.listdir(student_folder_path):
-                    file_path = os.path.join(student_folder_path, filename)
-
-                    if os.path.isfile(file_path) and not filename.startswith('.'):
-                        print(f"Verificando arquivo: {filename}")
-
-                        base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ")
-
-                        found_match = False  
-                        for question_number, possible_names in questions_dict.items():
-                            for possible_name in possible_names:
-                                possible_name_clean = possible_name.lower()
-                                possible_name_parts = possible_name_clean.split()
-
-                                if any(part in base_filename_clean for part in possible_name_parts):
-                                    new_filename = f"q{question_number}_{student_login}.hs"
-                                    new_file_path = os.path.join(student_folder_path, new_filename)
-
-                                    os.rename(file_path, new_file_path)
-                                    print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
-
-                                    found_match = True
-                                    break  
-                            if found_match:
-                                break  
-
-                        if not found_match:
-                            print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
-    except Exception as e:
-        log_error(f"Erro em renomear arquivos .hs baseado nos nomes do dicionario {str(e)}")
 
 def no_c_files_in_directory(submissions_folder):
     try:
@@ -643,12 +616,12 @@ def rename_files(submissions_folder, list_title, questions_data):
     try:
         if 'HASKELL' in list_title:
             no_hs_files_in_directory(submissions_folder)
-            rename_hs_files(submissions_folder, questions_data)
+            rename_files_based_on_dictionary(submissions_folder, questions_data,1)
             return
         else:
             if 'ARQUIVOS' not in list_title:
                 no_c_files_in_directory(submissions_folder)
-            rename_c_files_based_on_dictionary(submissions_folder, questions_data)
+            rename_files_based_on_dictionary(submissions_folder, questions_data)
     except Exception as e:
         log_error(f"Erro no metodo renomear arquivos {str(e)}")          
         
