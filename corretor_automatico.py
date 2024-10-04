@@ -432,6 +432,7 @@ def list_questions(sheet_id, sheet_name):
                         question_data.append(name.strip())
             
                 questions_dict[i] = question_data
+                print(f"o dicionario tá assim: {question_data}")
         
             return questions_dict
         except WorksheetNotFound:
@@ -459,36 +460,90 @@ def rename_c_files_based_on_dictionary(submissions_folder, questions_dict):
             if os.path.isdir(student_folder_path):
                 print(f"Verificando pasta do estudante: {student_folder_path}")
                 
+                used_questions = set()
+
                 for filename in os.listdir(student_folder_path):
                     file_path = os.path.join(student_folder_path, filename)
 
                     if os.path.isfile(file_path) and not filename.startswith('.'):
                         print(f"Verificando arquivo: {filename}")
+                        
+                        for i in range(1, 5):
+                            expected_filename = f"q{i}_{student_login}.c"
+                            if filename == expected_filename:
+                                print(f"O arquivo '{filename}' já está no formato correto.")
+                                break 
+                        else:  
+                            base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ").replace(student_login.lower(), "").strip()
 
-                        base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ")
+                            found_match = False  
+                            for question_number, possible_names in questions_dict.items():
+                    
+                                if question_number in used_questions:
+                                    print(f"Chave q{question_number} já foi usada para {student_login}, pulando.")
+                                    continue
 
-                        found_match = False  
-                        for question_number, possible_names in questions_dict.items():
-                            for possible_name in possible_names:
-                                possible_name_clean = possible_name.lower()
-                                possible_name_parts = possible_name_clean.split()
+                                for possible_name in reversed(possible_names):
+                                    possible_name_clean = possible_name.lower().strip()
 
-                                if any(part in base_filename_clean for part in possible_name_parts):
-                                    new_filename = f"q{question_number}_{student_login}.c"
-                                    new_file_path = os.path.join(student_folder_path, new_filename)
+                                    if base_filename_clean == possible_name_clean:
+                                        new_filename = f"q{question_number}_{student_login}.c"
+                                        new_file_path = os.path.join(student_folder_path, new_filename)
 
-                                    os.rename(file_path, new_file_path)
-                                    print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
+                                        if filename != new_filename:
+                                            os.rename(file_path, new_file_path)
+                                            print(f"RENOMEADO: '{filename}' para '{new_filename}' para o estudante '{student_login}'")
+                                            used_questions.add(question_number) 
+                                        else:
+                                            print(f"O arquivo '{filename}' já está com o nome correto.")
+                                        found_match = True
+                                        break  
 
-                                    found_match = True
+                                if found_match:
                                     break  
-                            if found_match:
-                                break  
+                        
+                            if not found_match:
 
-                        if not found_match:
-                            print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
+                                verification_renamed(f"{student_login}: {filename}")
+
+                                print(f"Tentando correspondência parcial para o arquivo {filename}")
+                                for question_number, possible_names in questions_dict.items():
+                                    if question_number in used_questions:
+                                        print(f"Chave q{question_number} já foi usada para {student_login}, pulando.")
+                                        continue
+                                    
+                                    for possible_name in reversed(possible_names):
+                                        possible_name_clean = possible_name.lower().strip()
+                                        possible_name_parts = possible_name_clean.split()
+                                        print(f"{possible_name_parts}")
+
+                                        if any(part in base_filename_clean for part in possible_name_parts):
+                                            new_filename = f"q{question_number}_{student_login}.c"
+                                            new_file_path = os.path.join(student_folder_path, new_filename)
+
+                                            if filename != new_filename:
+                                                os.rename(file_path, new_file_path)
+                                                print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
+                                                used_questions.add(question_number)  
+                                            else:
+                                                print(f"O arquivo '{filename}' já está com o nome correto.")
+                                            found_match = True
+                                            break
+
+                                    if found_match:
+                                        break
+
+                            if not found_match:
+                                print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
     except Exception as e:
         log_error(f"Erro em renomear arquivos .c baseado nos nomes do dicionario {str(e)}")
+
+def verification_renamed(message):
+    try:
+        with open("verifiqueRenomeacao.txt", "a") as renamed_verification:
+            renamed_verification.write(f"{message}\n")
+    except Exception as e:
+        log_error(f"Não foi possível criar ou escrever no arquivo de verificação: {str(e)}")
 
 def rename_hs_files(submissions_folder, questions_dict):
     try:
