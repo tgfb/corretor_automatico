@@ -459,8 +459,8 @@ def list_questions(sheet_id, sheet_name):
         
             return questions_dict
         except WorksheetNotFound:
-            print(f"A aba '{sheet_name}' não foi encontrada na planilha.")
-            return None
+            print(f"A aba '{sheet_name}' não foi encontrada na planilha, o sistema vai usar o dicionário padrão.")
+            return list_questions_default()
     except Exception as e:
         log_error(f"Erro em pegar da planilha os nomes das questões vai usar o dicionário padrão {str(e)}")
         return list_questions_default()       
@@ -542,7 +542,6 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell
                                     break  
                         
                             if not found_match:
-                                verification_renamed(f"{student_login}: {filename}")
 
                                 print(f"Tentando correspondência parcial para o arquivo {filename}")
                                 for question_number, possible_names in questions_dict.items():
@@ -564,6 +563,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell
                                             new_file_path = os.path.join(student_folder_path, new_filename)
 
                                             if filename != new_filename:
+                                                verification_renamed(f"{student_login}: de {filename} para {new_filename}")
                                                 os.rename(file_path, new_file_path)
                                                 print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
                                                 used_questions.add(question_number) 
@@ -576,6 +576,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell
                                         break
 
                             if not found_match:
+                                verification_renamed(f"{student_login}: {filename}")
                                 print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
     except Exception as e:
         log_error(f"Erro em renomear arquivos baseado nos nomes do dicionario {str(e)}")
