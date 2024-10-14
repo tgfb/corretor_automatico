@@ -2,6 +2,7 @@ import os
 import io
 import zipfile
 import rarfile
+import subprocess
 import shutil
 import re
 from google.auth.transport.requests import Request
@@ -214,8 +215,12 @@ def extract_zip(zip_file_path, extraction_path):
 
 def extract_rar(rar_file_path, extraction_path):
     try:
-        with rarfile.RarFile(rar_file_path, 'r') as rar_ref:
-            rar_ref.extractall(extraction_path)
+        try:
+            with rarfile.RarFile(rar_file_path, 'r') as rar_ref:
+                rar_ref.extractall(extraction_path)
+        except rarfile.Error as e:
+            print(f"Erro ao usar rarfile: {e}")
+            print(f"Tentando extrair com unar...")
 
         macosx_path = os.path.join(extraction_path, '__MACOSX')
         if os.path.exists(macosx_path):
@@ -404,6 +409,19 @@ def get_gspread_client():
     except Exception as e:
         log_error(f"Erro em conseguir a credencial do google spreadsheet {str(e)}")
 
+def list_questions_default():
+    print("\nNão encontrei planilha para essa lista. Para renomear as questões será utilizado um dicionário de possíveis nomes para as questões de 1 a 4.")
+
+      
+    questions_dict = {
+        1: ['1', 'q1', 'Q1', 'questao1', 'questão1'],
+        2: ['2', 'q2', 'Q2', 'questao2', 'questão2'],
+        3: ['3', 'q3', 'Q3', 'questao3', 'questão3'],
+        4: ['4', 'q4', 'Q4', 'questao4', 'questão4']
+    }
+
+    return questions_dict
+
 def list_questions(sheet_id, sheet_name):
     try:
         try:
@@ -420,26 +438,32 @@ def list_questions(sheet_id, sheet_name):
                 question_data.append(f'questao{i}')
                 question_data.append(f'questão{i}')
             
-                question_number = row[1].strip() if len(row) > 1 else ""
-                question_data.append(question_number)
+                beecrowd_number = row[1].strip() if len(row) > 1 and row[1].strip() else ""
+                if beecrowd_number:
+                    question_data.append(beecrowd_number)
+                    question_data.append(f'q{beecrowd_number}')
             
-                question_name = row[2].strip() if len(row) > 2 else ""
-                question_data.append(question_name)
+                question_name = row[2].strip() if len(row) > 2 and row[2].strip() else ""
+                if question_name:
+                    question_data.append(question_name)
             
                 additional_names = row[3:]
                 for name in additional_names:
-                    if name.strip():
-                        question_data.append(name.strip())
+                    name = name.strip()
+                    if name: 
+                        question_data.append(name)
             
-                questions_dict[i] = question_data
-                print(f"o dicionario tá assim: {question_data}")
+                if question_data:
+                    questions_dict[i] = question_data
+                    print(f"O dicionário está assim: {question_data}")
         
             return questions_dict
         except WorksheetNotFound:
             print(f"A aba '{sheet_name}' não foi encontrada na planilha.")
             return None
     except Exception as e:
-        log_error(f"Erro em pegar da planilha os nomes das questões e listar os nomes das questões no dicionário {str(e)}")
+        log_error(f"Erro em pegar da planilha os nomes das questões vai usar o dicionário padrão {str(e)}")
+        return list_questions_default()       
 
 def remove_empty_folders(submissions_folder):
     try:
