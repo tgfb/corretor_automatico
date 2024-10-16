@@ -124,14 +124,23 @@ def list_classroom_data(service):
     except Exception as e:
         log_error(f"Erro em listar dados do classroom: {str(e)}")    
     
-def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id):
+def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, worksheet):
     try:
+        if worksheet != None:
+            header = [['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']]
+            worksheet.append_rows(header, table_range='A1')
+
         for submission in submissions.get('studentSubmissions', []):
             student_id = submission['userId']
             student = classroom_service.courses().students().get(courseId=classroom_id, userId=student_id).execute()
             student_email = student['profile']['emailAddress']
             student_login = extract_prefix(student_email)
             student_name = student['profile']['name']['fullName']
+            late = submission.get('late', False)
+            entregou = "Sim" 
+            atrasou = "Sim" if late else "Não"
+            formatacao = " "
+            
             
             attachments = submission.get('assignmentSubmission', {}).get('attachments', [])
 
@@ -146,16 +155,23 @@ def download_submissions(classroom_service, drive_service, submissions, download
                         file_metadata = drive_service.files().get(fileId=file_id, fields='id, name').execute()
                         if not file_metadata:
                             print(f"Não foi possível recuperar os metadados para o arquivo {file_name} de {student_name}.")
-                            continue
+                            #continue
                     except HttpError as error:
                         if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
                             print(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
-                            continue
+                            entregou = "malware ou spam"
+                            #continue
                         else:
                             print(f"Ocorreu um erro ao recuperar os metadados do arquivo para {student_name}: {error}")
+                            #continue
+                    finally: 
+                        if worksheet != None and not file_metadata:
+                            worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao]])
                             continue
-                    
+       
+
                     if file_name.endswith('.c'):
+                        #formatacao = "Não está com a formatação esperada o envio não foi com .zip."
                         if student_folder is None:
                             student_folder = os.path.join(download_folder, student_login)
                             if not os.path.exists(student_folder):
@@ -183,12 +199,18 @@ def download_submissions(classroom_service, drive_service, submissions, download
                     if file_name.endswith('.zip'):
                         expected_name = student_login + '.zip'
                         if file_name != expected_name:
+                            #formatacao = "Não está com a formatação esperada student_login.zip."
                             corrected_path = os.path.join(download_folder, expected_name)
                             os.rename(file_path, corrected_path)
                             print(f"Renomeado {file_name} para {expected_name} de {student_name}")
 
             else:
                 print(f"Nenhum anexo encontrado para {student_name}")
+                atrasou = " "
+                entregou = "Não"
+            
+            if worksheet != None:
+                worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao]])
 
     except Exception as e:
         log_error(f"Erro ao baixar submissões: {str(e)}")
@@ -482,8 +504,11 @@ def verification_renamed(message):
     except Exception as e:
         log_error(f"Não foi possível criar ou escrever no arquivo de verificação: {str(e)}")
 
-def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell=None):
+def rename_files_based_on_dictionary(submissions_folder, questions_dict, worksheet, haskell=None):
     try:
+        if worksheet != None:
+            rows = worksheet.get_all_values()
+
         for student_login in os.listdir(submissions_folder):
             student_folder_path = os.path.join(submissions_folder, student_login)
 
@@ -491,6 +516,17 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell
                 print(f"Verificando pasta do estudante: {student_folder_path}")
     
                 used_questions = set()
+
+                if worksheet != None:
+                    student_row_index = None
+                    for index, row in enumerate(rows):
+                        if row[2] == student_login: 
+                            student_row_index = index + 1 
+                            break
+
+                    if student_row_index is None:
+                        print(f"Estudante {student_login} não encontrado na planilha.")
+                        continue
 
                 for filename in os.listdir(student_folder_path):
                     file_path = os.path.join(student_folder_path, filename)
@@ -508,7 +544,8 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell
                                 print(f"O arquivo '{filename}' já está no formato correto.")
                                 break  
 
-                        else:  
+                        else:
+                            formatacao = "Não está com a formatação esperada no nome do arquivo."  
                             base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ").replace(student_login.lower(), "").strip()
 
                             found_match = False  
@@ -541,7 +578,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell
                                     break  
                         
                             if not found_match:
-
+                                formatacao = "Não está com a formatação esperada no nome do arquivo."
                                 print(f"Tentando correspondência parcial para o arquivo {filename}")
                                 for question_number, possible_names in questions_dict.items():
                                     if question_number in used_questions:
@@ -577,6 +614,9 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell
                             if not found_match:
                                 verification_renamed(f"{student_login}: {filename}")
                                 print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
+        if worksheet != None:                       
+            worksheet.update_cell(student_row_index, 6, formatacao)
+
     except Exception as e:
         log_error(f"Erro em renomear arquivos baseado nos nomes do dicionario {str(e)}")
 
@@ -635,16 +675,16 @@ def no_hs_files_in_directory(submissions_folder):
     except Exception as e:
         log_error(f"Erro no metodo no hs files no diretorio {str(e)}")                    
                  
-def rename_files(submissions_folder, list_title, questions_data):
+def rename_files(submissions_folder, list_title, questions_data, worksheet):
     try:
         if 'HASKELL' in list_title:
             no_hs_files_in_directory(submissions_folder)
-            rename_files_based_on_dictionary(submissions_folder, questions_data,1)
+            rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet, 1)
             return
         else:
             if 'ARQUIVOS' not in list_title:
                 no_c_files_in_directory(submissions_folder)
-            rename_files_based_on_dictionary(submissions_folder, questions_data)
+            rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet)
     except Exception as e:
         log_error(f"Erro no metodo renomear arquivos {str(e)}")          
         
@@ -667,9 +707,9 @@ def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
     try:
         client = get_gspread_client()
 
-        sheet_name = f"{classroom_name} | {list_name}"
-        spreadsheet = client.create(sheet_name)
-        print(f"Planilha '{sheet_name}' criada com sucesso.")
+        #sheet_name = f"{classroom_name} | {list_name}"
+        spreadsheet = client.create(classroom_name)
+        print(f"Planilha '{classroom_name}' criada com sucesso.")
 
         drive_service = build("drive", "v3", credentials=get_credentials())
         file_id = spreadsheet.id  # Obtém o ID da planilha criada
@@ -679,17 +719,51 @@ def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
         worksheet = spreadsheet.get_worksheet(0)
         worksheet.update_title(list_name)
 
-        worksheet.update('A1', [['Nome do Aluno', 'Student Login']])
-
-        data_to_insert = []
-        #for student_name, student_login in student_data:
-          # data_to_insert.append([student_name, student_login])
-
-       # worksheet.update(f'A2:B{len(data_to_insert) + 1}', data_to_insert)
-        #print(f"Dados inseridos na planilha '{classroom_name}', aba '{list_name}'.")
-
+        worksheet.update(range_name='A1', values=[['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']])
+        return worksheet
     except Exception as e:
         log_error(f"Erro ao criar ou preencher a planilha: {str(e)}")
+
+def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
+    try:
+        client = get_gspread_client()
+        drive_service = build("drive", "v3", credentials=get_credentials())
+
+        query = f"'{folder_id}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and name='{classroom_name}'"
+        response = drive_service.files().list(q=query, spaces='drive', fields='files(id, name)').execute()
+
+        if response['files']:
+            spreadsheet_id = response['files'][0]['id']
+            spreadsheet = client.open_by_key(spreadsheet_id)
+            print(f"Planilha '{classroom_name}' já existe.")
+
+            try:
+                worksheet = spreadsheet.worksheet(list_name)
+                print(f"A aba '{list_name}' já existe na planilha.")
+                worksheet = None
+                return worksheet
+            except Exception:
+
+                worksheet = spreadsheet.add_worksheet(title=list_name, rows=100, cols=20)
+                print(f"A aba '{list_name}' foi criada na planilha '{classroom_name}'.")
+            
+            return worksheet
+        else:
+            spreadsheet = client.create(classroom_name)
+            print(f"Planilha '{classroom_name}' criada com sucesso.")
+
+            file_id = spreadsheet.id
+            drive_service.files().update(fileId=file_id, addParents=folder_id, removeParents='root').execute()
+
+            worksheet = spreadsheet.get_worksheet(0)
+            worksheet.update_title(list_name)
+
+            worksheet.update('A1', [['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']])
+            
+            return worksheet
+
+    except Exception as e:
+        log_error(f"Erro ao criar ou verificar a planilha e aba: {str(e)}")
 
 
 def log_error(error_message):
@@ -706,6 +780,7 @@ def main():
             classroom_service = build("classroom", "v1", credentials=creds)
             drive_service = build("drive", "v3", credentials=creds)
             num = 1
+            state = 0
             while num ==1:
                 classroom_id, coursework_id, classroom_name, list_name, list_title = list_classroom_data(classroom_service)
                 if classroom_id and coursework_id and classroom_name and list_name and list_title: 
@@ -721,13 +796,15 @@ def main():
                 if not os.path.exists(download_folder):
                     os.makedirs(download_folder)
 
-                download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id)
-
+                folder_id = read_id_from_file('folder_id.txt')
+                worksheet = create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id)
+                download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, worksheet)
+                
                 print("Download completo. Arquivos salvos em:", os.path.abspath(download_folder))
 
                 organize_extracted_files(download_folder)
                 move_non_zip_files(download_folder)
-
+                
                 print("Processo concluído. Arquivos salvos em:", os.path.abspath(download_folder))
 
                 submissions_folder = os.path.join(download_folder, 'submissions')
@@ -737,9 +814,8 @@ def main():
 
                 sheet_id = read_id_from_file('sheet_id.txt')
                 questions_data = list_questions(sheet_id, list_name)
-                rename_files(submissions_folder, list_title, questions_data)  
-                folder_id = read_id_from_file('folder_id.txt')
-                create_google_sheet_in_folder(classroom_name, list_name, folder_id)
+                rename_files(submissions_folder, list_title, questions_data, worksheet)  
+                
                 
                 try:
                     num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
