@@ -729,7 +729,7 @@ def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
         client = get_gspread_client()
         drive_service = build("drive", "v3", credentials=get_credentials())
 
-        query = f"'{folder_id}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and name='{classroom_name}'"
+        query = f"'{folder_id}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and name='{classroom_name}' and trashed=false"
         response = drive_service.files().list(q=query, spaces='drive', fields='files(id, name)').execute()
 
         if response['files']:
@@ -758,7 +758,7 @@ def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
             worksheet = spreadsheet.get_worksheet(0)
             worksheet.update_title(list_name)
 
-            worksheet.update('A1', [['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']])
+            worksheet.update(range_name='A1', values=[['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']])
             
             return worksheet
 
