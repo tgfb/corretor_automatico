@@ -663,35 +663,6 @@ def read_id_from_file(filename):
     except Exception as e:
         log_error(f"Erro ao ler o id da planilha do arquivo que tem o id da planilha {str(e)}")  
 
-def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
-    try:
-        client = get_gspread_client()
-
-        sheet_name = f"{classroom_name} | {list_name}"
-        spreadsheet = client.create(sheet_name)
-        print(f"Planilha '{sheet_name}' criada com sucesso.")
-
-        drive_service = build("drive", "v3", credentials=get_credentials())
-        file_id = spreadsheet.id  # Obtém o ID da planilha criada
-        # Move a planilha para a pasta especificada
-        drive_service.files().update(fileId=file_id, addParents=folder_id, removeParents='root').execute()
-
-        worksheet = spreadsheet.get_worksheet(0)
-        worksheet.update_title(list_name)
-
-        worksheet.update('A1', [['Nome do Aluno', 'Student Login']])
-
-        data_to_insert = []
-        #for student_name, student_login in student_data:
-          # data_to_insert.append([student_name, student_login])
-
-       # worksheet.update(f'A2:B{len(data_to_insert) + 1}', data_to_insert)
-        #print(f"Dados inseridos na planilha '{classroom_name}', aba '{list_name}'.")
-
-    except Exception as e:
-        log_error(f"Erro ao criar ou preencher a planilha: {str(e)}")
-
-
 def log_error(error_message):
     try:
         with open("error_log.txt", "a") as log_file:
@@ -738,8 +709,6 @@ def main():
                 sheet_id = read_id_from_file('sheet_id.txt')
                 questions_data = list_questions(sheet_id, list_name)
                 rename_files(submissions_folder, list_title, questions_data)  
-                folder_id = read_id_from_file('folder_id.txt')
-                create_google_sheet_in_folder(classroom_name, list_name, folder_id)
                 
                 try:
                     num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
