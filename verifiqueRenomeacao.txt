@@ -1,0 +1,74 @@
+cm2: de q2-cm2.c para q2_cm2.c
+cm2: de q1-cm2.c para q1_cm2.c
+mlva2: de questao2_mlva2.c.c para q2_mlva2.c
+mlva2: de questao1_mlva2.c.c para q1_mlva2.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+cm2: de q2-cm2.c para q2_cm2.c
+cm2: de q1-cm2.c para q1_cm2.c
+mlva2: de questao2_mlva2.c.c para q2_mlva2.c
+mlva2: de questao1_mlva2.c.c para q1_mlva2.c
+vcgn: de finalFrontier.c para q1_vcgn.c
+vcgn: de jumpingFrog.c para q2_vcgn.c
+vcgn: de squareMatrix.c para q3_vcgn.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+cm2: de q2-cm2.c para q2_cm2.c
+cm2: de q1-cm2.c para q1_cm2.c
+mlva2: de questao2_mlva2.c.c para q2_mlva2.c
+mlva2: de questao1_mlva2.c.c para q1_mlva2.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+cm2: de q2-cm2.c para q2_cm2.c
+cm2: de q1-cm2.c para q1_cm2.c
+mlva2: de questao2_mlva2.c.c para q2_mlva2.c
+mlva2: de questao1_mlva2.c.c para q1_mlva2.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+cm2: de q2-cm2.c para q2_cm2.c
+cm2: de q1-cm2.c para q1_cm2.c
+mlva2: de questao2_mlva2.c.c para q2_mlva2.c
+mlva2: de questao1_mlva2.c.c para q1_mlva2.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+mlva2: de quest╞o1_mlva2.c para q1_mlva2.c
+dmap: de q3.dmap.c para q3_dmap.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+cm2: de q2-cm2.c para q2_cm2.c
+cm2: de q1-cm2.c para q1_cm2.c
+mlva2: de questao2_mlva2.c.c para q2_mlva2.c
+mlva2: de questao1_mlva2.c.c para q1_mlva2.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+cm2: de q2-cm2.c para q2_cm2.c
+cm2: de q1-cm2.c para q1_cm2.c
+mlva2: de questao2_mlva2.c.c para q2_mlva2.c
+mlva2: de questao1_mlva2.c.c para q1_mlva2.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+mlva2: questao1_mlva.c
+mlva2: questao2_mlva.c
+atvn: q1258_atvn.c
+atvn: q1039_atvn.c
+cm2: de q2-cm2.c para q2_cm2.c
+cm2: de q1-cm2.c para q1_cm2.c
+mlva2: de questao2_mlva2.c.c para q2_mlva2.c
+mlva2: de questao1_mlva.c para q1_mlva2.c
+mlva2: questao2_mlva.c
+mlva2: questao1_mlva2.c.c
+atvn: de q1258_atvn.c para q2_atvn.c
+atvn: 1961_atvn.c
+atvn: de q1039_atvn.c para q3_atvn.c
+eacm: de q1_eacm.c.c para q1_eacm.c
+eacm: de q2_eacm.c.c para q2_eacm.c
+maha: SortSimples.c
+maha: SomaConsecutivos.c
+maha: de Dist2Pontos.c para q2_maha.c
+maha: CalculosSimples.c
+afa3: main-debug.c
+afa3: main.c
+gca2: de q1_gca.c para q1_gca2.c
+gca2: de q3_gca.c para q3_gca2.c
+gca2: de q2_gca.c para q2_gca2.c
+gca2: de q4_gca.c para q4_gca2.c
