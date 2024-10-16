@@ -580,7 +580,6 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell
     except Exception as e:
         log_error(f"Erro em renomear arquivos baseado nos nomes do dicionario {str(e)}")
 
-
 def no_c_files_in_directory(submissions_folder):
     try:
         for root, dirs, files in os.walk(submissions_folder): 
