@@ -214,8 +214,12 @@ def extract_zip(zip_file_path, extraction_path):
 
 def extract_rar(rar_file_path, extraction_path):
     try:
-        with rarfile.RarFile(rar_file_path, 'r') as rar_ref:
-            rar_ref.extractall(extraction_path)
+        try:
+            with rarfile.RarFile(rar_file_path, 'r') as rar_ref:
+                rar_ref.extractall(extraction_path)
+        except rarfile.Error as e:
+            print(f"Erro ao usar rarfile: {e}")
+            print(f"Tentando extrair com unar...")
 
         macosx_path = os.path.join(extraction_path, '__MACOSX')
         if os.path.exists(macosx_path):
@@ -404,6 +408,19 @@ def get_gspread_client():
     except Exception as e:
         log_error(f"Erro em conseguir a credencial do google spreadsheet {str(e)}")
 
+def list_questions_default():
+    print("\nNão encontrei planilha para essa lista. Para renomear as questões será utilizado um dicionário de possíveis nomes para as questões de 1 a 4.")
+
+      
+    questions_dict = {
+        1: ['1', 'q1', 'Q1', 'questao1', 'questão1'],
+        2: ['2', 'q2', 'Q2', 'questao2', 'questão2'],
+        3: ['3', 'q3', 'Q3', 'questao3', 'questão3'],
+        4: ['4', 'q4', 'Q4', 'questao4', 'questão4']
+    }
+
+    return questions_dict
+
 def list_questions(sheet_id, sheet_name):
     try:
         try:
@@ -420,25 +437,32 @@ def list_questions(sheet_id, sheet_name):
                 question_data.append(f'questao{i}')
                 question_data.append(f'questão{i}')
             
-                question_number = row[1].strip() if len(row) > 1 else ""
-                question_data.append(question_number)
+                beecrowd_number = row[1].strip() if len(row) > 1 and row[1].strip() else ""
+                if beecrowd_number:
+                    question_data.append(beecrowd_number)
+                    question_data.append(f'q{beecrowd_number}')
             
-                question_name = row[2].strip() if len(row) > 2 else ""
-                question_data.append(question_name)
+                question_name = row[2].strip() if len(row) > 2 and row[2].strip() else ""
+                if question_name:
+                    question_data.append(question_name)
             
                 additional_names = row[3:]
                 for name in additional_names:
-                    if name.strip():
-                        question_data.append(name.strip())
+                    name = name.strip()
+                    if name: 
+                        question_data.append(name)
             
-                questions_dict[i] = question_data
+                if question_data:
+                    questions_dict[i] = question_data
+                    print(f"O dicionário está assim: {question_data}")
         
             return questions_dict
         except WorksheetNotFound:
-            print(f"A aba '{sheet_name}' não foi encontrada na planilha.")
-            return None
+            print(f"A aba '{sheet_name}' não foi encontrada na planilha, o sistema vai usar o dicionário padrão.")
+            return list_questions_default()
     except Exception as e:
-        log_error(f"Erro em pegar da planilha os nomes das questões e listar os nomes das questões no dicionário {str(e)}")
+        log_error(f"Erro em pegar da planilha os nomes das questões vai usar o dicionário padrão {str(e)}")
+        return list_questions_default()       
 
 def remove_empty_folders(submissions_folder):
     try:
@@ -451,83 +475,110 @@ def remove_empty_folders(submissions_folder):
     except Exception as e:
         log_error(f"Erro em remover pastas vazias {str(e)}")
 
-def rename_c_files_based_on_dictionary(submissions_folder, questions_dict):
+def verification_renamed(message):
+    try:
+        with open("verifiqueRenomeacao.txt", "a") as renamed_verification:
+            renamed_verification.write(f"{message}\n")
+    except Exception as e:
+        log_error(f"Não foi possível criar ou escrever no arquivo de verificação: {str(e)}")
+
+def rename_files_based_on_dictionary(submissions_folder, questions_dict, haskell=None):
     try:
         for student_login in os.listdir(submissions_folder):
             student_folder_path = os.path.join(submissions_folder, student_login)
 
             if os.path.isdir(student_folder_path):
                 print(f"Verificando pasta do estudante: {student_folder_path}")
-                
+    
+                used_questions = set()
+
                 for filename in os.listdir(student_folder_path):
                     file_path = os.path.join(student_folder_path, filename)
 
                     if os.path.isfile(file_path) and not filename.startswith('.'):
                         print(f"Verificando arquivo: {filename}")
-
-                        base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ")
-
-                        found_match = False  
-                        for question_number, possible_names in questions_dict.items():
-                            for possible_name in possible_names:
-                                possible_name_clean = possible_name.lower()
-                                possible_name_parts = possible_name_clean.split()
-
-                                if any(part in base_filename_clean for part in possible_name_parts):
-                                    new_filename = f"q{question_number}_{student_login}.c"
-                                    new_file_path = os.path.join(student_folder_path, new_filename)
-
-                                    os.rename(file_path, new_file_path)
-                                    print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
-
-                                    found_match = True
-                                    break  
-                            if found_match:
+                        
+                        for i in range(1, 5):
+                            if haskell == 1:
+                                expected_filename = f"q{i}_{student_login}.hs"
+                            else:
+                                expected_filename = f"q{i}_{student_login}.c"
+                            
+                            if filename == expected_filename:
+                                print(f"O arquivo '{filename}' já está no formato correto.")
                                 break  
 
-                        if not found_match:
-                            print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
-    except Exception as e:
-        log_error(f"Erro em renomear arquivos .c baseado nos nomes do dicionario {str(e)}")
+                        else:  
+                            base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ").replace(student_login.lower(), "").strip()
 
-def rename_hs_files(submissions_folder, questions_dict):
-    try:
-        for student_login in os.listdir(submissions_folder):
-            student_folder_path = os.path.join(submissions_folder, student_login)
+                            found_match = False  
+                            for question_number, possible_names in questions_dict.items():
+                                if question_number in used_questions:
+                                    #print(f"Chave q{question_number} já foi usada para {student_login}, pulando.")
+                                    continue
 
-            if os.path.isdir(student_folder_path):
-                print(f"Verificando pasta do estudante: {student_folder_path}")
-                
-                for filename in os.listdir(student_folder_path):
-                    file_path = os.path.join(student_folder_path, filename)
+                                for possible_name in reversed(possible_names):
+                                    possible_name_clean = possible_name.lower().strip()
 
-                    if os.path.isfile(file_path) and not filename.startswith('.'):
-                        print(f"Verificando arquivo: {filename}")
+                                    if base_filename_clean == possible_name_clean:
+                                        if haskell == 1:
+                                            new_filename = f"q{question_number}_{student_login}.hs"
+                                        else:
+                                            new_filename = f"q{question_number}_{student_login}.c"
 
-                        base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ")
+                                        new_file_path = os.path.join(student_folder_path, new_filename)
 
-                        found_match = False  
-                        for question_number, possible_names in questions_dict.items():
-                            for possible_name in possible_names:
-                                possible_name_clean = possible_name.lower()
-                                possible_name_parts = possible_name_clean.split()
+                                        if filename != new_filename:
+                                            os.rename(file_path, new_file_path)
+                                            print(f"RENOMEADO: '{filename}' para '{new_filename}' para o estudante '{student_login}'")
+                                            used_questions.add(question_number) 
+                                        else:
+                                            print(f"O arquivo '{filename}' já está com o nome correto.")
+                                        found_match = True
+                                        break  
 
-                                if any(part in base_filename_clean for part in possible_name_parts):
-                                    new_filename = f"q{question_number}_{student_login}.hs"
-                                    new_file_path = os.path.join(student_folder_path, new_filename)
-
-                                    os.rename(file_path, new_file_path)
-                                    print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
-
-                                    found_match = True
+                                if found_match:
                                     break  
-                            if found_match:
-                                break  
+                        
+                            if not found_match:
 
-                        if not found_match:
-                            print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
+                                print(f"Tentando correspondência parcial para o arquivo {filename}")
+                                for question_number, possible_names in questions_dict.items():
+                                    if question_number in used_questions:
+                                        print(f"Chave q{question_number} já foi usada para {student_login}, pulando.")
+                                        continue
+                                    
+                                    for possible_name in reversed(possible_names):
+                                        possible_name_clean = possible_name.lower().strip()
+                                        possible_name_parts = possible_name_clean.split()
+                                        print(f"{possible_name_parts}")
+
+                                        if any(part in base_filename_clean for part in possible_name_parts):
+                                            if haskell == 1:
+                                                new_filename = f"q{question_number}_{student_login}.hs"
+                                            else:
+                                                new_filename = f"q{question_number}_{student_login}.c"
+                                            
+                                            new_file_path = os.path.join(student_folder_path, new_filename)
+
+                                            if filename != new_filename:
+                                                verification_renamed(f"{student_login}: de {filename} para {new_filename}")
+                                                os.rename(file_path, new_file_path)
+                                                print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
+                                                used_questions.add(question_number) 
+                                            else:
+                                                print(f"O arquivo '{filename}' já está com o nome correto.")
+                                            found_match = True
+                                            break
+
+                                    if found_match:
+                                        break
+
+                            if not found_match:
+                                verification_renamed(f"{student_login}: {filename}")
+                                print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
     except Exception as e:
-        log_error(f"Erro em renomear arquivos .hs baseado nos nomes do dicionario {str(e)}")
+        log_error(f"Erro em renomear arquivos baseado nos nomes do dicionario {str(e)}")
 
 def no_c_files_in_directory(submissions_folder):
     try:
@@ -588,16 +639,16 @@ def rename_files(submissions_folder, list_title, questions_data):
     try:
         if 'HASKELL' in list_title:
             no_hs_files_in_directory(submissions_folder)
-            rename_hs_files(submissions_folder, questions_data)
+            rename_files_based_on_dictionary(submissions_folder, questions_data,1)
             return
         else:
             if 'ARQUIVOS' not in list_title:
                 no_c_files_in_directory(submissions_folder)
-            rename_c_files_based_on_dictionary(submissions_folder, questions_data)
+            rename_files_based_on_dictionary(submissions_folder, questions_data)
     except Exception as e:
         log_error(f"Erro no metodo renomear arquivos {str(e)}")          
         
-def read_sheet_id_from_file(filename):
+def read_id_from_file(filename):
     try:
         try:
             with open(filename, 'r') as file:
@@ -611,6 +662,35 @@ def read_sheet_id_from_file(filename):
             return None
     except Exception as e:
         log_error(f"Erro ao ler o id da planilha do arquivo que tem o id da planilha {str(e)}")  
+
+def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
+    try:
+        client = get_gspread_client()
+
+        sheet_name = f"{classroom_name} | {list_name}"
+        spreadsheet = client.create(sheet_name)
+        print(f"Planilha '{sheet_name}' criada com sucesso.")
+
+        drive_service = build("drive", "v3", credentials=get_credentials())
+        file_id = spreadsheet.id  # Obtém o ID da planilha criada
+        # Move a planilha para a pasta especificada
+        drive_service.files().update(fileId=file_id, addParents=folder_id, removeParents='root').execute()
+
+        worksheet = spreadsheet.get_worksheet(0)
+        worksheet.update_title(list_name)
+
+        worksheet.update('A1', [['Nome do Aluno', 'Student Login']])
+
+        data_to_insert = []
+        #for student_name, student_login in student_data:
+          # data_to_insert.append([student_name, student_login])
+
+       # worksheet.update(f'A2:B{len(data_to_insert) + 1}', data_to_insert)
+        #print(f"Dados inseridos na planilha '{classroom_name}', aba '{list_name}'.")
+
+    except Exception as e:
+        log_error(f"Erro ao criar ou preencher a planilha: {str(e)}")
+
 
 def log_error(error_message):
     try:
@@ -655,13 +735,11 @@ def main():
                 delete_subfolders_in_student_folders(submissions_folder)
                 remove_empty_folders(submissions_folder)
 
-                sheet_id = read_sheet_id_from_file('sheet_id.txt')
+                sheet_id = read_id_from_file('sheet_id.txt')
                 questions_data = list_questions(sheet_id, list_name)
-
-                if not questions_data:
-                    continue
-                else:
-                    rename_files(submissions_folder, list_title, questions_data)  
+                rename_files(submissions_folder, list_title, questions_data)  
+                folder_id = read_id_from_file('folder_id.txt')
+                create_google_sheet_in_folder(classroom_name, list_name, folder_id)
                 
                 try:
                     num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
