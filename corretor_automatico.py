@@ -126,7 +126,7 @@ def list_classroom_data(service):
     
 def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, worksheet):
     try:
-        if worksheet != None:
+        if worksheet is not None:
             header = [['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']]
             worksheet.append_rows(header, table_range='A1')
 
@@ -141,7 +141,6 @@ def download_submissions(classroom_service, drive_service, submissions, download
             atrasou = "Sim" if late else "Não"
             formatacao = " "
             
-            
             attachments = submission.get('assignmentSubmission', {}).get('attachments', [])
 
             student_folder = None
@@ -155,23 +154,16 @@ def download_submissions(classroom_service, drive_service, submissions, download
                         file_metadata = drive_service.files().get(fileId=file_id, fields='id, name').execute()
                         if not file_metadata:
                             print(f"Não foi possível recuperar os metadados para o arquivo {file_name} de {student_name}.")
-                            #continue
+                            continue 
                     except HttpError as error:
                         if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
                             print(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
-                            entregou = "malware ou spam"
-                            #continue
+                            continue  
                         else:
                             print(f"Ocorreu um erro ao recuperar os metadados do arquivo para {student_name}: {error}")
-                            #continue
-                    finally: 
-                        if worksheet != None and not file_metadata:
-                            worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao]])
-                            continue
+                            continue  
        
-
                     if file_name.endswith('.c'):
-                        #formatacao = "Não está com a formatação esperada o envio não foi com .zip."
                         if student_folder is None:
                             student_folder = os.path.join(download_folder, student_login)
                             if not os.path.exists(student_folder):
@@ -186,20 +178,31 @@ def download_submissions(classroom_service, drive_service, submissions, download
                             done = False
                             while not done:
                                 status, done = downloader.next_chunk()
-                                print(f"Baixando {file_name} de {student_name}: {int(status.progress() * 100)}%")
+                                progress_percentage = int(status.progress() * 100)
+                                print(f"Baixando {file_name} de {student_name}: {progress_percentage}%")
+                            
+                            if progress_percentage == 0:
+                                formatacao = "não foi baixado nada"
+                            
+                            if worksheet is not None:
+                                worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao]])
                     except HttpError as error:
                         if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
                             print(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
-                            os.remove(file_path)  
+                            os.remove(file_path) 
+                            if worksheet is not None:
+                                worksheet.append_rows([[student_name, student_email, student_login, "Malware ou spam", atrasou, formatacao]]) 
+                                print("ele salvou na planilha malware")
                             continue
                         else:
                             print(f"Ocorreu um erro com {student_name}: {error}")
+                            if worksheet is not None:
+                                worksheet.append_rows([[student_name, student_email, student_login, "Erro de download", atrasou, formatacao]])
                             continue
 
                     if file_name.endswith('.zip'):
                         expected_name = student_login + '.zip'
                         if file_name != expected_name:
-                            #formatacao = "Não está com a formatação esperada student_login.zip."
                             corrected_path = os.path.join(download_folder, expected_name)
                             os.rename(file_path, corrected_path)
                             print(f"Renomeado {file_name} para {expected_name} de {student_name}")
@@ -208,23 +211,54 @@ def download_submissions(classroom_service, drive_service, submissions, download
                 print(f"Nenhum anexo encontrado para {student_name}")
                 atrasou = " "
                 entregou = "Não"
-            
-            if worksheet != None:
-                worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao]])
+                if worksheet is not None:
+                    worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao]])
 
     except Exception as e:
         log_error(f"Erro ao baixar submissões: {str(e)}")
-            
+
 def extract_prefix(email):
     try:
         return email.split('@')[0]
     except Exception as e:
         log_error(f"Erro em extrair o prefixo do email {str(e)}")
 
+def update_worksheet(worksheet, student_login, entregou=None, formatacao=None):
+    try:
+        data = worksheet.get_all_values()
+        
+        for idx, row in enumerate(data):
+            if row[2] == student_login: 
+                entregou_atual = row[3] if entregou is None else entregou 
+                formatacao_atual = row[5] if formatacao is None else formatacao
+
+                worksheet.update(f'D{idx+1}', entregou_atual)      
+                worksheet.update(f'F{idx+1}', formatacao_atual) 
+                
+                print(f"Atualizado para {student_login} com status: {entregou_atual}, {formatacao_atual}")
+                return
+        print(f"Login {student_login} não encontrado na planilha.")
+    except Exception as e:
+        print(f"Erro ao atualizar a planilha: {e}")
+
+def is_real_zip(file_path):
+    try:
+        with zipfile.ZipFile(file_path, 'r') as zip_ref:
+            if zip_ref.testzip() is None:
+                return True
+            else:
+                return False
+    except zipfile.BadZipFile:
+        return False
+
 def extract_zip(zip_file_path, extraction_path):
     try:
+        if not is_real_zip(zip_file_path):
+            print(f"O arquivo {zip_file_path} não é um .zip válido.")
+            return
+
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-            zip_ref.extractall(extraction_path)      
+            zip_ref.extractall(extraction_path)
 
         macosx_path = os.path.join(extraction_path, '__MACOSX')
         if os.path.exists(macosx_path):
@@ -232,7 +266,7 @@ def extract_zip(zip_file_path, extraction_path):
             shutil.rmtree(macosx_path)
 
     except Exception as e:
-        log_error(f"Erro em extrair o zip {str(e)}")  
+        log_error(f"Erro ao extrair o zip {str(e)}") 
 
 def extract_rar(rar_file_path, extraction_path):
     try:
@@ -281,7 +315,7 @@ def rename_directory_if_needed(directory_path, expected_name):
     except Exception as e:
         log_error(f"Erro ao renomear o diretorio se necessário {str(e)}") 
 
-def organize_extracted_files(download_folder):
+def organize_extracted_files(download_folder, worksheet):
     try:
         submissions_folder = os.path.join(download_folder, 'submissions')
         create_folder_if_not_exists(submissions_folder)
@@ -301,9 +335,17 @@ def organize_extracted_files(download_folder):
                         extract_rar(item_path, extraction_path)
                 except (zipfile.BadZipFile, rarfile.Error) as e:
                     print(f"Erro ao extrair o arquivo {item}: {e}")
+                    if worksheet is not None:
+                        update_worksheet(worksheet, student_login, entregou ="compactação com erro")
                     continue
 
                 extracted_items = os.listdir(extraction_path)
+                if not extracted_items:
+                    print(f"O arquivo {item} foi extraído, mas o diretório está vazio.")
+                    if worksheet is not None:
+                        update_worksheet(worksheet, student_login, entregou ="zip vazio")
+                    continue
+
 
                 if len(extracted_items) == 1 and os.path.isdir(os.path.join(extraction_path, extracted_items[0])):
                     extracted_folder = os.path.join(extraction_path, extracted_items[0])
@@ -802,7 +844,7 @@ def main():
                 
                 print("Download completo. Arquivos salvos em:", os.path.abspath(download_folder))
 
-                organize_extracted_files(download_folder)
+                organize_extracted_files(download_folder, worksheet)
                 move_non_zip_files(download_folder)
                 
                 print("Processo concluído. Arquivos salvos em:", os.path.abspath(download_folder))
