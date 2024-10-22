@@ -234,11 +234,9 @@ def extract_prefix(email):
 
 def update_worksheet(worksheet, student_login, entregou=None, formatacao=None):
     try:
-        print("ele entra na função update ")
         data = worksheet.get_all_values()
         
         for idx, row in enumerate(data):
-            print("ele começa o for\n\n")
             if row[2] == student_login: 
                 entregou_atual = row[3] if entregou is None else entregou 
                 formatacao_atual = row[5] if formatacao is None else formatacao
@@ -347,16 +345,14 @@ def organize_extracted_files(download_folder, worksheet):
                 except (zipfile.BadZipFile, rarfile.Error) as e:
                     print(f"Erro ao extrair o arquivo {item}: {e}")
                     if worksheet is not None:
-                        print("\n\n ele tenta fazer o update da compactacao")
-                        update_worksheet(worksheet, student_login, entregou ="compactação com erro")
+                        update_worksheet(worksheet, student_login, entregou ="Compactação com erro")
                     continue
 
                 extracted_items = os.listdir(extraction_path)
                 if not extracted_items:
                     print(f"O arquivo {item} foi extraído, mas o diretório está vazio.")
                     if worksheet is not None:
-                        print("\n\n ele tenta fazer o update do vazio")
-                        update_worksheet(worksheet, student_login, entregou ="zip vazio")
+                        update_worksheet(worksheet, student_login, entregou ="Zip vazio")
                     continue
 
 
@@ -417,7 +413,6 @@ def organize_extracted_files(download_folder, worksheet):
                     print(f"Pasta deletada: {extracted_folder}")
     except Exception as e:
         log_error(f"Erro ao organizar arquivos extraídos: {str(e)}")
-
 
 def if_there_is_a_folder_inside(submissions_folder):
     try:
@@ -561,8 +556,6 @@ def verification_renamed(message):
 
 def rename_files_based_on_dictionary(submissions_folder, questions_dict, worksheet, haskell=None):
     try:
-        if worksheet != None:
-            rows = worksheet.get_all_values()
 
         for student_login in os.listdir(submissions_folder):
             student_folder_path = os.path.join(submissions_folder, student_login)
@@ -571,17 +564,6 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                 print(f"Verificando pasta do estudante: {student_folder_path}")
     
                 used_questions = set()
-
-                if worksheet != None:
-                    student_row_index = None
-                    for index, row in enumerate(rows):
-                        if row[2] == student_login: 
-                            student_row_index = index + 1 
-                            break
-
-                    if student_row_index is None:
-                        print(f"Estudante {student_login} não encontrado na planilha.")
-                        continue
 
                 for filename in os.listdir(student_folder_path):
                     file_path = os.path.join(student_folder_path, filename)
@@ -599,8 +581,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                 print(f"O arquivo '{filename}' já está no formato correto.")
                                 break  
 
-                        else:
-                            formatacao = "Não está com a formatação esperada no nome do arquivo."  
+                        else: 
                             base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ").replace(student_login.lower(), "").strip()
 
                             found_match = False  
@@ -633,7 +614,8 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                     break  
                         
                             if not found_match:
-                                formatacao = "Não está com a formatação esperada no nome do arquivo."
+                                if worksheet is not None:
+                                    update_worksheet(worksheet, student_login, formatacao="Não é a formatação esperada")
                                 print(f"Tentando correspondência parcial para o arquivo {filename}")
                                 for question_number, possible_names in questions_dict.items():
                                     if question_number in used_questions:
@@ -669,8 +651,8 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                             if not found_match:
                                 verification_renamed(f"{student_login}: {filename}")
                                 print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
-        if worksheet != None:                       
-            worksheet.update_cell(student_row_index, 6, formatacao)
+                                if worksheet is not None:
+                                    update_worksheet(worksheet, student_login, formatacao="Não é a formatação esperada")
 
     except Exception as e:
         log_error(f"Erro em renomear arquivos baseado nos nomes do dicionario {str(e)}")
