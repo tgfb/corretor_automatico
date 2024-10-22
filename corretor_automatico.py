@@ -127,8 +127,11 @@ def list_classroom_data(service):
 def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, worksheet):
     try:
         if worksheet is not None:
-            header = [['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']]
-            worksheet.append_rows(header, table_range='A1')
+            header = [['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação', 'Comentários']]
+            
+            first_row = worksheet.row_values(1)
+            if not first_row:
+                worksheet.append_rows(header, table_range='A1')
 
             existing_records = worksheet.get_all_values()  
             alunos_registrados = set() 
@@ -147,6 +150,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
             entregou = "Sim" 
             atrasou = "Sim" if late else "Não"
             formatacao = " "
+            comentarios = " "
             
             attachments = submission.get('assignmentSubmission', {}).get('attachments', [])
 
@@ -190,20 +194,20 @@ def download_submissions(classroom_service, drive_service, submissions, download
                                 print(f"Baixando {file_name} de {student_name}: {progress_percentage}%")
                             
                             if progress_percentage == 0:
-                                formatacao = "não foi baixado arquivos"
+                                comentarios = "Não foi baixado arquivos"
                             
                     except HttpError as error:
                         if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
                             print(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
                             os.remove(file_path) 
                             if worksheet is not None and student_login not in alunos_registrados:
-                                worksheet.append_rows([[student_name, student_email, student_login, "Malware ou spam", atrasou, formatacao]])
+                                worksheet.append_rows([[student_name, student_email, student_login, "Malware ou spam", atrasou, formatacao, comentarios]])
                                 alunos_registrados.add(student_login)
                             continue
                         else:
                             print(f"Ocorreu um erro com {student_name}: {error}")
                             if worksheet is not None and student_login not in alunos_registrados:
-                                worksheet.append_rows([[student_name, student_email, student_login, "Erro de download", atrasou, formatacao]])
+                                worksheet.append_rows([[student_name, student_email, student_login, "Erro de download", atrasou, formatacao, comentarios]])
                                 alunos_registrados.add(student_login)
                             continue
 
@@ -220,7 +224,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                 entregou = "Não"
             
             if worksheet is not None and student_login not in alunos_registrados:
-                worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao]])
+                worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao, comentarios]])
                 alunos_registrados.add(student_login)
 
     except Exception as e:
@@ -744,19 +748,17 @@ def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
     try:
         client = get_gspread_client()
 
-        #sheet_name = f"{classroom_name} | {list_name}"
         spreadsheet = client.create(classroom_name)
         print(f"Planilha '{classroom_name}' criada com sucesso.")
 
         drive_service = build("drive", "v3", credentials=get_credentials())
-        file_id = spreadsheet.id  # Obtém o ID da planilha criada
+        file_id = spreadsheet.id  
         # Move a planilha para a pasta especificada
         drive_service.files().update(fileId=file_id, addParents=folder_id, removeParents='root').execute()
 
         worksheet = spreadsheet.get_worksheet(0)
         worksheet.update_title(list_name)
 
-        worksheet.update(range_name='A1', values=[['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']])
         return worksheet
     except Exception as e:
         log_error(f"Erro ao criar ou preencher a planilha: {str(e)}")
@@ -777,7 +779,7 @@ def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
             try:
                 worksheet = spreadsheet.worksheet(list_name)
                 print(f"A aba '{list_name}' já existe na planilha.")
-                worksheet = None
+                #worksheet = None
                 return worksheet
             except Exception:
 
@@ -794,8 +796,6 @@ def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
 
             worksheet = spreadsheet.get_worksheet(0)
             worksheet.update_title(list_name)
-
-            worksheet.update(range_name='A1', values=[['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação']])
             
             return worksheet
 
