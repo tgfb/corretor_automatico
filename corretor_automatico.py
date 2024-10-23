@@ -147,10 +147,10 @@ def download_submissions(classroom_service, drive_service, submissions, download
             student_login = extract_prefix(student_email)
             student_name = student['profile']['name']['fullName']
             late = submission.get('late', False)
-            entregou = "Sim" 
-            atrasou = "Sim" if late else "Não"
-            formatacao = " "
-            comentarios = " "
+            entregou = "1" 
+            atrasou = "1" if late else "0"
+            formatacao = 0
+            comentarios = None
             
             attachments = submission.get('assignmentSubmission', {}).get('attachments', [])
 
@@ -194,8 +194,8 @@ def download_submissions(classroom_service, drive_service, submissions, download
                                 print(f"Baixando {file_name} de {student_name}: {progress_percentage}%")
                             
                             if progress_percentage == 0:
-                                comentarios = "Não foi baixado arquivos"
-                                entregou = "Verificar o que foi entregue no classroom"
+                                comentarios = "Não foi baixado arquivos, verificar o que foi entregue no classroom"
+                                entregou = "0"
                                 os.remove(file_path)
                             
                     except HttpError as error:
@@ -222,8 +222,8 @@ def download_submissions(classroom_service, drive_service, submissions, download
 
             else:
                 print(f"Nenhum anexo encontrado para {student_name}")
-                atrasou = " "
-                entregou = "Não"
+                atrasou = "0"
+                entregou = "0"
             
             if worksheet is not None and student_login not in alunos_registrados:
                 worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao, comentarios]])
@@ -251,6 +251,29 @@ def update_worksheet(worksheet, student_login, entregou=None, formatacao=None):
                 worksheet.update([[formatacao_atual]], f'F{idx+1}')
                 
                 print(f"Atualizado para {student_login} com status: {entregou_atual}, {formatacao_atual}")
+                return
+        print(f"Login {student_login} não encontrado na planilha.")
+    except Exception as e:
+        print(f"Erro ao atualizar a planilha: {e}")
+
+def update_worksheet_comentario(worksheet, student_login, comentario=None):
+    try:
+        data = worksheet.get_all_values()
+        
+        for idx, row in enumerate(data):
+            if row[2] == student_login: 
+                comentario_atual = row[6] if comentario is None else comentario
+                
+                #worksheet.update([[comentario_atual]], f'G{idx+1}')   
+
+                col = 5
+                while col < len(row) and row[col]:   
+                    col += 1
+                
+                cell_range = f'{chr(65+col)}{idx+1}'
+                worksheet.update([[comentario_atual]], cell_range)
+                
+                print(f"Atualizado para {student_login} com status: {comentario_atual}")
                 return
         print(f"Login {student_login} não encontrado na planilha.")
     except Exception as e:
@@ -637,7 +660,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                         
                             if not found_match:
                                 if worksheet is not None:
-                                    update_worksheet(worksheet, student_login, formatacao="Não é a formatação esperada")
+                                    update_worksheet(worksheet, student_login, formatacao="1")
                                 print(f"Tentando correspondência parcial para o arquivo {filename}")
                                 for question_number, possible_names in questions_dict.items():
                                     if question_number in used_questions:
@@ -658,6 +681,8 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                             new_file_path = os.path.join(student_folder_path, new_filename)
 
                                             if filename != new_filename:
+                                                if worksheet is not None:
+                                                    update_worksheet_comentario(worksheet, student_login, comentario=(f"Tentando correspondência parcial {student_login}: de {filename} para {new_filename}"))
                                                 verification_renamed(f"{student_login}: de {filename} para {new_filename}")
                                                 os.rename(file_path, new_file_path)
                                                 print(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
@@ -671,10 +696,12 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                         break
 
                             if not found_match:
+                                if worksheet is not None:
+                                    update_worksheet_comentario(worksheet, student_login, comentario=(f"Não encontrou nenhum nome correspondente {student_login}: {filename}"))
                                 verification_renamed(f"{student_login}: {filename}")
                                 print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
                                 if worksheet is not None:
-                                    update_worksheet(worksheet, student_login, formatacao="Não é a formatação esperada")
+                                    update_worksheet(worksheet, student_login, formatacao="1")
 
     except Exception as e:
         log_error(f"Erro em renomear arquivos baseado nos nomes do dicionario {str(e)}")
