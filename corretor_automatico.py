@@ -195,6 +195,8 @@ def download_submissions(classroom_service, drive_service, submissions, download
                             
                             if progress_percentage == 0:
                                 comentarios = "Não foi baixado arquivos"
+                                entregou = "Verificar o que foi entregue no classroom"
+                                os.remove(file_path)
                             
                     except HttpError as error:
                         if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
@@ -349,40 +351,41 @@ def organize_extracted_files(download_folder, worksheet):
                 except (zipfile.BadZipFile, rarfile.Error) as e:
                     print(f"Erro ao extrair o arquivo {item}: {e}")
                     if worksheet is not None:
-                        update_worksheet(worksheet, student_login, entregou ="Compactação com erro")
+                        update_worksheet(worksheet, student_login, entregou="Compactação com erro")
                     continue
 
                 extracted_items = os.listdir(extraction_path)
                 if not extracted_items:
                     print(f"O arquivo {item} foi extraído, mas o diretório está vazio.")
                     if worksheet is not None:
-                        update_worksheet(worksheet, student_login, entregou ="Zip vazio")
+                        update_worksheet(worksheet, student_login, entregou="Zip vazio")
                     continue
-
 
                 if len(extracted_items) == 1 and os.path.isdir(os.path.join(extraction_path, extracted_items[0])):
                     extracted_folder = os.path.join(extraction_path, extracted_items[0])
-                    
                     extracted_folder = rename_directory_if_needed(extracted_folder, student_login)
 
                 for extracted_item in os.listdir(extraction_path):
                     extracted_item_path = os.path.join(extraction_path, extracted_item)
 
-                    if os.path.isfile(extracted_item_path):
-                        if extracted_item.endswith('.zip'):
-                            print(f"Extraindo arquivo zip aninhado: {extracted_item}")
-                            try:
-                                extract_zip(extracted_item_path, extraction_path)
-                                os.remove(extracted_item_path)
-                            except zipfile.BadZipFile:
-                                print(f"Erro ao extrair zip aninhado: {extracted_item_path}")
-                        elif extracted_item.endswith('.rar'):
-                            print(f"Extraindo arquivo rar aninhado: {extracted_item}")
-                            try:
-                                extract_rar(extracted_item_path, extraction_path)
-                                os.remove(extracted_item_path)
-                            except rarfile.Error:
-                                print(f"Erro ao extrair rar aninhado: {extracted_item_path}")
+                    if os.path.exists(extracted_item_path):  
+                        if os.path.isfile(extracted_item_path):
+                            if extracted_item.endswith('.zip'):
+                                print(f"Extraindo arquivo zip aninhado: {extracted_item}")
+                                try:
+                                    extract_zip(extracted_item_path, extraction_path)
+                                    os.remove(extracted_item_path)
+                                except zipfile.BadZipFile:
+                                    print(f"Erro ao extrair zip aninhado: {extracted_item_path}")
+                            elif extracted_item.endswith('.rar'):
+                                print(f"Extraindo arquivo rar aninhado: {extracted_item}")
+                                try:
+                                    extract_rar(extracted_item_path, extraction_path)
+                                    os.remove(extracted_item_path)
+                                except rarfile.Error:
+                                    print(f"Erro ao extrair rar aninhado: {extracted_item_path}")
+                    else:
+                        print(f"Arquivo não encontrado: {extracted_item_path}")
             else:
                 continue
 
@@ -394,27 +397,38 @@ def organize_extracted_files(download_folder, worksheet):
 
                 if extracted_items[0] == student_login:
                     print(f"A pasta extraída {extracted_items[0]} já tem o nome correto. Movendo arquivos para {extraction_path}.")
-                    for file in os.listdir(extracted_folder):
-                        source_file_path = os.path.join(extracted_folder, file)
-                        destination_file_path = os.path.join(extraction_path, file)
-                        print(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
-                        move_file(source_file_path, destination_file_path)
                     
-                    if not os.listdir(extracted_folder):
-                        shutil.rmtree(extracted_folder)
-                        print(f"Pasta extra deletada: {extracted_folder}")
-                    else:
-                        print(f"Pasta extra {extracted_folder} ainda contém arquivos e não será deletada.")
+                    if os.path.exists(extracted_folder):
+                        for file in os.listdir(extracted_folder):
+                            source_file_path = os.path.join(extracted_folder, file)
+                            destination_file_path = os.path.join(extraction_path, file)
+
+                            if os.path.exists(source_file_path):  
+                                print(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
+                                move_file(source_file_path, destination_file_path)
+                            else:
+                                print(f"Arquivo não encontrado: {source_file_path}")
+                        
+                        if not os.listdir(extracted_folder):
+                            shutil.rmtree(extracted_folder)
+                            print(f"Pasta extra deletada: {extracted_folder}")
+                        else:
+                            print(f"Pasta extra {extracted_folder} ainda contém arquivos e não será deletada.")
                 else:
                     print(f"A pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}")
-                    for file in os.listdir(extracted_folder):
-                        source_file_path = os.path.join(extracted_folder, file)
-                        destination_file_path = os.path.join(extraction_path, file)
-                        print(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
-                        move_file(source_file_path, destination_file_path)
+                    if os.path.exists(extracted_folder):  
+                        for file in os.listdir(extracted_folder):
+                            source_file_path = os.path.join(extracted_folder, file)
+                            destination_file_path = os.path.join(extraction_path, file)
 
-                    shutil.rmtree(extracted_folder)
-                    print(f"Pasta deletada: {extracted_folder}")
+                            if os.path.exists(source_file_path):  
+                                print(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
+                                move_file(source_file_path, destination_file_path)
+                            else:
+                                print(f"Arquivo não encontrado: {source_file_path}")
+
+                        shutil.rmtree(extracted_folder)
+                        print(f"Pasta deletada: {extracted_folder}")
     except Exception as e:
         log_error(f"Erro ao organizar arquivos extraídos: {str(e)}")
 
@@ -437,6 +451,7 @@ def if_there_is_a_folder_inside(submissions_folder):
             for file in files:
                 file_path = os.path.join(first_folder, file)
                 destination = os.path.join(submissions_folder, os.path.basename(first_folder), file)
+        
                 shutil.move(file_path, destination)
             
             if first_folder != submissions_folder and not os.listdir(first_folder):
@@ -447,7 +462,7 @@ def if_there_is_a_folder_inside(submissions_folder):
             if os.path.isdir(folder_path) and not folder_name.startswith('.'):
                 move_files_to_inicial_folder(folder_path)
     except Exception as e:
-        log_error(f"Erro ao organizar arquivos extraídos: {str(e)}")
+        log_error(f"Erro se existe uma pasta dentro da pasta: {str(e)}")
 
 def delete_subfolders_in_student_folders(submissions_folder):
     try:
@@ -503,6 +518,10 @@ def list_questions(sheet_id, sheet_name):
             client = get_gspread_client()
             sheet = client.open_by_key(sheet_id).worksheet(sheet_name) 
             rows = sheet.get_all_values()[1:] 
+
+            if not rows:
+                print(f"A planilha '{sheet_name}' está vazia. O sistema vai usar o dicionário padrão.")
+                return list_questions_default()
 
             questions_dict = {}
             for i, row in enumerate(rows, start=1):
@@ -591,7 +610,6 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                             found_match = False  
                             for question_number, possible_names in questions_dict.items():
                                 if question_number in used_questions:
-                                    #print(f"Chave q{question_number} já foi usada para {student_login}, pulando.")
                                     continue
 
                                 for possible_name in reversed(possible_names):
