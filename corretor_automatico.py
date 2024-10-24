@@ -998,7 +998,8 @@ def main():
                 
                 rename_files(submissions_folder, list_title, questions_data, worksheet)  
                 insert_columns(worksheet, num_questions)
-                
+                sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt') #lista 01 turma B
+
                 try:
                     num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
                     if num == 0:
