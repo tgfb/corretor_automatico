@@ -3,7 +3,7 @@ import io
 import zipfile
 import rarfile
 import shutil
-import re
+from datetime import datetime
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -124,7 +124,7 @@ def list_classroom_data(service):
     except Exception as e:
         log_error(f"Erro em listar dados do classroom: {str(e)}")    
     
-def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, worksheet):
+def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, coursework_id, worksheet):
     try:
         if worksheet is not None:
             header = [['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação', 'Comentários']]
@@ -141,93 +141,97 @@ def download_submissions(classroom_service, drive_service, submissions, download
                     alunos_registrados.add(record[2])  
 
         for submission in submissions.get('studentSubmissions', []):
-            student_id = submission['userId']
-            student = classroom_service.courses().students().get(courseId=classroom_id, userId=student_id).execute()
-            student_email = student['profile']['emailAddress']
-            student_login = extract_prefix(student_email)
-            student_name = student['profile']['name']['fullName']
-            late = submission.get('late', False)
-            entregou = "1" 
-            atrasou = "1" if late else "0"
-            formatacao = 0
-            comentarios = None
-            
-            attachments = submission.get('assignmentSubmission', {}).get('attachments', [])
+            try:
+                student_id = submission['userId']
+                student = classroom_service.courses().students().get(courseId=classroom_id, userId=student_id).execute()
+                student_email = student['profile']['emailAddress']
+                student_login = extract_prefix(student_email)
+                student_name = student['profile']['name']['fullName']
+                late = submission.get('late', False)
+                entregou = 1 
+                atrasou = 0
+                formatacao = 0
+                comentarios = None
 
-            student_folder = None
+                due_date = get_due_date(classroom_service, classroom_id, coursework_id)
 
-            if attachments:
-                for attachment in attachments:
-                    file_id = attachment.get('driveFile', {}).get('id')
-                    file_name = attachment.get('driveFile', {}).get('title')
-                    request = drive_service.files().get_media(fileId=file_id)
-                    
-                    try:
-                        file_metadata = drive_service.files().get(fileId=file_id, fields='id, name').execute()
-                        if not file_metadata:
-                            print(f"Não foi possível recuperar os metadados para o arquivo {file_name} de {student_name}.")
-                            continue 
-                    except HttpError as error:
-                        if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
-                            print(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
+                submission_date = submission.get('updateTime')
+                #print(f"A data da submissao está sendo {submission_date}")
+
+                if late and due_date and submission_date:
+                    atrasou = calculate_delay(due_date, submission_date)
+
+                attachments = submission.get('assignmentSubmission', {}).get('attachments', [])
+                student_folder = None
+
+                if attachments:
+                    for attachment in attachments:
+                        try:
+                            file_id = attachment.get('driveFile', {}).get('id')
+                            file_name = attachment.get('driveFile', {}).get('title')
+                            request = drive_service.files().get_media(fileId=file_id)
+
+                            file_metadata = drive_service.files().get(fileId=file_id, fields='id, name').execute()
+                            if not file_metadata:
+                                print(f"Não foi possível recuperar os metadados para o arquivo {file_name} de {student_name}.")
+                                continue  
+
+                            if file_name.endswith('.c'):
+                                if student_folder is None:
+                                    student_folder = os.path.join(download_folder, student_login)
+                                    if not os.path.exists(student_folder):
+                                        os.makedirs(student_folder)
+                                file_path = os.path.join(student_folder, file_name)
+                            else:
+                                file_path = os.path.join(download_folder, file_name)
+
+                            with io.FileIO(file_path, 'wb') as fh:
+                                downloader = MediaIoBaseDownload(fh, request)
+                                done = False
+                                while not done:
+                                    status, done = downloader.next_chunk()
+                                    progress_percentage = int(status.progress() * 100)
+                                    print(f"Baixando {file_name} de {student_name}: {progress_percentage}%")
+                                
+                                if progress_percentage == 0:
+                                    comentarios = "Não foi baixado arquivos, verificar o que foi entregue no classroom"
+                                    entregou = 0
+                                    os.remove(file_path)
+
+                        except HttpError as error:
+                            if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
+                                print(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
+                                if os.path.exists(file_path):
+                                    os.remove(file_path)
+                            else:
+                                print(f"Erro ao baixar arquivo {file_name} de {student_name}: {error}")
+                                if worksheet is not None and student_login not in alunos_registrados:
+                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao, "Erro de submissão ou submissão não foi baixada"]])
+                                    alunos_registrados.add(student_login)
                             continue  
-                        else:
-                            print(f"Ocorreu um erro ao recuperar os metadados do arquivo para {student_name}: {error}")
-                            continue  
-       
-                    if file_name.endswith('.c'):
-                        if student_folder is None:
-                            student_folder = os.path.join(download_folder, student_login)
-                            if not os.path.exists(student_folder):
-                                os.makedirs(student_folder)
-                        file_path = os.path.join(student_folder, file_name)
-                    else:
-                        file_path = os.path.join(download_folder, file_name)
 
-                    try:
-                        with io.FileIO(file_path, 'wb') as fh:
-                            downloader = MediaIoBaseDownload(fh, request)
-                            done = False
-                            while not done:
-                                status, done = downloader.next_chunk()
-                                progress_percentage = int(status.progress() * 100)
-                                print(f"Baixando {file_name} de {student_name}: {progress_percentage}%")
-                            
-                            if progress_percentage == 0:
-                                comentarios = "Não foi baixado arquivos, verificar o que foi entregue no classroom"
-                                entregou = "0"
-                                os.remove(file_path)
-                            
-                    except HttpError as error:
-                        if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
-                            print(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
-                            os.remove(file_path) 
-                            if worksheet is not None and student_login not in alunos_registrados:
-                                worksheet.append_rows([[student_name, student_email, student_login, "Malware ou spam", atrasou, formatacao, comentarios]])
-                                alunos_registrados.add(student_login)
-                            continue
-                        else:
-                            print(f"Ocorreu um erro com {student_name}: {error}")
-                            if worksheet is not None and student_login not in alunos_registrados:
-                                worksheet.append_rows([[student_name, student_email, student_login, "Erro de download", atrasou, formatacao, comentarios]])
-                                alunos_registrados.add(student_login)
-                            continue
+                        if file_name.endswith('.zip'):
+                            expected_name = student_login + '.zip'
+                            if file_name != expected_name:
+                                corrected_path = os.path.join(download_folder, expected_name)
+                                os.rename(file_path, corrected_path)
+                                print(f"Renomeado {file_name} para {expected_name} de {student_name}")
 
-                    if file_name.endswith('.zip'):
-                        expected_name = student_login + '.zip'
-                        if file_name != expected_name:
-                            corrected_path = os.path.join(download_folder, expected_name)
-                            os.rename(file_path, corrected_path)
-                            print(f"Renomeado {file_name} para {expected_name} de {student_name}")
-
-            else:
-                print(f"Nenhum anexo encontrado para {student_name}")
-                atrasou = "0"
-                entregou = "0"
-            
-            if worksheet is not None and student_login not in alunos_registrados:
-                worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao, comentarios]])
-                alunos_registrados.add(student_login)
+                else:
+                    print(f"Nenhum anexo encontrado para {student_name}")
+                    atrasou = 0
+                    entregou = 0
+                
+                if worksheet is not None and student_login not in alunos_registrados:
+                    worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao, comentarios]])
+                    alunos_registrados.add(student_login)
+                
+            except Exception as e:
+                print(f"Erro ao processar {student_name}: {e}")
+                if worksheet is not None and student_login not in alunos_registrados:
+                    worksheet.append_rows([[student_name, student_email, student_login, 0, atrasou, formatacao, "Erro de submissão"]])
+                    alunos_registrados.add(student_login)
+                continue  
 
     except Exception as e:
         log_error(f"Erro ao baixar submissões: {str(e)}")
@@ -237,6 +241,47 @@ def extract_prefix(email):
         return email.split('@')[0]
     except Exception as e:
         log_error(f"Erro em extrair o prefixo do email {str(e)}")
+
+def calculate_delay(due_date_str, submission_date_str):
+    try:
+        due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+        submission_date = datetime.strptime(submission_date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+        delay = submission_date - due_date
+        if delay.total_seconds() > 0:
+         
+            delay_in_days = delay.days + 1
+            return delay_in_days
+        else:
+            return 0
+    except Exception as e:
+        print(f"Erro ao calcular atraso: {e}")
+        return 0
+
+def get_due_date(classroom_service, classroom_id, coursework_id):
+    try:
+        coursework = classroom_service.courses().courseWork().get(courseId=classroom_id, id=coursework_id).execute()
+        due_date = coursework.get('dueDate')
+        due_time = coursework.get('dueTime')
+
+        if due_date:
+            year = due_date['year']
+            month = due_date['month']
+            day = due_date['day']
+            
+            if due_time:
+                hours = due_time.get('hours', 23)
+                minutes = due_time.get('minutes', 59)
+                seconds = due_time.get('seconds', 59)
+            else:
+                hours, minutes, seconds = 23, 59, 59
+            
+            # Timestamp no formato "YYYY-MM-DDTHH:MM:SSZ"
+            return f"{year}-{month:02d}-{day:02d}T{hours:02d}:{minutes:02d}:{seconds:02d}.000Z"
+        else:
+            return None
+    except Exception as e:
+        print(f"Erro ao obter data de entrega: {e}")
+        return None
 
 def update_worksheet(worksheet, student_login, entregou=None, formatacao=None):
     try:
@@ -263,9 +308,7 @@ def update_worksheet_comentario(worksheet, student_login, comentario=None):
         for idx, row in enumerate(data):
             if row[2] == student_login: 
                 comentario_atual = row[6] if comentario is None else comentario
-                
-                #worksheet.update([[comentario_atual]], f'G{idx+1}')   
-
+                 
                 col = 5
                 while col < len(row) and row[col]:   
                     col += 1
@@ -278,6 +321,22 @@ def update_worksheet_comentario(worksheet, student_login, comentario=None):
         print(f"Login {student_login} não encontrado na planilha.")
     except Exception as e:
         print(f"Erro ao atualizar a planilha: {e}")
+
+def move_rows_worksheet(worksheet, num_questions):
+    try:
+        data = worksheet.get_all_values()
+
+        for row_idx, row in enumerate(data):
+            for col_idx in range(3, 3 + num_questions):
+                if row_idx == 0:
+                    new_value = f"QUESTÃO {col_idx - 2}"
+                else:
+                    new_value = row[col_idx]
+
+                worksheet.update_cell(row_idx + 1, col_idx + 1, new_value)
+
+    except Exception as e:
+        print(f"Erro ao mover colunas da planilha: {e}")  
 
 def is_real_zip(file_path):
     try:
@@ -374,14 +433,16 @@ def organize_extracted_files(download_folder, worksheet):
                 except (zipfile.BadZipFile, rarfile.Error) as e:
                     print(f"Erro ao extrair o arquivo {item}: {e}")
                     if worksheet is not None:
-                        update_worksheet(worksheet, student_login, entregou="Compactação com erro")
+                        update_worksheet(worksheet, student_login, entregou=0)
+                        update_worksheet_comentario(worksheet, student_login, comentario="Compactação com erro")
                     continue
 
                 extracted_items = os.listdir(extraction_path)
                 if not extracted_items:
                     print(f"O arquivo {item} foi extraído, mas o diretório está vazio.")
                     if worksheet is not None:
-                        update_worksheet(worksheet, student_login, entregou="Zip vazio")
+                        update_worksheet(worksheet, student_login, entregou=0)
+                        update_worksheet_comentario(worksheet, student_login, comentario="Zip vazio")
                     continue
 
                 if len(extracted_items) == 1 and os.path.isdir(os.path.join(extraction_path, extracted_items[0])):
@@ -413,7 +474,7 @@ def organize_extracted_files(download_folder, worksheet):
                 continue
 
             extracted_items = os.listdir(extraction_path)
-            print(f"Arquivos extraídos de {student_login}: {extracted_items}")
+            #print(f"Arquivos extraídos de {student_login}: {extracted_items}")
 
             if len(extracted_items) == 1 and os.path.isdir(os.path.join(extraction_path, extracted_items[0])):
                 extracted_folder = os.path.join(extraction_path, extracted_items[0])
@@ -427,7 +488,7 @@ def organize_extracted_files(download_folder, worksheet):
                             destination_file_path = os.path.join(extraction_path, file)
 
                             if os.path.exists(source_file_path):  
-                                print(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
+                                #print(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
                                 move_file(source_file_path, destination_file_path)
                             else:
                                 print(f"Arquivo não encontrado: {source_file_path}")
@@ -463,7 +524,7 @@ def if_there_is_a_folder_inside(submissions_folder):
 
             items = os.listdir(first_folder)
             
-            subfolders = [item for item in items if os.path.isdir(os.path.join(first_folder, item)) and not item.startswith('.')]
+            subfolders = [item for item in items if os.path.isdir(os.path.join(first_folder, item)) and not item.startswith('.') and item not in ['output', '.vscode']]
             
             if subfolders:
                 for subfolder in subfolders:
@@ -474,7 +535,10 @@ def if_there_is_a_folder_inside(submissions_folder):
             for file in files:
                 file_path = os.path.join(first_folder, file)
                 destination = os.path.join(submissions_folder, os.path.basename(first_folder), file)
-        
+
+                if not os.path.exists(os.path.dirname(destination)):
+                    os.makedirs(os.path.dirname(destination))
+
                 shutil.move(file_path, destination)
             
             if first_folder != submissions_folder and not os.listdir(first_folder):
@@ -484,6 +548,7 @@ def if_there_is_a_folder_inside(submissions_folder):
             folder_path = os.path.join(submissions_folder, folder_name)
             if os.path.isdir(folder_path) and not folder_name.startswith('.'):
                 move_files_to_inicial_folder(folder_path)
+
     except Exception as e:
         log_error(f"Erro se existe uma pasta dentro da pasta: {str(e)}")
 
@@ -533,15 +598,16 @@ def list_questions_default():
         4: ['4', 'q4', 'Q4', 'questao4', 'questão4']
     }
 
-    return questions_dict
+    i = len(questions_dict)
+    return questions_dict,i
 
 def list_questions(sheet_id, sheet_name):
     try:
         try:
             client = get_gspread_client()
             sheet = client.open_by_key(sheet_id).worksheet(sheet_name) 
-            rows = sheet.get_all_values()[1:] 
-
+            #rows = sheet.get_all_values()[1:] 
+            rows = [row[1:] for row in sheet.get_all_values()[1:]]  
             if not rows:
                 print(f"A planilha '{sheet_name}' está vazia. O sistema vai usar o dicionário padrão.")
                 return list_questions_default()
@@ -574,7 +640,7 @@ def list_questions(sheet_id, sheet_name):
                     questions_dict[i] = question_data
                     print(f"O dicionário está assim: {question_data}")
         
-            return questions_dict
+            return questions_dict, i
         except WorksheetNotFound:
             print(f"A aba '{sheet_name}' não foi encontrada na planilha, o sistema vai usar o dicionário padrão.")
             return list_questions_default()
@@ -624,7 +690,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                 expected_filename = f"q{i}_{student_login}.c"
                             
                             if filename == expected_filename:
-                                print(f"O arquivo '{filename}' já está no formato correto.")
+                                #print(f"O arquivo '{filename}' já está no formato correto.")
                                 break  
 
                         else: 
@@ -660,7 +726,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                         
                             if not found_match:
                                 if worksheet is not None:
-                                    update_worksheet(worksheet, student_login, formatacao="1")
+                                    update_worksheet(worksheet, student_login, formatacao=1)
                                 print(f"Tentando correspondência parcial para o arquivo {filename}")
                                 for question_number, possible_names in questions_dict.items():
                                     if question_number in used_questions:
@@ -701,7 +767,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                 verification_renamed(f"{student_login}: {filename}")
                                 print(f"Nenhum nome correspondente encontrado para o arquivo {filename}")
                                 if worksheet is not None:
-                                    update_worksheet(worksheet, student_login, formatacao="1")
+                                    update_worksheet(worksheet, student_login, formatacao=1)
 
     except Exception as e:
         log_error(f"Erro em renomear arquivos baseado nos nomes do dicionario {str(e)}")
@@ -862,7 +928,6 @@ def main():
             classroom_service = build("classroom", "v1", credentials=creds)
             drive_service = build("drive", "v3", credentials=creds)
             num = 1
-            state = 0
             while num ==1:
                 classroom_id, coursework_id, classroom_name, list_name, list_title = list_classroom_data(classroom_service)
                 if classroom_id and coursework_id and classroom_name and list_name and list_title: 
@@ -880,7 +945,7 @@ def main():
 
                 folder_id = read_id_from_file('folder_id.txt')
                 worksheet = create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id)
-                download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, worksheet)
+                download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, coursework_id, worksheet)
                 
                 print("Download completo. Arquivos salvos em:", os.path.abspath(download_folder))
 
@@ -895,9 +960,9 @@ def main():
                 remove_empty_folders(submissions_folder)
 
                 sheet_id = read_id_from_file('sheet_id.txt')
-                questions_data = list_questions(sheet_id, list_name)
+                questions_data, num_questions = list_questions(sheet_id, list_name)
                 rename_files(submissions_folder, list_title, questions_data, worksheet)  
-                
+                #move_rows_worksheet(worksheet, num_questions)
                 
                 try:
                     num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
