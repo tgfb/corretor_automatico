@@ -127,12 +127,6 @@ def list_classroom_data(service):
 def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, coursework_id, worksheet):
     try:
         if worksheet is not None:
-            header = [['Nome do Aluno', 'Email', 'Student Login', 'Entregou?', 'Atrasou?', 'Formatação', 'Comentários']]
-            
-            first_row = worksheet.row_values(1)
-            if not first_row:
-                worksheet.append_rows(header, table_range='A1')
-
             existing_records = worksheet.get_all_values()  
             alunos_registrados = set() 
 
@@ -200,13 +194,17 @@ def download_submissions(classroom_service, drive_service, submissions, download
 
                         except HttpError as error:
                             if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
+                                comentarios = "Malware ou spam"
+                                if worksheet is not None and student_login not in alunos_registrados:
+                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao,None,None, "Malware ou spam"]])
+                                    alunos_registrados.add(student_login)
                                 print(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
                                 if os.path.exists(file_path):
                                     os.remove(file_path)
                             else:
                                 print(f"Erro ao baixar arquivo {file_name} de {student_name}: {error}")
                                 if worksheet is not None and student_login not in alunos_registrados:
-                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao, "Erro de submissão ou submissão não foi baixada"]])
+                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao,None,None, "Erro de submissão ou submissão não foi baixada"]])
                                     alunos_registrados.add(student_login)
                             continue  
 
@@ -223,13 +221,13 @@ def download_submissions(classroom_service, drive_service, submissions, download
                     entregou = 0
                 
                 if worksheet is not None and student_login not in alunos_registrados:
-                    worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao, comentarios]])
+                    worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao,None,None, comentarios]])
                     alunos_registrados.add(student_login)
                 
             except Exception as e:
                 print(f"Erro ao processar {student_name}: {e}")
                 if worksheet is not None and student_login not in alunos_registrados:
-                    worksheet.append_rows([[student_name, student_email, student_login, 0, atrasou, formatacao, "Erro de submissão"]])
+                    worksheet.append_rows([[student_name, student_email, student_login, 0, atrasou, formatacao,None,None, "Erro de submissão"]])
                     alunos_registrados.add(student_login)
                 continue  
 
@@ -254,7 +252,7 @@ def calculate_delay(due_date_str, submission_date_str):
         else:
             return 0
     except Exception as e:
-        print(f"Erro ao calcular atraso: {e}")
+        log_error(f"Erro ao calcular atraso: {e}")
         return 0
 
 def get_due_date(classroom_service, classroom_id, coursework_id):
@@ -280,7 +278,7 @@ def get_due_date(classroom_service, classroom_id, coursework_id):
         else:
             return None
     except Exception as e:
-        print(f"Erro ao obter data de entrega: {e}")
+        log_error(f"Erro ao obter data de entrega: {e}")
         return None
 
 def update_worksheet(worksheet, student_login, entregou=None, formatacao=None):
@@ -292,14 +290,14 @@ def update_worksheet(worksheet, student_login, entregou=None, formatacao=None):
                 entregou_atual = row[3] if entregou is None else entregou 
                 formatacao_atual = row[5] if formatacao is None else formatacao
                 
-                worksheet.update([[entregou_atual]], f'D{idx+1}')   
-                worksheet.update([[formatacao_atual]], f'F{idx+1}')
+                worksheet.update([[int(entregou_atual)]], f'D{idx+1}')
+                worksheet.update([[int(formatacao_atual)]], f'F{idx+1}')
                 
                 print(f"Atualizado para {student_login} com status: {entregou_atual}, {formatacao_atual}")
                 return
         print(f"Login {student_login} não encontrado na planilha.")
     except Exception as e:
-        print(f"Erro ao atualizar a planilha: {e}")
+        log_error(f"Erro ao atualizar a planilha: {e}")
 
 def update_worksheet_comentario(worksheet, student_login, comentario=None):
     try:
@@ -309,7 +307,7 @@ def update_worksheet_comentario(worksheet, student_login, comentario=None):
             if row[2] == student_login: 
                 comentario_atual = row[6] if comentario is None else comentario
                  
-                col = 5
+                col = 8
                 while col < len(row) and row[col]:   
                     col += 1
                 
@@ -320,23 +318,49 @@ def update_worksheet_comentario(worksheet, student_login, comentario=None):
                 return
         print(f"Login {student_login} não encontrado na planilha.")
     except Exception as e:
-        print(f"Erro ao atualizar a planilha: {e}")
+        log_error(f"Erro ao atualizar a planilha: {e}")
 
-def move_rows_worksheet(worksheet, num_questions):
+ 
+def insert_columns(worksheet, num_questions):
     try:
         data = worksheet.get_all_values()
 
-        for row_idx, row in enumerate(data):
-            for col_idx in range(3, 3 + num_questions):
-                if row_idx == 0:
-                    new_value = f"QUESTÃO {col_idx - 2}"
-                else:
-                    new_value = row[col_idx]
+        requests = [] 
 
-                worksheet.update_cell(row_idx + 1, col_idx + 1, new_value)
+        for row_idx, row in enumerate(data):
+            if row_idx == 0:
+                new_columns = [f"QUESTÃO {i + 1}" for i in range(num_questions)]
+            else:
+                new_columns = [''] * num_questions
+
+            updated_row = row[:3] + new_columns + row[3:]
+
+            formatted_values = []
+            for cell in updated_row:
+                try:
+                    int_value = int(cell)
+                    formatted_values.append({'userEnteredValue': {'numberValue': int_value}})
+                except ValueError:
+                    formatted_values.append({'userEnteredValue': {'stringValue': cell}})
+                    
+            requests.append({
+                'updateCells': {
+                    'rows': {
+                        'values': formatted_values
+                    },
+                    'fields': 'userEnteredValue',
+                    'start': {'sheetId': worksheet.id, 'rowIndex': row_idx, 'columnIndex': 0}
+                }
+            })
+
+        body = {
+            'requests': requests
+        }
+        worksheet.spreadsheet.batch_update(body)
 
     except Exception as e:
-        print(f"Erro ao mover colunas da planilha: {e}")  
+        log_error(f"Ocorreu um erro: {e}")
+
 
 def is_real_zip(file_path):
     try:
@@ -913,6 +937,16 @@ def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
     except Exception as e:
         log_error(f"Erro ao criar ou verificar a planilha e aba: {str(e)}")
 
+def header_worksheet(worksheet):
+    try:
+        if worksheet is not None:
+            header = [['NOME DO ALUNO', 'EMAIL', 'STUDENT LOGIN', 'ENTREGA?', 'ATRASO?', 'FORMATAÇÃO?', 'CÓPIA?', 'NOTA TOTAL','COMENTÁRIOS']]
+            
+            first_row = worksheet.row_values(1)
+            if not first_row:
+                worksheet.append_rows(header, table_range='A1')
+    except Exception as e:
+        log_error(f"Erro ao criar o cabeçalho da planilha: {str(e)}")
 
 def log_error(error_message):
     try:
@@ -943,10 +977,12 @@ def main():
                 if not os.path.exists(download_folder):
                     os.makedirs(download_folder)
 
+                sheet_id = read_id_from_file('sheet_id.txt')
+                questions_data, num_questions = list_questions(sheet_id, list_name)
                 folder_id = read_id_from_file('folder_id.txt')
                 worksheet = create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id)
+                header_worksheet(worksheet)
                 download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, coursework_id, worksheet)
-                
                 print("Download completo. Arquivos salvos em:", os.path.abspath(download_folder))
 
                 organize_extracted_files(download_folder, worksheet)
@@ -959,10 +995,9 @@ def main():
                 delete_subfolders_in_student_folders(submissions_folder)
                 remove_empty_folders(submissions_folder)
 
-                sheet_id = read_id_from_file('sheet_id.txt')
-                questions_data, num_questions = list_questions(sheet_id, list_name)
+                
                 rename_files(submissions_folder, list_title, questions_data, worksheet)  
-                #move_rows_worksheet(worksheet, num_questions)
+                insert_columns(worksheet, num_questions)
                 
                 try:
                     num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
