@@ -948,6 +948,53 @@ def header_worksheet(worksheet):
     except Exception as e:
         log_error(f"Erro ao criar o cabeçalho da planilha: {str(e)}")
 
+
+def update_grades(sheet_id1, worksheet2):
+    try: 
+        client = get_gspread_client()
+
+        worksheet1 = client.open_by_key(sheet_id1)
+        worksheet1 = worksheet1.get_worksheet(0)  
+        
+        emails = [email.strip() for email in worksheet1.col_values(6)[1:] if email] 
+        percentages = [percent.strip() for percent in worksheet1.col_values(10)[1:] if percent]   
+        print(f"Procurando os emails {emails}")
+        
+        updates = []
+        not_found_emails = []
+
+        for idx, (email, percentage) in enumerate(zip(emails, percentages), start=2):
+            if not email:
+                break
+
+            if percentage and percentage.isdigit() and percentage in ["100", "0"]:
+                try:
+                    
+                    cell = worksheet2.find(email, in_column=2)
+                    if cell:
+                        
+                        updates.append({
+                            "range": f"K{cell.row}",
+                            "values": [[percentage]]
+                        })
+                    else:
+                        not_found_emails.append(email)
+                except gspread.exceptions.APIError:
+                    pass  
+
+        if updates:
+            worksheet2.batch_update(updates)
+
+        if not_found_emails:
+            with open("not_found_emails.txt", "w") as file:
+                for email in not_found_emails:
+                    file.write(f"{email}\n")
+                               
+    except Exception as e:
+        log_error(f"Erro ao atualizar planilha {str(e)}") 
+
+        
+
 def log_error(error_message):
     try:
         with open("error_log.txt", "a") as log_file:
@@ -999,7 +1046,8 @@ def main():
                 rename_files(submissions_folder, list_title, questions_data, worksheet)  
                 insert_columns(worksheet, num_questions)
                 sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt') #lista 01 turma B
-
+                update_grades(sheet_id_beecrowd, worksheet)
+                    
                 try:
                     num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
                     if num == 0:
