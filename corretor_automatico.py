@@ -3,6 +3,8 @@ import io
 import zipfile
 import rarfile
 import shutil
+import string
+import time
 from datetime import datetime
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -623,20 +625,22 @@ def list_questions_default():
     }
 
     i = len(questions_dict)
-    return questions_dict,i
+    score = None
+    return questions_dict,i, score
 
 def list_questions(sheet_id, sheet_name):
     try:
         try:
             client = get_gspread_client()
-            sheet = client.open_by_key(sheet_id).worksheet(sheet_name) 
-            #rows = sheet.get_all_values()[1:] 
-            rows = [row[1:] for row in sheet.get_all_values()[1:]]  
+            sheet = client.open_by_key(sheet_id).worksheet(sheet_name)
+            rows = sheet.get_all_values()[1:]  
             if not rows:
                 print(f"A planilha '{sheet_name}' está vazia. O sistema vai usar o dicionário padrão.")
                 return list_questions_default()
 
             questions_dict = {}
+            score = {}
+
             for i, row in enumerate(rows, start=1):
                 question_data = []
                 question_data.append(f'{i}')
@@ -645,16 +649,16 @@ def list_questions(sheet_id, sheet_name):
                 question_data.append(f'questao{i}')
                 question_data.append(f'questão{i}')
             
-                beecrowd_number = row[1].strip() if len(row) > 1 and row[1].strip() else ""
+                beecrowd_number = row[2].strip() if len(row) > 2 and row[2].strip() else ""
                 if beecrowd_number:
                     question_data.append(beecrowd_number)
                     question_data.append(f'q{beecrowd_number}')
             
-                question_name = row[2].strip() if len(row) > 2 and row[2].strip() else ""
+                question_name = row[3].strip() if len(row) > 3 and row[3].strip() else ""
                 if question_name:
                     question_data.append(question_name)
             
-                additional_names = row[3:]
+                additional_names = row[4:]
                 for name in additional_names:
                     name = name.strip()
                     if name: 
@@ -663,8 +667,11 @@ def list_questions(sheet_id, sheet_name):
                 if question_data:
                     questions_dict[i] = question_data
                     print(f"O dicionário está assim: {question_data}")
+                
+                if row[0].strip():
+                    score[f'q{i}'] = row[0].strip()
         
-            return questions_dict, i
+            return questions_dict, i, score
         except WorksheetNotFound:
             print(f"A aba '{sheet_name}' não foi encontrada na planilha, o sistema vai usar o dicionário padrão.")
             return list_questions_default()
@@ -884,7 +891,7 @@ def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
         client = get_gspread_client()
 
         spreadsheet = client.create(classroom_name)
-        print(f"Planilha '{classroom_name}' criada com sucesso.")
+        print(f"Planilha '{classroom_name}' criada com sucesso.\n")
 
         drive_service = build("drive", "v3", credentials=get_credentials())
         file_id = spreadsheet.id  
@@ -909,22 +916,22 @@ def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
         if response['files']:
             spreadsheet_id = response['files'][0]['id']
             spreadsheet = client.open_by_key(spreadsheet_id)
-            print(f"Planilha '{classroom_name}' já existe.")
+            print(f"Planilha '{classroom_name}' já existe.\n")
 
             try:
                 worksheet = spreadsheet.worksheet(list_name)
-                print(f"A aba '{list_name}' já existe na planilha.")
+                print(f"A aba '{list_name}' já existe na planilha.\n")
                 #worksheet = None
                 return worksheet
             except Exception:
 
                 worksheet = spreadsheet.add_worksheet(title=list_name, rows=100, cols=20)
-                print(f"A aba '{list_name}' foi criada na planilha '{classroom_name}'.")
+                print(f"A aba '{list_name}' foi criada na planilha '{classroom_name}'.\n")
             
             return worksheet
         else:
             spreadsheet = client.create(classroom_name)
-            print(f"Planilha '{classroom_name}' criada com sucesso.")
+            print(f"Planilha '{classroom_name}' criada com sucesso.\n")
 
             file_id = spreadsheet.id
             drive_service.files().update(fileId=file_id, addParents=folder_id, removeParents='root').execute()
@@ -946,10 +953,9 @@ def header_worksheet(worksheet):
             if not first_row:
                 worksheet.append_rows(header, table_range='A1')
     except Exception as e:
-        log_error(f"Erro ao criar o cabeçalho da planilha: {str(e)}")
+        log_error(f"Erro ao criar o cabeçalho da planilha: {str(e)}")  
 
-
-def update_grades(sheet_id1, worksheet2):
+def update_grades(sheet_id1, worksheet2, score):
     try: 
         client = get_gspread_client()
 
@@ -963,19 +969,25 @@ def update_grades(sheet_id1, worksheet2):
         updates = []
         not_found_emails = []
 
+        score_values = {key: float(value) for key, value in score.items()}
+        score_sum = sum(score_values.values())
+
+        
+
         for idx, (email, percentage) in enumerate(zip(emails, percentages), start=2):
             if not email:
                 break
+            time.sleep(1)
 
-            if percentage and percentage.isdigit() and percentage in ["100", "0"]:
+            if percentage in ["100", "0"]: 
                 try:
                     
                     cell = worksheet2.find(email, in_column=2)
                     if cell:
-                        
+                        value_to_update = score_sum if percentage == "100" else 0
                         updates.append({
-                            "range": f"K{cell.row}",
-                            "values": [[percentage]]
+                            "range": f"H{cell.row}",
+                            "values": [[value_to_update]]
                         })
                     else:
                         not_found_emails.append(email)
@@ -989,11 +1001,13 @@ def update_grades(sheet_id1, worksheet2):
             with open("not_found_emails.txt", "w") as file:
                 for email in not_found_emails:
                     file.write(f"{email}\n")
+        
+        print(f"Updates realizados: {len(updates)}")
+        if len(updates) < len(emails): 
+            print("Nem todos os valores foram preenchidos. Revise os emails e dados na planilha.")
                                
     except Exception as e:
-        log_error(f"Erro ao atualizar planilha {str(e)}") 
-
-        
+        log_error(f"Erro ao atualizar planilha {str(e)}")    
 
 def log_error(error_message):
     try:
@@ -1025,7 +1039,8 @@ def main():
                     os.makedirs(download_folder)
 
                 sheet_id = read_id_from_file('sheet_id.txt')
-                questions_data, num_questions = list_questions(sheet_id, list_name)
+                questions_data, num_questions, score = list_questions(sheet_id, list_name)
+                print(f"\n\na pontuação {score}\n")
                 folder_id = read_id_from_file('folder_id.txt')
                 worksheet = create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id)
                 header_worksheet(worksheet)
@@ -1043,10 +1058,11 @@ def main():
                 remove_empty_folders(submissions_folder)
 
                 
-                rename_files(submissions_folder, list_title, questions_data, worksheet)  
-                insert_columns(worksheet, num_questions)
+                rename_files(submissions_folder, list_title, questions_data, worksheet)
                 sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt') #lista 01 turma B
-                update_grades(sheet_id_beecrowd, worksheet)
+                update_grades(sheet_id_beecrowd, worksheet, score)
+                insert_columns(worksheet, num_questions)
+                
                     
                 try:
                     num = int(input("\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
