@@ -970,8 +970,7 @@ def update_grades(sheet_id1, worksheet2, score):
         not_found_emails = []
 
         score_values = {key: float(value) for key, value in score.items()}
-        score_sum = sum(score_values.values())
-
+        score_sum = float(sum(score_values.values()))
         
 
         for idx, (email, percentage) in enumerate(zip(emails, percentages), start=2):
@@ -984,7 +983,8 @@ def update_grades(sheet_id1, worksheet2, score):
                     
                     cell = worksheet2.find(email, in_column=2)
                     if cell:
-                        value_to_update = score_sum if percentage == "100" else 0
+                        value_to_update = float(score_sum) if percentage == "100" else 0
+                        
                         updates.append({
                             "range": f"H{cell.row}",
                             "values": [[value_to_update]]
