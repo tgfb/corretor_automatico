@@ -379,9 +379,12 @@ def fill_scores_for_students(worksheet, num_questions, score):
 
         for row_idx, row in enumerate(data[1:], start=1): 
             final_score_column = 7 + num_questions
-            
+            delivery_column=7
             try:
-                if len(row) > final_score_column and float(row[final_score_column]) == 0:
+                if (len(row) > delivery_column and float(row[delivery_column]) == 0) or \
+                   (len(row) > final_score_column and float(row[final_score_column]) == 0):
+                    question_scores = [0] * num_questions
+                #if len(row) > final_score_column and float(row[final_score_column]) == 0:
                     
                     question_scores = [0] * num_questions
                 elif len(row) > final_score_column and float(row[final_score_column]) == score_sum:
@@ -389,6 +392,7 @@ def fill_scores_for_students(worksheet, num_questions, score):
                     question_scores = [score_values.get(f'q{i + 1}', 0) for i in range(num_questions)]
                 else:
                     continue 
+
                     
                 for i, score_value in enumerate(question_scores):
                     column_index = 3 + i  
