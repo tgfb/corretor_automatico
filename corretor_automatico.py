@@ -384,9 +384,7 @@ def fill_scores_for_students(worksheet, num_questions, score):
                 if (len(row) > delivery_column and float(row[delivery_column]) == 0) or \
                    (len(row) > final_score_column and float(row[final_score_column]) == 0):
                     question_scores = [0] * num_questions
-                #if len(row) > final_score_column and float(row[final_score_column]) == 0:
-                    
-                    question_scores = [0] * num_questions
+                
                 elif len(row) > final_score_column and float(row[final_score_column]) == score_sum:
                     
                     question_scores = [score_values.get(f'q{i + 1}', 0) for i in range(num_questions)]
@@ -420,6 +418,54 @@ def fill_scores_for_students(worksheet, num_questions, score):
 
     except Exception as e:
         log_error(f"Ocorreu um erro ao preencher pontuações: {e}")
+
+def apply_dynamic_formula_in_column(worksheet, num_questions):
+    try:
+        data = worksheet.get_all_values()
+        requests = []
+
+        last_filled_row = 0
+        for row_idx, row in enumerate(data):
+            if row[0]:  
+                last_filled_row = row_idx
+
+        column_final_grades = 7 + num_questions
+
+        columns_to_sum = ['D', 'E', 'F', 'G'][:num_questions]
+
+        for row_idx in range(1, last_filled_row + 1):
+            try:
+                sum_formula = '+'.join([f"{col}{row_idx + 1}" for col in columns_to_sum])
+
+                formula = f"={sum_formula} - (0.15*I{row_idx + 1} + 0.15*J{row_idx + 1})"
+
+                requests.append({
+                    'updateCells': {
+                        'rows': [{
+                            'values': [{'userEnteredValue': {'formulaValue': formula}}]
+                        }],
+                        'fields': 'userEnteredValue',
+                        'start': {
+                            'sheetId': worksheet.id,
+                            'rowIndex': row_idx,
+                            'columnIndex': column_final_grades 
+                        }
+                    }
+                })
+
+            except Exception as e:
+                log_error(f"Erro ao processar a linha {row_idx + 1}: {e}")
+                continue
+
+        body = {
+            'requests': requests
+        }
+        worksheet.spreadsheet.batch_update(body)
+        print('Fórmula dinâmica aplicada na coluna de nota final.')
+
+    except Exception as e:
+        log_error(f"Erro ao aplicar formula dinâmica: {e}")
+
 
 def is_real_zip(file_path):
     try:
@@ -829,7 +875,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                                     update_worksheet_comentario(worksheet, student_login, comentario=(f"Tentando correspondência parcial {student_login}: de {filename} para {new_filename}"))
                                                 verification_renamed(f"{student_login}: de {filename} para {new_filename}")
                                                 os.rename(file_path, new_file_path)
-                                                log_info(f"Renamed '{filename}' to '{new_filename}' for student '{student_login}'")
+                                                log_info(f"Renomeando'{filename}' para '{new_filename}' para o estudante '{student_login}'")
                                                 used_questions.add(question_number) 
                                             else:
                                                 log_info(f"O arquivo '{filename}' já está com o nome correto.")
@@ -1132,6 +1178,8 @@ def main():
                         fill_scores_for_students(worksheet, num_questions, score)
 
                     print("\nProcesso de colocar as notas do beecrowd na planilha finalizado.")
+                    apply_dynamic_formula_in_column(worksheet, num_questions)
+                    print("\nAdicionando a formula na nota final")
 
                 try:
                     num = int(input("\n\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
