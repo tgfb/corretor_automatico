@@ -191,7 +191,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                                     log_info(f"Baixando {file_name} de {student_name}: {progress_percentage}%")
                                 
                                 if progress_percentage == 0:
-                                    comentarios = "Não foi baixado arquivos, verificar o que foi entregue no classroom"
+                                    comentarios = "Erro de submissão ou submissão não foi baixada."
                                     entregou = 0
                                     os.remove(file_path)
 
@@ -199,7 +199,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                             if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
                                 comentarios = "Malware ou spam"
                                 if worksheet is not None and student_login not in alunos_registrados:
-                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao,None,None, "Malware ou spam"]])
+                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao,None,None, "Erro de submissão: Malware ou spam"]])
                                     alunos_registrados.add(student_login)
                                 log_info(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
                                 if os.path.exists(file_path):
@@ -381,25 +381,30 @@ def fill_scores_for_students(worksheet, num_questions, score):
             final_score_column = 7 + num_questions
             
             try:
-                if len(row) > final_score_column and float(row[final_score_column]) == score_sum:
-                   
-                    question_scores = [score_values.get(f'q{i + 1}', 0) for i in range(num_questions)]
+                if len(row) > final_score_column and float(row[final_score_column]) == 0:
                     
-                    for i, score_value in enumerate(question_scores):
-                        column_index = 3 + i  
-                        requests.append({
-                            'updateCells': {
-                                'rows': [{
-                                    'values': [{'userEnteredValue': {'numberValue': score_value}}]
-                                }],
-                                'fields': 'userEnteredValue',
-                                'start': {
-                                    'sheetId': worksheet.id,
-                                    'rowIndex': row_idx,
-                                    'columnIndex': column_index
-                                }
+                    question_scores = [0] * num_questions
+                elif len(row) > final_score_column and float(row[final_score_column]) == score_sum:
+                    
+                    question_scores = [score_values.get(f'q{i + 1}', 0) for i in range(num_questions)]
+                else:
+                    continue 
+                    
+                for i, score_value in enumerate(question_scores):
+                    column_index = 3 + i  
+                    requests.append({
+                        'updateCells': {
+                            'rows': [{
+                                'values': [{'userEnteredValue': {'numberValue': score_value}}]
+                            }],
+                            'fields': 'userEnteredValue',
+                            'start': {
+                                'sheetId': worksheet.id,
+                                'rowIndex': row_idx,
+                                'columnIndex': column_index
                             }
-                        })
+                        }
+                    })
 
             except ValueError:
                 continue
@@ -1116,7 +1121,7 @@ def main():
                     if sheet_id_beecrowd:
                         update_grades(sheet_id_beecrowd, worksheet, score)
                     else:
-                        print("ID da planilha Beecrowd não encontrado.")
+                        print("\nID da planilha Beecrowd não encontrado.")
                     
                     insert_columns(worksheet, num_questions)
                     if sheet_id_beecrowd:
