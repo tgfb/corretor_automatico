@@ -182,7 +182,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                                     if not os.path.exists(student_folder):
                                         os.makedirs(student_folder)
                                         formatacao=1
-                                        comentarios="Erro de submissão: não enviou compactado."
+                                        comentarios="Erro de submissão: enviou arquivo(s), mas não enviou numa pasta compactada."
                                 file_path = os.path.join(student_folder, file_name)
                             else:
                                 file_path = os.path.join(download_folder, file_name)
@@ -250,7 +250,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
             except Exception as e:
                 log_info(f"Erro ao processar {student_name}: {e}")
                 if worksheet is not None and student_login not in alunos_registrados:
-                    worksheet.append_rows([[student_name, student_email, student_login, 0, atrasou, formatacao,None,None, "Erro de submissão"]])
+                    worksheet.append_rows([[student_name, student_email, student_login, 0, atrasou, formatacao,None,None, "Erro de submissão: erro ao processar."]])
                     alunos_registrados.add(student_login)
                 continue  
 
@@ -526,10 +526,13 @@ def is_real_zip(file_path):
         log_error(f"Erro ao verificar se é um zip: {str(e)}")
         return False
 
-def extract_zip(worksheet,zip_file_path, extraction_path):
+def extract_zip(worksheet,student_login,zip_file_path, extraction_path):
     try:
         if not is_real_zip(zip_file_path):
             log_info(f"O arquivo {zip_file_path} não é um .zip válido.")
+            if worksheet is not None:
+                update_worksheet(worksheet, student_login, entregou=0)
+                update_worksheet_comentario(worksheet, student_login, comentario=f"O arquivo {zip_file_path} não é um .zip válido. ")
             return
 
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
@@ -539,11 +542,13 @@ def extract_zip(worksheet,zip_file_path, extraction_path):
         if os.path.exists(macosx_path):
             log_info(f"Removendo pasta __MACOSX de {extraction_path}")
             shutil.rmtree(macosx_path)
+            if worksheet is not None:
+                update_worksheet_comentario(worksheet, student_login, comentario="Deletado pasta __MACOSX ")
 
     except Exception as e:
         log_error(f"Erro ao extrair o zip {str(e)}") 
 
-def extract_rar(rar_file_path, extraction_path):
+def extract_rar(worksheet, student_login, rar_file_path, extraction_path):
     try:
         try:
             with rarfile.RarFile(rar_file_path, 'r') as rar_ref:
@@ -556,6 +561,8 @@ def extract_rar(rar_file_path, extraction_path):
         if os.path.exists(macosx_path):
             log_info(f"Removendo pasta __MACOSX de {extraction_path}")
             shutil.rmtree(macosx_path)
+            if worksheet is not None:
+                update_worksheet_comentario(worksheet, student_login, comentario="Deletado pasta __MACOSX ")
 
     except Exception as e:
         log_error(f"Erro em extrair o rar {str(e)}")  
@@ -607,20 +614,20 @@ def organize_extracted_files(download_folder, worksheet):
 
                 try:
                     if item.endswith('.zip'):
-                        extract_zip(worksheet,item_path, extraction_path)
+                        extract_zip(worksheet,student_login,item_path, extraction_path)
                     elif item.endswith('.rar'):
-                        extract_rar(item_path, extraction_path)
+                        extract_rar(worksheet, student_login,item_path, extraction_path)
                 except (zipfile.BadZipFile, rarfile.Error) as e:
                     log_info(f"Erro ao extrair o arquivo {item}: {e}")
                     if worksheet is not None:
-                        update_worksheet(worksheet, student_login, entregou=0)
+                        update_worksheet(worksheet, student_login, entregou=0, formatacao=0)
                         update_worksheet_comentario(worksheet, student_login, comentario="Erro de submissão: compactação com erro")
                     continue
 
                 extracted_items = os.listdir(extraction_path)
                 if not extracted_items:
                     if worksheet is not None:
-                        update_worksheet(worksheet, student_login, entregou=0)
+                        update_worksheet(worksheet, student_login, entregou=0, formatacao=0)
                         update_worksheet_comentario(worksheet, student_login, comentario="Erro de submissão: zip vazio")
                     continue
 
@@ -637,7 +644,7 @@ def organize_extracted_files(download_folder, worksheet):
                                 if worksheet is not None:
                                     update_worksheet_formatacao(worksheet,student_login,formatacao=1, comentario="Erro de formatação de pasta: zip dentro do zip.")
                                 try:
-                                    extract_zip(worksheet,extracted_item_path, extraction_path)
+                                    extract_zip(worksheet,student_login, extracted_item_path, extraction_path)
                                     os.remove(extracted_item_path)
                                 except zipfile.BadZipFile:
                                     log_info(f"Erro ao extrair zip: {extracted_item_path}")
@@ -645,7 +652,7 @@ def organize_extracted_files(download_folder, worksheet):
                                 if worksheet is not None:
                                     update_worksheet_formatacao(worksheet,student_login,formatacao=1, comentario="Erro de formatação de pasta: rar dentro do rar.")
                                 try:
-                                    extract_rar(extracted_item_path, extraction_path)
+                                    extract_rar(worksheet, student_login, extracted_item_path, extraction_path)
                                     os.remove(extracted_item_path)
                                 except rarfile.Error:
                                     log_info(f"Erro ao extrair rar: {extracted_item_path}")
@@ -656,46 +663,57 @@ def organize_extracted_files(download_folder, worksheet):
 
             extracted_items = os.listdir(extraction_path)
             log_info(f"Arquivos extraídos de {student_login}: {extracted_items}")
+            for_not_executed = True
+            if len(extracted_items) == 1:
+                extracted_path = os.path.join(extraction_path, extracted_items[0])
 
-            if len(extracted_items) == 1 and os.path.isdir(os.path.join(extraction_path, extracted_items[0])):
-                extracted_folder = os.path.join(extraction_path, extracted_items[0])
+                if os.path.isdir(extracted_path):
+                    extracted_folder = extracted_path
 
-                if extracted_items[0] == student_login:
-                    log_info(f"A pasta extraída {extracted_items[0]} já tem o nome correto. Movendo arquivos para {extraction_path}.")
-                    
-                    if os.path.exists(extracted_folder):
-                        for file in os.listdir(extracted_folder):
-                            source_file_path = os.path.join(extracted_folder, file)
-                            destination_file_path = os.path.join(extraction_path, file)
-
-                            if os.path.exists(source_file_path):  
-                                log_info(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
-                                move_file(source_file_path, destination_file_path)
-                            else:
-                                log_info(f"Arquivo não encontrado: {source_file_path}")
+                    if extracted_items[0] == student_login:
+                        log_info(f"A pasta extraída {extracted_items[0]} já tem o nome correto. Movendo arquivos para {extraction_path}.")
                         
-                        if not os.listdir(extracted_folder):
-                            shutil.rmtree(extracted_folder)
-                            log_info(f"Pasta extra deletada: {extracted_folder}")
-                        else:
-                            log_info(f"Pasta extra {extracted_folder} ainda contém arquivos e não será deletada.")
-                else:
-                    log_info(f"A pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}")
-                    if worksheet is not None:
-                        update_worksheet_formatacao(worksheet,student_login,formatacao=1, comentario=f"Erro de formatação de pasta: a pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}.")
-                    if os.path.exists(extracted_folder):  
-                        for file in os.listdir(extracted_folder):
-                            source_file_path = os.path.join(extracted_folder, file)
-                            destination_file_path = os.path.join(extraction_path, file)
+                        if os.path.exists(extracted_folder):
+                            for file in os.listdir(extracted_folder):
+                                for_not_executed = False
+                                source_file_path = os.path.join(extracted_folder, file)
+                                destination_file_path = os.path.join(extraction_path, file)
 
-                            if os.path.exists(source_file_path):  
-                                log_info(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
-                                move_file(source_file_path, destination_file_path)
+                                if os.path.exists(source_file_path):  
+                                    log_info(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
+                                    move_file(source_file_path, destination_file_path)
+                                else:
+                                    log_info(f"Arquivo não encontrado: {source_file_path}")
+                            
+                            if not os.listdir(extracted_folder):
+                                shutil.rmtree(extracted_folder)
+                                log_info(f"Pasta extra deletada: {extracted_folder}")
+                                if for_not_executed:
+                                    if worksheet is not None:
+                                        update_worksheet_formatacao(worksheet,student_login,formatacao=0, comentario=f"Não tem arquivos dentro da pasta: pasta deletada.")
                             else:
-                                log_info(f"Arquivo não encontrado: {source_file_path}")
+                                log_info(f"Pasta extra {extracted_folder} ainda contém arquivos e não será deletada.")
+                    else:
+                        log_info(f"A pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}")
+                        if worksheet is not None:
+                            update_worksheet_formatacao(worksheet,student_login,formatacao=1, comentario=f"Erro de formatação de pasta: a pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}.")
+                        if os.path.exists(extracted_folder):  
+                            for file in os.listdir(extracted_folder):
+                                source_file_path = os.path.join(extracted_folder, file)
+                                destination_file_path = os.path.join(extraction_path, file)
 
-                        shutil.rmtree(extracted_folder)
-                        log_info(f"Pasta deletada: {extracted_folder}")
+                                if os.path.exists(source_file_path):  
+                                    log_info(f"Movendo arquivo: {source_file_path} -> {destination_file_path}")
+                                    move_file(source_file_path, destination_file_path)
+                                else:
+                                    log_info(f"Arquivo não encontrado: {source_file_path}")
+
+                            shutil.rmtree(extracted_folder)
+                            log_info(f"Pasta deletada: {extracted_folder}")
+                else:
+                    log_info(f"Erro de formatação: {student_login} enviou arquivos soltos sem pasta.")
+                    if worksheet is not None:
+                        update_worksheet_formatacao(worksheet, student_login, formatacao=1, comentario=f"Erro de formatação de pasta: enviou sem pasta")
     except Exception as e:
         log_error(f"Erro ao organizar arquivos extraídos: {str(e)}")
 
@@ -728,8 +746,8 @@ def if_there_is_a_folder_inside(worksheet,submissions_folder):
                 file_path = os.path.join(first_folder, file)
                 destination = os.path.join(submissions_folder, os.path.basename(first_folder), file)
 
-                #if not os.path.exists(os.path.dirname(destination)):
-                    #os.makedirs(os.path.dirname(destination))
+                if not os.path.exists(os.path.dirname(destination)):
+                    os.makedirs(os.path.dirname(destination))
 
                 shutil.move(file_path, destination)
             
@@ -784,7 +802,50 @@ def freeze_and_sort(worksheet):
         worksheet.sort((3, 'asc'))
 
     except Exception as e:
-        log_error(f"Erro em formatar a planilha {str(e)}")   
+        log_error(f"Erro em formatar a planilha {str(e)}")  
+
+def insert_header_title(worksheet, classroom_name, list_title):
+    try:
+        worksheet.insert_row([], 1)
+        worksheet.update(range_name='A1', values=[[f"{classroom_name} - {list_title}"]])
+        format_settings = {
+            "backgroundColor": {
+                "red": 0.0,     
+                "green": 0.2,
+                "blue": 0.6
+            },
+            "horizontalAlignment": "CENTER",  
+            "textFormat": {
+                "foregroundColor": {  
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0
+                },      
+                "bold": True          
+            }
+        }
+        worksheet.format('A1:1', format_settings)
+        worksheet.format('A2:2', format_settings)
+        worksheet.freeze(rows=2)
+        worksheet.freeze(cols=3)
+
+        requests = [
+            {
+                "autoResizeDimensions": {
+                    "dimensions": {
+                        "sheetId": worksheet.id,  
+                        "dimension": "COLUMNS",
+                        "startIndex": 0,          
+                        "endIndex": 3             
+                    }
+                }
+            }
+        ]
+        
+        worksheet.spreadsheet.batch_update({"requests": requests})
+
+    except Exception as e:
+        log_error(f"Erro ao inserir título da planilha no cabeçalho e formatar a planilha: {str(e)}")
 
 def list_questions_default():
     print("\nNão foi encontrado a planilha para essa lista. Para renomear as questões será utilizado um dicionário de possíveis nomes para as questões de 1 a 4.")
@@ -797,7 +858,7 @@ def list_questions_default():
         4: ['4','q4', 'Q4', 'questao4', 'questão4' ]
     }
 
-    print("\nO dicionário está assim:")
+    print("\nO dicionário está assim:\n")
     pprint(questions_dict)
     i = len(questions_dict)
     score = None
@@ -901,7 +962,6 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                 break  
 
                         else: 
-                            #base_filename_clean = os.path.splitext(filename)[0].lower().replace("_", " ").replace(student_login.lower(), "").strip()
                             base_filename_clean = re.sub(r"\(\d+\)", "", os.path.splitext(filename)[0].lower()) \
                                 .replace("_", " ") \
                                 .replace(student_login.lower(), "") \
@@ -1005,13 +1065,19 @@ def no_c_files_in_directory(worksheet,submissions_folder):
                     new_file_path = os.path.join(root, file_name + '.c')
                     os.rename(file_path, new_file_path)
                     if worksheet is not None:
-                        update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: {file_path} "))
+                        update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: de {file_path} par {new_file_path} "))
 
                 elif file_extension != '.c':
                     if file_extension:
                         if '.c' in file_name:
                             base_name = file_name.split('.c')[0] 
                             new_file_path = os.path.join(root, base_name + '.c')
+                            log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
+                            os.rename(file_path, new_file_path)
+                            if worksheet is not None:
+                                update_worksheet_formatacao(worksheet,folder_name,formatacao=1,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path} "))
+                        if file_extension == '.cpp':
+                            new_file_path = os.path.join(root, file_name + '.c')
                             log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                             os.rename(file_path, new_file_path)
                             if worksheet is not None:
@@ -1026,7 +1092,7 @@ def no_c_files_in_directory(worksheet,submissions_folder):
                         log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                         os.rename(file_path, new_file_path)
                         if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,folder_name,formatacao=1,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_name} "))
+                            update_worksheet_formatacao(worksheet,folder_name,formatacao=1,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: de {file_path} para {new_file_path} "))
     except Exception as e:
         log_error(f"Erro no metodo no c files no diretorio {str(e)}")
 
@@ -1089,7 +1155,7 @@ def rename_files(submissions_folder, list_title, questions_data, worksheet):
         else:
             if 'ARQUIVOS' not in list_title:
                 no_c_files_in_directory(worksheet, submissions_folder)
-            rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet)
+                rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet)
     except Exception as e:
         log_error(f"Erro no metodo renomear arquivos {str(e)}")          
         
@@ -1226,7 +1292,20 @@ def update_grades(sheet_id1, worksheet2, score):
             print("\nNem todos os alunos que tiraram 100 ou 0 foram encontrados. Revise os emails no txt.")
                                
     except Exception as e:
-        log_error(f"Erro ao atualizar planilha {str(e)}")    
+        log_error(f"Erro ao atualizar planilha {str(e)}")  
+
+def delete_empty_subfolders(worksheet,submissions_folder):
+    try:
+        for folder_name in os.listdir(submissions_folder):
+            folder_path = os.path.join(submissions_folder, folder_name)
+
+            if os.path.isdir(folder_path) and not os.listdir(folder_path):  
+                shutil.rmtree(folder_path)
+                log_info(f"Pasta deletada {folder_name}")
+                if worksheet is not None:
+                    update_worksheet_comentario(worksheet, folder_name, comentario=f"Pasta deletada {folder_name}")
+    except Exception as e:
+        log_error(f"Erro ao deletar pastas vazias dentro de {submissions_folder}: {str(e)}")
 
 def log_error(error_message):
     try:
@@ -1285,7 +1364,8 @@ def main():
 
                 rename_files(submissions_folder, list_title, questions_data, worksheet)
                 print("\nProcesso de verificar e renomear arquivos finalizado.")
-                
+                delete_empty_subfolders(worksheet,submissions_folder)
+               
                 if worksheet is not None:
                     sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt')
                     if sheet_id_beecrowd:
@@ -1299,6 +1379,7 @@ def main():
                         print("\nID da planilha Beecrowd não encontrado.")
                     
                     freeze_and_sort(worksheet)
+                    insert_header_title(worksheet, classroom_name, list_title)
                     
                 try:
                     num = int(input("\n\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
