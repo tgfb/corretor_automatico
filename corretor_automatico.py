@@ -7,7 +7,6 @@ import string
 import zipfile
 import rarfile
 import gspread
-from pprint import pprint
 from datetime import datetime
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -64,7 +63,7 @@ def list_classroom_data(service):
                         print(f"{index} - {course['name']}")
                     print(f"{len(pif_courses) + 1} - Sair")
                     
-                    choice = int(input("Escolha um número para selecionar a turma: ").strip())
+                    choice = int(input("\nEscolha um número para selecionar a turma: ").strip())
                     if choice == len(pif_courses) + 1:
                         print("Saindo da lista de opções.")
                         return None, None, None, None, None
@@ -104,7 +103,7 @@ def list_classroom_data(service):
                         print(f"{index} - {assignment['title']}")
                     print(f"{len(valid_assignments)} - Sair")
                     
-                    choice = int(input("Escolha um número para selecionar a lista de exercícios: ").strip())
+                    choice = int(input("\nEscolha um número para selecionar a lista de exercícios: ").strip())
                     if choice == len(valid_assignments):
                         print("Saindo da lista de opções.")
                         return None, None, None, None, None
@@ -147,22 +146,26 @@ def download_submissions(classroom_service, drive_service, submissions, download
                 student_email = student['profile']['emailAddress']
                 student_login = extract_prefix(student_email)
                 student_name = student['profile']['name']['fullName']
-                late = submission.get('late', False)
                 entregou = 1 
                 atrasou = 0
                 formatacao = 0
                 comentarios = None
+                state = submission.get('state', 'UNKNOWN')
 
                 due_date = get_due_date(classroom_service, classroom_id, coursework_id)
-
-                submission_date = submission.get('updateTime')
-                #print(f"A data da submissao está sendo {submission_date}")
-
-                if late and due_date and submission_date:
-                    atrasou = calculate_delay(due_date, submission_date)
+                submission_date = get_submission_timestamp(submission, student_id)
 
                 attachments = submission.get('assignmentSubmission', {}).get('attachments', [])
                 student_folder = None
+
+                log_info(f"Due date: {due_date}, Submission date: {submission_date}, State: {state}")
+                
+                if not attachments: 
+                    entregou = 0
+                    log_info("Aluno não entregou submissão.")
+                else:  
+                    atrasou = calculate_delay(due_date, submission_date) if due_date and submission_date else 0
+                
 
                 if attachments:
                     for attachment in attachments:
@@ -181,7 +184,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                                     student_folder = os.path.join(download_folder, student_login)
                                     if not os.path.exists(student_folder):
                                         os.makedirs(student_folder)
-                                        formatacao=1
+                                        entregou = 1
                                         comentarios="Erro de submissão: enviou arquivo(s), mas não enviou numa pasta compactada."
                                 file_path = os.path.join(student_folder, file_name)
                             else:
@@ -223,11 +226,11 @@ def download_submissions(classroom_service, drive_service, submissions, download
                                 os.rename(file_path, corrected_path)
                                 log_info(f"Renomeado {file_name} para {expected_name} de {student_name}.")
                                 if file_name.lower() != expected_name: 
-                                    formatacao = 1
+                                    formatacao = 0
                                     comentarios = f"Erro de formatação de zip: renomeado {file_name} para {expected_name}. "
                         
                         if file_name.endswith('.rar'):
-                            formatacao = 1
+                            formatacao = 0
                             comentarios = f"Erro de formatação de zip: Foi enviado um rar {file_name}."
                             expected_name = student_login + '.rar'
                             if file_name != expected_name:
@@ -235,14 +238,15 @@ def download_submissions(classroom_service, drive_service, submissions, download
                                 os.rename(file_path, corrected_path)
                                 log_info(f"Renomeado {file_name} para {expected_name} de {student_name}.")
                                 if file_name.lower() != expected_name: 
-                                    formatacao = 1
+                                    formatacao = 0
                                     comentarios = f"Erro de formatação de zip: renomeado {file_name} para {expected_name}. "
                                 
                 else:               
                     log_info(f"Nenhum anexo encontrado para {student_name}")
                     atrasou = 0
                     entregou = 0
-                
+
+
                 if worksheet is not None and student_login not in alunos_registrados:
                     worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao,None,None, comentarios]])
                     alunos_registrados.add(student_login)
@@ -262,7 +266,31 @@ def extract_prefix(email):
         return email.split('@')[0]
     except Exception as e:
         log_error(f"Erro em extrair o prefixo do email {str(e)}")
-
+ 
+    
+def get_submission_timestamp(submission, student_id):
+    try:
+        log_info(f"\nHistórico de submissão: {submission.get('submissionHistory', [])}")
+        
+        last_timestamp = None  
+        
+        for history_entry in submission.get('submissionHistory', []):
+            state_history = history_entry.get('stateHistory', {})
+            state = state_history.get('state')
+            actor_user_id = state_history.get('actorUserId')
+            timestamp = state_history.get('stateTimestamp')
+            
+            log_info(f"Verificando estado: {state}, actorUserId: {actor_user_id}, timestamp: {timestamp}")
+            
+           
+            if state == 'TURNED_IN' and actor_user_id == student_id:
+                last_timestamp = timestamp
+        
+        return last_timestamp  
+    except Exception as e:
+        log_error(f"Erro ao calcular a data de submissão pelo estado de entregue: {e}")
+        return None
+    
 def calculate_delay(due_date_str, submission_date_str):
     try:
         due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -290,7 +318,7 @@ def get_due_date(classroom_service, classroom_id, coursework_id):
             day = due_date['day']
             
             if due_time:
-                hours = due_time.get('hours', 23)
+                hours = due_time.get('hours', 23) #Ajustar isso pra o horário correto
                 minutes = due_time.get('minutes', 59)
                 seconds = due_time.get('seconds', 59)
             else:
@@ -372,6 +400,26 @@ def update_worksheet_comentario(worksheet, student_login, comentario=None):
     except Exception as e:
         log_error(f"Erro ao atualizar a planilha com comentário: {e}")
 
+def update_final_grade_for_no_submission(worksheet):
+    try:
+        data = worksheet.get_all_values()
+        updates = []
+
+        for idx, row in enumerate(data):
+            entrega_valor = row[3] 
+            if entrega_valor == "0":  
+                updates.append({
+                    'range': f'H{idx + 1}', 
+                    'values': [[0]]  
+                })
+
+        if updates:
+            worksheet.batch_update(updates)
+            log_info(f"\n\nNotas finais atualizadas para alunos com entrega 0.")
+        else:
+            log_info("\nNenhuma atualização necessária; nenhum aluno com entrega 0.")
+    except Exception as e:
+        log_error(f"Erro ao atualizar notas finais para alunos com entrega 0: {e}")
 
 def insert_columns(worksheet, num_questions):
     try:
@@ -513,7 +561,7 @@ def apply_dynamic_formula_in_column(worksheet, num_questions):
             'requests': requests
         }
         worksheet.spreadsheet.batch_update(body)
-        print('Fórmula dinâmica aplicada na coluna de nota final.')
+        print('\nFórmula dinâmica aplicada na coluna de nota final.')
 
     except Exception as e:
         log_error(f"Erro ao aplicar formula dinâmica: {e}")
@@ -593,7 +641,7 @@ def rename_directory_if_needed(worksheet,directory_path, expected_name):
                 log_info(f"Pasta renomeada de {current_name} para {expected_name}")
                 if current_name.lower() != expected_name:
                     if worksheet is not None:
-                        update_worksheet_formatacao(worksheet,expected_name,formatacao=1, comentario=f"Erro de formatação de pasta: pasta renomeada de {current_name} para {expected_name}.")
+                        update_worksheet_formatacao(worksheet,expected_name,formatacao=0, comentario=f"Erro de formatação de pasta: pasta renomeada de {current_name} para {expected_name}.")
                 return new_directory_path
         return directory_path
     except Exception as e:
@@ -642,7 +690,7 @@ def organize_extracted_files(download_folder, worksheet):
                         if os.path.isfile(extracted_item_path):
                             if extracted_item.endswith('.zip'):
                                 if worksheet is not None:
-                                    update_worksheet_formatacao(worksheet,student_login,formatacao=1, comentario="Erro de formatação de pasta: zip dentro do zip.")
+                                    update_worksheet_formatacao(worksheet,student_login,formatacao=0, comentario="Erro de formatação de pasta: zip dentro do zip.")
                                 try:
                                     extract_zip(worksheet,student_login, extracted_item_path, extraction_path)
                                     os.remove(extracted_item_path)
@@ -650,7 +698,7 @@ def organize_extracted_files(download_folder, worksheet):
                                     log_info(f"Erro ao extrair zip: {extracted_item_path}")
                             elif extracted_item.endswith('.rar'):
                                 if worksheet is not None:
-                                    update_worksheet_formatacao(worksheet,student_login,formatacao=1, comentario="Erro de formatação de pasta: rar dentro do rar.")
+                                    update_worksheet_formatacao(worksheet,student_login,formatacao=0, comentario="Erro de formatação de pasta: rar dentro do rar.")
                                 try:
                                     extract_rar(worksheet, student_login, extracted_item_path, extraction_path)
                                     os.remove(extracted_item_path)
@@ -662,7 +710,7 @@ def organize_extracted_files(download_folder, worksheet):
                 continue
 
             extracted_items = os.listdir(extraction_path)
-            log_info(f"Arquivos extraídos de {student_login}: {extracted_items}")
+            log_info(f"\nArquivos extraídos de {student_login}: {extracted_items}")
             for_not_executed = True
             if len(extracted_items) == 1:
                 extracted_path = os.path.join(extraction_path, extracted_items[0])
@@ -690,13 +738,14 @@ def organize_extracted_files(download_folder, worksheet):
                                 log_info(f"Pasta extra deletada: {extracted_folder}")
                                 if for_not_executed:
                                     if worksheet is not None:
+                                        update_worksheet(worksheet, student_login, entregou=0)
                                         update_worksheet_formatacao(worksheet,student_login,formatacao=0, comentario=f"Não tem arquivos dentro da pasta: pasta deletada.")
                             else:
                                 log_info(f"Pasta extra {extracted_folder} ainda contém arquivos e não será deletada.")
                     else:
                         log_info(f"A pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}")
                         if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,student_login,formatacao=1, comentario=f"Erro de formatação de pasta: a pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}.")
+                            update_worksheet_formatacao(worksheet,student_login,formatacao=0, comentario=f"Erro de formatação de pasta: a pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}.")
                         if os.path.exists(extracted_folder):  
                             for file in os.listdir(extracted_folder):
                                 source_file_path = os.path.join(extracted_folder, file)
@@ -713,7 +762,7 @@ def organize_extracted_files(download_folder, worksheet):
                 else:
                     log_info(f"Erro de formatação: {student_login} enviou arquivos soltos sem pasta.")
                     if worksheet is not None:
-                        update_worksheet_formatacao(worksheet, student_login, formatacao=1, comentario=f"Erro de formatação de pasta: enviou sem pasta")
+                        update_worksheet_formatacao(worksheet, student_login, formatacao=0, comentario=f"Erro de formatação de pasta: enviou sem pasta")
     except Exception as e:
         log_error(f"Erro ao organizar arquivos extraídos: {str(e)}")
 
@@ -733,11 +782,11 @@ def if_there_is_a_folder_inside(worksheet,submissions_folder):
 
                     if subfolder in ['output', '.vscode']:
                         if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario="Erro de formatação de pasta: output ou .vscode")
+                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario="Erro de formatação de pasta: output ou .vscode")
                         continue
 
                     if worksheet is not None:
-                        update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario="Erro de formatação de pasta: subpastas")
+                        update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario="Erro de formatação de pasta: subpastas")
                     
                     move_files_to_inicial_folder(subfolder_path, folder_name)
             
@@ -796,61 +845,130 @@ def get_gspread_client():
         log_error(f"Erro em conseguir a credencial do google spreadsheet {str(e)}")
 
 def freeze_and_sort(worksheet):
-    try: 
-        
-        worksheet.freeze(rows=1)
-        worksheet.sort((3, 'asc'))
+    try:
+        requests = [
+            # Congelar a primeira linha
+            {
+                "updateSheetProperties": {
+                    "properties": {
+                        "sheetId": worksheet.id,
+                        "gridProperties": {
+                            "frozenRowCount": 1
+                        }
+                    },
+                    "fields": "gridProperties.frozenRowCount"
+                }
+            },
+            # Ordenar pela terceira coluna (índice 2) em ordem ascendente
+            {
+                "sortRange": {
+                    "range": {
+                        "sheetId": worksheet.id,
+                        "startRowIndex": 1,  
+                    },
+                    "sortSpecs": [
+                        {
+                            "dimensionIndex": 2, 
+                            "sortOrder": "ASCENDING"
+                        }
+                    ]
+                }
+            }
+        ]
+
+        worksheet.spreadsheet.batch_update({"requests": requests})
 
     except Exception as e:
-        log_error(f"Erro em formatar a planilha {str(e)}")  
+        log_error(f"Erro em formatar a planilha {str(e)}")
 
 def insert_header_title(worksheet, classroom_name, list_title):
     try:
-        worksheet.insert_row([], 1)
-        worksheet.update(range_name='A1', values=[[f"{classroom_name} - {list_title}"]])
-        format_settings = {
-            "backgroundColor": {
-                "red": 0.0,     
-                "green": 0.2,
-                "blue": 0.6
-            },
-            "horizontalAlignment": "CENTER",  
-            "textFormat": {
-                "foregroundColor": {  
-                    "red": 1.0,
-                    "green": 1.0,
-                    "blue": 1.0
-                },      
-                "bold": True          
-            }
-        }
-        worksheet.format('A1:1', format_settings)
-        worksheet.format('A2:2', format_settings)
-        worksheet.freeze(rows=2)
-        worksheet.freeze(cols=3)
-
         requests = [
+            # Inserir linha vazia no início
+            {
+                "insertDimension": {
+                    "range": {
+                        "sheetId": worksheet.id,
+                        "dimension": "ROWS",
+                        "startIndex": 0,
+                        "endIndex": 1
+                    },
+                    "inheritFromBefore": False
+                }
+            },
+            # Atualizar o título na célula A1
+            {
+                "updateCells": {
+                    "rows": [{
+                        "values": [{
+                            "userEnteredValue": {"stringValue": f"{classroom_name} - {list_title}"},
+                        }]
+                    }],
+                    "fields": "userEnteredValue",
+                    "start": {"sheetId": worksheet.id, "rowIndex": 0, "columnIndex": 0}
+                }
+            },
+            # Aplicar formatação nas linhas 1 e 2
+            {
+                "repeatCell": {
+                    "range": {
+                        "sheetId": worksheet.id,
+                        "startRowIndex": 0,
+                        "endRowIndex": 2
+                    },
+                    "cell": {
+                        "userEnteredFormat": {
+                            "backgroundColor": {"red": 0.0, "green": 0.2, "blue": 0.6},
+                            "horizontalAlignment": "CENTER",
+                            "textFormat": {
+                                "foregroundColor": {"red": 1.0, "green": 1.0, "blue": 1.0},
+                                "bold": True
+                            }
+                        }
+                    },
+                    "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+                }
+            },
+            # Congelar as primeiras duas linhas e três colunas
+            {
+                "updateSheetProperties": {
+                    "properties": {
+                        "sheetId": worksheet.id,
+                        "gridProperties": {
+                            "frozenRowCount": 2,
+                            "frozenColumnCount": 3
+                        }
+                    },
+                    "fields": "gridProperties.frozenRowCount,gridProperties.frozenColumnCount"
+                }
+            },
+            # Redimensionar automaticamente as três primeiras colunas
             {
                 "autoResizeDimensions": {
                     "dimensions": {
-                        "sheetId": worksheet.id,  
+                        "sheetId": worksheet.id,
                         "dimension": "COLUMNS",
-                        "startIndex": 0,          
-                        "endIndex": 3             
+                        "startIndex": 0,
+                        "endIndex": 3
                     }
                 }
             }
         ]
-        
+
         worksheet.spreadsheet.batch_update({"requests": requests})
 
     except Exception as e:
         log_error(f"Erro ao inserir título da planilha no cabeçalho e formatar a planilha: {str(e)}")
 
-def list_questions_default():
-    print("\nNão foi encontrado a planilha para essa lista. Para renomear as questões será utilizado um dicionário de possíveis nomes para as questões de 1 a 4.")
 
-      
+def list_questions_default(sheet_id):
+    if sheet_id is not None:
+        print("\nNão foi encontrado a aba na planilha para essa lista. Para renomear as questões será utilizado um dicionário padrão com possíveis nomes para as questões de 1 a 4.")
+    else:
+        print("\nNão foi submetido o id da planilha no arquivo 'sheet_id.txt'. Para renomear as questões será utilizado um dicionário de possíveis nomes para as questões de 1 a 4.")
+    
+    print("\nSe preencher a planilha personalizada possivelmente aumentará a quantidade de renomeações.")
+
     questions_dict = {
         1: ['1','q1', 'Q1', 'questao1', 'questão1' ],
         2: ['2','q2', 'Q2', 'questao2', 'questão2' ],
@@ -858,8 +976,9 @@ def list_questions_default():
         4: ['4','q4', 'Q4', 'questao4', 'questão4' ]
     }
 
-    print("\nO dicionário está assim:\n")
-    pprint(questions_dict)
+    print("\nDicionário padrão:")
+    for key, value in questions_dict.items():
+        print(f"{value}")
     i = len(questions_dict)
     score = None
     return questions_dict,i, score
@@ -871,12 +990,12 @@ def list_questions(sheet_id, sheet_name):
             sheet = client.open_by_key(sheet_id).worksheet(sheet_name)
             rows = sheet.get_all_values()[1:]  
             if not rows:
-                print(f"A planilha '{sheet_name}' está vazia. O sistema vai usar o dicionário padrão.")
-                return list_questions_default()
+                print(f"A planilha '{sheet_name}' não tem campos preenchidos. O sistema vai usar o dicionário padrão.")
+                return list_questions_default(sheet_id)
 
             questions_dict = {}
             score = {}
-
+            print("\nO dicionário está assim: ")
             for i, row in enumerate(rows, start=1):
                 question_data = []
                 
@@ -900,21 +1019,21 @@ def list_questions(sheet_id, sheet_name):
                     name = name.strip()
                     if name: 
                         question_data.append(name)
-            
+
                 if question_data:
                     questions_dict[i] = question_data
-                    print(f"O dicionário está assim: {question_data}")
+                    print(f"{question_data}")
                 
                 if row[0].strip():
                     score[f'q{i}'] = row[0].strip()
         
             return questions_dict, i, score
         except WorksheetNotFound:
-            print(f"A aba '{sheet_name}' não foi encontrada na planilha, o sistema vai usar o dicionário padrão.")
-            return list_questions_default()
+            print(f"A aba '{sheet_name}' não foi encontrada na planilha de nomes para as questões.")
+            return list_questions_default(sheet_id)
     except Exception as e:
         log_error(f"Erro em pegar da planilha os nomes das questões vai usar o dicionário padrão {str(e)}")
-        return list_questions_default()       
+        return list_questions_default(sheet_id)       
 
 def remove_empty_folders(submissions_folder):
     try:
@@ -941,7 +1060,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
             student_folder_path = os.path.join(submissions_folder, student_login)
 
             if os.path.isdir(student_folder_path):
-                log_info(f"Verificando pasta do estudante: {student_folder_path}")
+                log_info(f"\nVerificando pasta do estudante: {student_folder_path}")
     
                 used_questions = set()
 
@@ -988,7 +1107,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                             log_info(f"Renomeando: '{filename}' para '{new_filename}' para o estudante '{student_login}'")
                                             used_questions.add(question_number) 
                                             if worksheet is not None:
-                                                update_worksheet_formatacao(worksheet,student_login,formatacao=1, comentario=f"Erro de formatação no arquivo: renomeando '{filename}' para '{new_filename}'")
+                                                update_worksheet_formatacao(worksheet,student_login,formatacao=0, comentario=f"Erro de formatação no arquivo: renomeando '{filename}' para '{new_filename}'")
                                         
                                         found_match = True
                                         break  
@@ -997,8 +1116,6 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, workshe
                                     break  
                         
                             if not found_match:
-                                if worksheet is not None:
-                                    update_worksheet(worksheet, student_login, formatacao=1)
                                 log_info(f"Tentando correspondência parcial para o arquivo {filename}")
                                 for question_number, possible_names in questions_dict.items():
                                     if question_number in used_questions:
@@ -1058,14 +1175,21 @@ def no_c_files_in_directory(worksheet,submissions_folder):
                     log_info(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
                     if worksheet is not None:
-                        update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_name} "))
+                        update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_name} "))
                     continue
 
                 if file_extension == '.C':
                     new_file_path = os.path.join(root, file_name + '.c')
                     os.rename(file_path, new_file_path)
                     if worksheet is not None:
-                        update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: de {file_path} par {new_file_path} "))
+                        update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: de {file_path} par {new_file_path} "))
+                
+                if file_extension == '.cpp':
+                            new_file_path = os.path.join(root, file_name + '.c')
+                            log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
+                            os.rename(file_path, new_file_path)
+                            if worksheet is not None:
+                                update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path} "))
 
                 elif file_extension != '.c':
                     if file_extension:
@@ -1075,24 +1199,18 @@ def no_c_files_in_directory(worksheet,submissions_folder):
                             log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                             os.rename(file_path, new_file_path)
                             if worksheet is not None:
-                                update_worksheet_formatacao(worksheet,folder_name,formatacao=1,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path} "))
-                        if file_extension == '.cpp':
-                            new_file_path = os.path.join(root, file_name + '.c')
-                            log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
-                            os.rename(file_path, new_file_path)
-                            if worksheet is not None:
-                                update_worksheet_formatacao(worksheet,folder_name,formatacao=1,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path} "))
+                                update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path} "))  
                         else:    
                             log_info(f"Deletando arquivo: {file_path}")
                             os.remove(file_path)
                             if worksheet is not None:
-                                update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_path} "))
+                                update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_path} "))
                     else:
                         new_file_path = os.path.join(root, file_name + '.c')
                         log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                         os.rename(file_path, new_file_path)
                         if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,folder_name,formatacao=1,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: de {file_path} para {new_file_path} "))
+                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: de {file_path} para {new_file_path} "))
     except Exception as e:
         log_error(f"Erro no metodo no c files no diretorio {str(e)}")
 
@@ -1107,22 +1225,20 @@ def no_hs_files_in_directory(worksheet, submissions_folder):
                 if file.startswith("."):
                     log_info(f"Deletando arquivo oculto: {file_path}")
                     os.remove(file_path)
-                    #if worksheet is not None:
-                        #update_worksheet_formatacao(worksheet, folder_name, formatacao=0, comentario=(f"Arquivos oculto: deletado: {file_name}"))
                     continue
 
                 if file_name.lower() in ['makefile', 'main', 'main-debug']:
                     log_info(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
                     if worksheet is not None:
-                        update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_name} "))
+                        update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_name} "))
                     continue
                 
                 if file_extension == '.HS':
                     new_file_path = os.path.join(root, file_name + '.hs')
                     os.rename(file_path, new_file_path)
                     if worksheet is not None:
-                        update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: {file_path} "))
+                        update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: {file_path} "))
 
                 elif file_extension != '.hs':
                     if file_extension:
@@ -1132,17 +1248,17 @@ def no_hs_files_in_directory(worksheet, submissions_folder):
                             log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                             os.rename(file_path, new_file_path)
                             if worksheet is not None:
-                                update_worksheet_formatacao(worksheet,folder_name,formatacao=1,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path}"))
+                                update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path}"))
                         log_info(f"Deletando arquivo: {file_path}")
                         os.remove(file_path)
                         if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_name} "))
+                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_name} "))
                     else:
                         new_file_path = os.path.join(root, file_name + '.hs')
                         log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                         os.rename(file_path, new_file_path)
                         if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,folder_name,formatacao=1, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: {file_name} "))
+                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: {file_name} "))
     except Exception as e:
         log_error(f"Erro no metodo no hs files no diretorio {str(e)}")                    
                  
@@ -1153,9 +1269,9 @@ def rename_files(submissions_folder, list_title, questions_data, worksheet):
             rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet, 1)
             return
         else:
-            if 'ARQUIVOS' not in list_title:
-                no_c_files_in_directory(worksheet, submissions_folder)
-                rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet)
+            #if 'ARQUIVOS' not in list_title:
+            no_c_files_in_directory(worksheet, submissions_folder)
+            rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet)
     except Exception as e:
         log_error(f"Erro no metodo renomear arquivos {str(e)}")          
         
@@ -1177,6 +1293,7 @@ def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
 
         spreadsheet = client.create(classroom_name)
         print(f"Planilha '{classroom_name}' criada com sucesso.\n")
+        print(f"A aba '{list_name}' foi criada na planilha '{classroom_name}'.\n")
 
         drive_service = build("drive", "v3", credentials=get_credentials())
         file_id = spreadsheet.id  
@@ -1250,12 +1367,20 @@ def update_grades(sheet_id1, worksheet2, score):
         emails = [email.strip() for email in worksheet1.col_values(6)[1:] if email] 
         percentages = [percent.strip() for percent in worksheet1.col_values(10)[1:] if percent]   
         log_info(f"Procurando os emails {emails}")
-        log_info("\nProcurando os alunos com a nota 100 e 0.\n")
+        print("\nProcurando os alunos com a nota 100 e 0.\n")
         updates = []
         not_found_emails = []
 
-        score_values = {key: float(value) for key, value in score.items()}
-        score_sum = float(sum(score_values.values()))
+       
+        if isinstance(score, dict):
+            score_values = {key: float(value) for key, value in score.items()}
+            score_sum = float(sum(score_values.values()))
+        else:
+            log_info("\nComo a pontuação estava None, foi usado a porcentagem do beecrowd para preencher 100, mas para calcular com a pontuação o 'score' precisa ser um dicionário.\n")
+            score_sum = 100  
+
+        #score_values = {key: float(value) for key, value in score.items()}
+        #score_sum = float(sum(score_values.values()))
         
         
         for idx, (email, percentage) in enumerate(zip(emails, percentages), start=2):
@@ -1288,6 +1413,7 @@ def update_grades(sheet_id1, worksheet2, score):
                     file.write(f"{email}\n")
         
         log_info(f"\nForam encontrados: {len(updates)} alunos nas duas planilhas com o mesmo email.")
+        print(f"\nForam encontrados: {len(updates)} alunos nas duas planilhas com o mesmo email.")
         if len(updates) < len(emails): 
             print("\nNem todos os alunos que tiraram 100 ou 0 foram encontrados. Revise os emails no txt.")
                                
@@ -1303,6 +1429,7 @@ def delete_empty_subfolders(worksheet,submissions_folder):
                 shutil.rmtree(folder_path)
                 log_info(f"Pasta deletada {folder_name}")
                 if worksheet is not None:
+                    update_worksheet(worksheet, folder_name, entregou=0)
                     update_worksheet_comentario(worksheet, folder_name, comentario=f"Pasta deletada {folder_name}")
     except Exception as e:
         log_error(f"Erro ao deletar pastas vazias dentro de {submissions_folder}: {str(e)}")
@@ -1331,10 +1458,10 @@ def main():
             while num ==1:
                 classroom_id, coursework_id, classroom_name, list_name, list_title = list_classroom_data(classroom_service)
                 if classroom_id and coursework_id and classroom_name and list_name and list_title: 
-                    print(f"\n Você escolheu a turma : {classroom_name}")
-                    print(f"\n E a atividade : {list_name} \n")
+                    print(f"\n\nVocê escolheu a turma : {classroom_name}")
+                    print(f"\nE a atividade : {list_name} \n")
                 else:
-                    print("\n\nNão foi possível obter todos os dados. Verifique a seleção e tente novamente.")
+                    print("\n\nNão foi possível obter todos os dados. Verifique a seleção e tente novamente.\n")
                     return
 
                 submissions = classroom_service.courses().courseWork().studentSubmissions().list(courseId=classroom_id, courseWorkId=coursework_id).execute()
@@ -1343,13 +1470,33 @@ def main():
                 if not os.path.exists(download_folder):
                     os.makedirs(download_folder)
                 
-
                 sheet_id = read_id_from_file('sheet_id.txt')
-                questions_data, num_questions, score = list_questions(sheet_id, list_name)
-                print(f"\n\nA pontuação {score}\n")
+
+                if sheet_id:  
+                    try:
+                        questions_data, num_questions, score = list_questions(sheet_id, list_name)
+                        if score is not None:
+                            print(f"\nA pontuação das questões é: {score}\n")
+                        else:
+                            print("\nNão foi passada a pontuação das questões. A pontuação é passada na primeira coluna da planilha 'sheet_id.txt' que contém os possíveis nomes das questões.\n")
+                    except Exception as e:
+                        print(f"Erro ao obter os nomes das questões da planilha: {e}")
+                else:
+                    questions_data, num_questions, score = list_questions_default(None)
+                    print("\nNão foi passada a pontuação das questões, pois não foi passado o id da planilha em 'sheet_id.txt'. A pontuação é passada na primeira coluna da planilha.\n")
+
                 folder_id = read_id_from_file('folder_id.txt')
-                worksheet = create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id)
-                header_worksheet(worksheet)
+                if folder_id: 
+                    try:
+                        worksheet = create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id)
+                        header_worksheet(worksheet)
+                    except HttpError as e:
+                        print(f"\nErro ao criar ou verificar a planilha e aba: {e}")
+                else:
+                    worksheet = None
+                    print("\nA planilha de resultados não será criada porque a folder_id.txt está vazia ou inválida.")
+
+                
                 download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, coursework_id, worksheet)
                 print("\n\nDownload completo. Arquivos salvos em:", os.path.abspath(download_folder))
 
@@ -1360,34 +1507,38 @@ def main():
                 delete_subfolders_in_student_folders(submissions_folder)
                 remove_empty_folders(submissions_folder)
 
-                print("\nProcesso de extração e organização de pastas finalizado. Arquivos salvos em:", os.path.abspath(submissions_folder))
+                print("\nProcesso de extrair e organizar pastas finalizado. Arquivos salvos em:", os.path.abspath(submissions_folder))
 
                 rename_files(submissions_folder, list_title, questions_data, worksheet)
                 print("\nProcesso de verificar e renomear arquivos finalizado.")
                 delete_empty_subfolders(worksheet,submissions_folder)
                
                 if worksheet is not None:
+                    update_final_grade_for_no_submission(worksheet)
                     sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt')
                     if sheet_id_beecrowd:
                         update_grades(sheet_id_beecrowd, worksheet, score)
                         insert_columns(worksheet, num_questions)
-                        fill_scores_for_students(worksheet, num_questions, score)
+                        if score is not None:
+                            fill_scores_for_students(worksheet, num_questions, score)
+                            print("\nComo não foi passado a pontuação não foi preenchido as colunas de cada questão.")
                         print("\nProcesso de colocar as notas do beecrowd na planilha finalizado.")
                         apply_dynamic_formula_in_column(worksheet, num_questions)
-                        print("\nAdicionando a formula na nota final")
                     else:
-                        print("\nID da planilha Beecrowd não encontrado.")
+                        print("\nID da planilha do Beecrowd não foi encontrado no arquivo 'sheet_id_beecrowd.txt'. Não será adicionada as notas dos alunos que tiraram 0 ou 100.")
                     
                     freeze_and_sort(worksheet)
                     insert_header_title(worksheet, classroom_name, list_title)
+                    print("\nProcesso de formatar a planilha finalizado.\n")
+                    print(f"\nProcesso da {classroom_name} - {list_name} concluído.")
                     
                 try:
-                    num = int(input("\n\n Deseja baixar mais uma atividade? \n 0 - Não \n 1 - Sim \n \n "))
+                    num = int(input("\n\nDeseja baixar mais uma atividade? \n0 - Não \n1 - Sim \n \n "))
                     if num == 0:
-                        print("\n Processo encerrado.")
+                        print("\nProcesso encerrado.")
                         break
                 except ValueError:
-                    print("Entrada inválida. Encerrando processo.")
+                    print("\nEntrada inválida. Encerrando processo.")
                     break
                 
         except HttpError as error:
