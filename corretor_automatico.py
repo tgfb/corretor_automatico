@@ -410,7 +410,7 @@ def update_final_grade_for_no_submission(worksheet, num_questions):
 
         if num_questions is None:
             entrega_valor_index = 3 
-            col_final_grade = 'H'
+            col_final_grade = 7
         else:
             entrega_valor_index = 3 + num_questions
             col_final_grade = 7 + num_questions
@@ -422,7 +422,7 @@ def update_final_grade_for_no_submission(worksheet, num_questions):
             if row[entrega_valor_index] == '0':
                 log_info(f"\n o student: {student_login} e o percentage é {row[col_final_grade]}, a entrega de valor é {row[entrega_valor_index]}")
                 updates.append({
-                    'range': f'{chr(ord("H") + num_questions)}{idx + 1}', 
+                    'range': f'{chr(ord("H") + (num_questions if num_questions is not None else 0))}{idx + 1}', 
                     'values': [[0]]  
                 })
 
@@ -1572,7 +1572,7 @@ def main():
                             fill_scores_for_students(worksheet, num_questions, score)
                             print("\nComo não foi passado a pontuação não foi preenchido as colunas de cada questão. E o valor inserido em nota final foi 0 ou 100.")
                     else:
-                        #update_final_grade_for_no_submission(worksheet, None)
+                        update_final_grade_for_no_submission(worksheet, None)
                         print("\nID da planilha do Beecrowd não foi encontrado no arquivo 'sheet_id_beecrowd.txt'. Não será adicionada as notas dos alunos que tiraram 0 ou 100.")
                     
                     if score is None:
