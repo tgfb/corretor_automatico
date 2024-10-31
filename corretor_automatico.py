@@ -315,11 +315,11 @@ def get_due_date(classroom_service, classroom_id, coursework_id):
             day = due_date['day']
             
             if due_time:
-                hours = due_time.get('hours', 23) #Ajustar isso pra o horário correto
+                hours = due_time.get('hours', 2) # Time Zone GMT 
                 minutes = due_time.get('minutes', 59)
                 seconds = due_time.get('seconds', 59)
             else:
-                hours, minutes, seconds = 23, 59, 59
+                hours, minutes, seconds = 2, 59, 59 # Time Zone GMT
             
             # Timestamp no formato "YYYY-MM-DDTHH:MM:SSZ"
             return f"{year}-{month:02d}-{day:02d}T{hours:02d}:{minutes:02d}:{seconds:02d}.000Z"
@@ -377,39 +377,60 @@ def update_worksheet_formatacao(worksheet, student_login, formatacao=None, comen
     except Exception as e:
         log_error(f"Erro ao atualizar a planilha com formatação e comentário: {e}")
 
-def update_worksheet_comentario(worksheet, student_login, comentario=None):
+
+def update_worksheet_comentario(worksheet, student_login, num_questions=None, comentario=None):
     try:
         data = worksheet.get_all_values()
         
+        comentario_index = ord('I') - ord('A') + (num_questions or 0)
+
         for idx, row in enumerate(data):
-            if row[2] == student_login: 
-                comentario_atual = row[6] if comentario is None else comentario
-                 
-                col = 8
+            if row[2] == student_login:  
+
+                col = comentario_index
+
                 while col < len(row) and row[col]:   
-                    col += 1
+                    col += 1 
                 
-                cell_range = f'{chr(65+col)}{idx+1}'
-                worksheet.update([[comentario_atual]], cell_range)
+                cell_range = f'{chr(65 + col)}{idx + 1}' 
+                if comentario:  
+                    worksheet.update(values=[[comentario]], range_name=cell_range)
                 
-                return
+                return 
         log_info(f"Login {student_login} não encontrado na planilha.")
     except Exception as e:
         log_error(f"Erro ao atualizar a planilha com comentário: {e}")
 
-def update_final_grade_for_no_submission(worksheet):
+
+def update_final_grade_for_no_submission(worksheet, num_questions):
     try:
+        print("Entrou aqui??")
         data = worksheet.get_all_values()
         updates = []
 
+        if num_questions is None:
+            entrega_valor_index = 3 
+            col_final_grade = 'H'
+        else:
+            entrega_valor_index = 3 + num_questions
+            col_final_grade = 7 + num_questions
+
+        log_info(f"\n o percentage é {col_final_grade}, a entrega de valor é {entrega_valor_index}")
         for idx, row in enumerate(data):
-            entrega_valor = row[3] 
-            if entrega_valor == "0":  
+            student_login = row[2] 
+            log_info(f"\n o estudante {student_login} e o percentage é {type(row[col_final_grade])}, a entrega de valor é {type(row[entrega_valor_index])}")
+            if row[entrega_valor_index] == '0':
+                log_info(f"\n o student: {student_login} e o percentage é {row[col_final_grade]}, a entrega de valor é {row[entrega_valor_index]}")
                 updates.append({
-                    'range': f'H{idx + 1}', 
+                    'range': f'{chr(ord("H") + num_questions)}{idx + 1}', 
                     'values': [[0]]  
                 })
 
+                if row[col_final_grade] not in ('0', None, ''):
+                    log_info(f"\n o student: {student_login} e o percentage é {row[col_final_grade]}, a entrega de valor é {row[entrega_valor_index]}")
+                    comentario = f"O aluno tirou {row[col_final_grade]} no beecrowd, mas a entrega no classroom foi zerada."
+                    update_worksheet_comentario(worksheet, student_login, num_questions=num_questions, comentario=comentario) 
+                
         if updates:
             worksheet.batch_update(updates)
             log_info(f"\n\nNotas finais atualizadas para alunos com entrega 0.")
@@ -417,6 +438,7 @@ def update_final_grade_for_no_submission(worksheet):
             log_info("\nNenhuma atualização necessária; nenhum aluno com entrega 0.")
     except Exception as e:
         log_error(f"Erro ao atualizar notas finais para alunos com entrega 0: {e}")
+
 
 def insert_columns(worksheet, num_questions):
     try:
@@ -537,7 +559,6 @@ def apply_dynamic_formula_in_column(worksheet, num_questions):
                 sum_formula = '+'.join([f"{col}{row_idx + 1}" for col in columns_to_sum])
                 #no final *(1 - Copia)
                 formula = f"={sum_formula} * (1 - (0.15*{col_delay}{row_idx + 1}) - (0.15*{col_form}{row_idx + 1}))"
-                #formula = f"={sum_formula} * (1 - (0.15*I{row_idx + 1}) - (0.15*J{row_idx + 1}))"
 
                 requests.append({
                     'updateCells': {
@@ -1366,7 +1387,7 @@ def update_grades(sheet_id1, worksheet2, score):
         
         emails = [email.strip() for email in worksheet1.col_values(6)[1:] if email] 
         percentages = [percent.strip() for percent in worksheet1.col_values(10)[1:] if percent]   
-        log_info(f"Procurando os emails {emails}")
+        log_info(f"\nProcurando os emails {emails}")
         print("\nProcurando os alunos com a nota 100 e 0.\n")
         updates = []
         not_found_emails = []
@@ -1376,10 +1397,9 @@ def update_grades(sheet_id1, worksheet2, score):
             score_values = {key: float(value) for key, value in score.items()}
             score_sum = float(sum(score_values.values()))
         else:
-            log_info("\nComo a pontuação estava None, foi usado a porcentagem do beecrowd para preencher 100, mas para calcular com a pontuação o 'score' precisa ser um dicionário.\n")
+            log_info("\nComo a pontuação estava None, foi usado a porcentagem do beecrowd para preencher 100, mas para calcular com a pontuação o 'score' precisa estar preenchido na planilha.\n")
             score_sum = 100  
-
-        
+  
         
         for idx, (email, percentage) in enumerate(zip(emails, percentages), start=2):
             if not email:
@@ -1391,22 +1411,15 @@ def update_grades(sheet_id1, worksheet2, score):
                     
                     cell = worksheet2.find(email, in_column=2)
                     if cell:
-                        student_login = extract_prefix(email)
-                        current_value_H = worksheet2.cell(cell.row, 8).value
-
                         value_to_update = float(score_sum) if percentage == "100" else 0
 
-                        if value_to_update == float(score_sum) and current_value_H == "0":
-                            comentario = f"O aluno acertou {percentage}% no beecrowd e no classroom sua entrega foi 0 ou zerada."
-                            update_worksheet_comentario(worksheet2, student_login, comentario=comentario)
-                        else:
                             
-                            updates.append({
-                                "range": f"H{cell.row}",
-                                "values": [[value_to_update]]
-                            })
+                        updates.append({
+                            "range": f"H{cell.row}",
+                            "values": [[value_to_update]]
+                        })
                     else:
-                        not_found_emails.append(email)
+                        not_found_emails.append(f"{email}: {value_to_update}")
                 except gspread.exceptions.APIError:
                     pass  
 
@@ -1414,7 +1427,7 @@ def update_grades(sheet_id1, worksheet2, score):
             worksheet2.batch_update(updates)
 
         if not_found_emails:
-            with open("not_found_emails.txt", "w") as file:
+            with open("not_found_emails_100_or_0.txt", "w") as file:
                 for email in not_found_emails:
                     file.write(f"{email}\n")
         
@@ -1425,6 +1438,35 @@ def update_grades(sheet_id1, worksheet2, score):
                                
     except Exception as e:
         log_error(f"Erro ao atualizar planilha {str(e)}")  
+
+def compare_emails(sheet_id_beecrowd, worksheet2):
+    try:
+        client = get_gspread_client()
+
+        worksheet1 = client.open_by_key(sheet_id_beecrowd).get_worksheet(0) 
+
+        # Extrai os e-mails das duas planilhas
+        emails_planilha1 = set(email.strip() for email in worksheet1.col_values(6)[1:] if email)
+        emails_planilha2 = set(email.strip() for email in worksheet2.col_values(2)[1:] if email)
+
+        only_in_planilha1 = emails_planilha1 - emails_planilha2
+
+        only_in_planilha2 = emails_planilha2 - emails_planilha1
+
+        with open("email_differences.txt", "w") as file:
+            file.write("Beecrowd\n")
+            for email in sorted(only_in_planilha1):
+                file.write(f"{email}\n")
+
+            file.write("\nClassroom\n")
+            for email in sorted(only_in_planilha2):
+                file.write(f"{email}\n")
+
+        print("\nArquivo email_differences.txt criado com sucesso.")
+
+    except Exception as e:
+        log_error(f"Erro ao comparar e-mails: {str(e)}")
+
 
 def delete_empty_subfolders(worksheet,submissions_folder):
     try:
@@ -1520,21 +1562,24 @@ def main():
                 delete_empty_subfolders(worksheet,submissions_folder)
                
                 if worksheet is not None:
-                    update_final_grade_for_no_submission(worksheet)
                     sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt')
                     if sheet_id_beecrowd:
                         update_grades(sheet_id_beecrowd, worksheet, score)
+                        compare_emails(sheet_id_beecrowd, worksheet)
                         insert_columns(worksheet, num_questions)
+                        update_final_grade_for_no_submission(worksheet, num_questions)
                         if score is not None:
                             fill_scores_for_students(worksheet, num_questions, score)
                             print("\nComo não foi passado a pontuação não foi preenchido as colunas de cada questão. E o valor inserido em nota final foi 0 ou 100.")
-                        if score is None:
-                            print(f"score é {score}")
-                            apply_dynamic_formula_in_column(worksheet, num_questions)
-                        print("\nProcesso de colocar as notas do beecrowd na planilha finalizado.")
                     else:
+                        #update_final_grade_for_no_submission(worksheet, None)
                         print("\nID da planilha do Beecrowd não foi encontrado no arquivo 'sheet_id_beecrowd.txt'. Não será adicionada as notas dos alunos que tiraram 0 ou 100.")
                     
+                    if score is None:
+                        log_info(f"\nscore é {score}")
+                        #apply_dynamic_formula_in_column(worksheet, num_questions)
+                        print("\nProcesso de colocar as notas do beecrowd na planilha finalizado.")
+
                     freeze_and_sort(worksheet)
                     insert_header_title(worksheet, classroom_name, list_title)
                     print("\nProcesso de formatar a planilha finalizado.\n")
@@ -1552,7 +1597,8 @@ def main():
         except HttpError as error:
             print(f"Um erro ocorreu: {error}")
     except Exception as e:
-        log_error(f"Erro no fluxo principal: {str(e)}")        
+        log_error(f"Erro no fluxo principal: {str(e)}")     
+   
 
 if __name__ == "__main__":
     main()
