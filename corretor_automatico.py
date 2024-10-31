@@ -279,10 +279,7 @@ def get_submission_timestamp(submission, student_id):
             state = state_history.get('state')
             actor_user_id = state_history.get('actorUserId')
             timestamp = state_history.get('stateTimestamp')
-            
-            log_info(f"Verificando estado: {state}, actorUserId: {actor_user_id}, timestamp: {timestamp}")
-            
-           
+                      
             if state == 'TURNED_IN' and actor_user_id == student_id:
                 last_timestamp = timestamp
         
@@ -532,12 +529,15 @@ def apply_dynamic_formula_in_column(worksheet, num_questions):
         column_final_grades = 7 + num_questions
 
         columns_to_sum = ['D', 'E', 'F', 'G'][:num_questions]
+        col_delay = chr(ord('E') + num_questions)
+        col_form = chr(ord('F') + num_questions)
 
         for row_idx in range(1, last_filled_row + 1):
             try:
                 sum_formula = '+'.join([f"{col}{row_idx + 1}" for col in columns_to_sum])
-
-                formula = f"={sum_formula} - (0.15*I{row_idx + 1} + 0.15*J{row_idx + 1})"
+                #no final *(1 - Copia)
+                formula = f"={sum_formula} * (1 - (0.15*{col_delay}{row_idx + 1}) - (0.15*{col_form}{row_idx + 1}))"
+                #formula = f"={sum_formula} * (1 - (0.15*I{row_idx + 1}) - (0.15*J{row_idx + 1}))"
 
                 requests.append({
                     'updateCells': {
@@ -1379,8 +1379,6 @@ def update_grades(sheet_id1, worksheet2, score):
             log_info("\nComo a pontuação estava None, foi usado a porcentagem do beecrowd para preencher 100, mas para calcular com a pontuação o 'score' precisa ser um dicionário.\n")
             score_sum = 100  
 
-        #score_values = {key: float(value) for key, value in score.items()}
-        #score_sum = float(sum(score_values.values()))
         
         
         for idx, (email, percentage) in enumerate(zip(emails, percentages), start=2):
@@ -1393,12 +1391,20 @@ def update_grades(sheet_id1, worksheet2, score):
                     
                     cell = worksheet2.find(email, in_column=2)
                     if cell:
+                        student_login = extract_prefix(email)
+                        current_value_H = worksheet2.cell(cell.row, 8).value
+
                         value_to_update = float(score_sum) if percentage == "100" else 0
-                        
-                        updates.append({
-                            "range": f"H{cell.row}",
-                            "values": [[value_to_update]]
-                        })
+
+                        if value_to_update == float(score_sum) and current_value_H == "0":
+                            comentario = f"O aluno acertou {percentage}% no beecrowd e no classroom sua entrega foi 0 ou zerada."
+                            update_worksheet_comentario(worksheet2, student_login, comentario=comentario)
+                        else:
+                            
+                            updates.append({
+                                "range": f"H{cell.row}",
+                                "values": [[value_to_update]]
+                            })
                     else:
                         not_found_emails.append(email)
                 except gspread.exceptions.APIError:
@@ -1415,7 +1421,7 @@ def update_grades(sheet_id1, worksheet2, score):
         log_info(f"\nForam encontrados: {len(updates)} alunos nas duas planilhas com o mesmo email.")
         print(f"\nForam encontrados: {len(updates)} alunos nas duas planilhas com o mesmo email.")
         if len(updates) < len(emails): 
-            print("\nNem todos os alunos que tiraram 100 ou 0 foram encontrados. Revise os emails no txt.")
+            print("\nNem todos os alunos acertaram 100 ou 0 foram encontrados na planilha de resultados. Revise os emails no txt.")
                                
     except Exception as e:
         log_error(f"Erro ao atualizar planilha {str(e)}")  
@@ -1521,9 +1527,11 @@ def main():
                         insert_columns(worksheet, num_questions)
                         if score is not None:
                             fill_scores_for_students(worksheet, num_questions, score)
-                            print("\nComo não foi passado a pontuação não foi preenchido as colunas de cada questão.")
+                            print("\nComo não foi passado a pontuação não foi preenchido as colunas de cada questão. E o valor inserido em nota final foi 0 ou 100.")
+                        if score is None:
+                            print(f"score é {score}")
+                            apply_dynamic_formula_in_column(worksheet, num_questions)
                         print("\nProcesso de colocar as notas do beecrowd na planilha finalizado.")
-                        apply_dynamic_formula_in_column(worksheet, num_questions)
                     else:
                         print("\nID da planilha do Beecrowd não foi encontrado no arquivo 'sheet_id_beecrowd.txt'. Não será adicionada as notas dos alunos que tiraram 0 ou 100.")
                     
