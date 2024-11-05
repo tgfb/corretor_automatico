@@ -321,7 +321,6 @@ def get_due_date(classroom_service, classroom_id, coursework_id):
             else:
                 hours, minutes, seconds = 2, 59, 59 # Time Zone GMT
             
-            # Timestamp no formato "YYYY-MM-DDTHH:MM:SSZ"
             return f"{year}-{month:02d}-{day:02d}T{hours:02d}:{minutes:02d}:{seconds:02d}.000Z"
         else:
             return None
@@ -404,7 +403,6 @@ def update_worksheet_comentario(worksheet, student_login, num_questions=None, co
 
 def update_final_grade_for_no_submission(worksheet, num_questions):
     try:
-        print("Entrou aqui??")
         data = worksheet.get_all_values()
         updates = []
 
@@ -420,7 +418,7 @@ def update_final_grade_for_no_submission(worksheet, num_questions):
             student_login = row[2] 
             log_info(f"\n o estudante {student_login} e o percentage é {type(row[col_final_grade])}, a entrega de valor é {type(row[entrega_valor_index])}")
             if row[entrega_valor_index] == '0':
-                log_info(f"\n o student: {student_login} e o percentage é {row[col_final_grade]}, a entrega de valor é {row[entrega_valor_index]}")
+                log_info(f"\n o estudante: {student_login} e o percentage é {row[col_final_grade]}, a entrega de valor é {row[entrega_valor_index]}")
                 updates.append({
                     'range': f'{chr(ord("H") + (num_questions if num_questions is not None else 0))}{idx + 1}', 
                     'values': [[0]]  
@@ -481,42 +479,114 @@ def insert_columns(worksheet, num_questions):
     except Exception as e:
         log_error(f"Ocorreu um erro ao inserir as colunas: {e}")
 
-def fill_scores_for_students(worksheet, num_questions, score):
+def insert_score_row(worksheet, score):
     try:
+        log_info("Entrou em insert_score_row")
+        data = worksheet.get_all_values()
+        log_info(f"Dados da planilha obtidos: {data}")
+
+        requests = []
+
+        requests.append({
+            'insertDimension': {
+                'range': {
+                    'sheetId': worksheet.id,
+                    'dimension': 'ROWS',
+                    'startIndex': 1,  
+                    'endIndex': 2
+                },
+                'inheritFromBefore': False
+            }
+        })
+        log_info("Requisição de inserção de linha adicionada")
+
+       
+        if score is not None:
+            log_info(f"Score recebido: {score}")
+            new_row = [''] * 3 + list(score.values())  
+            log_info(f"Nova linha a ser inserida com valores de score: {new_row}")
+        else:
+            new_row = [''] * len(data[0])  
+            log_info("Score é None; nova linha será em branco")
+
+        formatted_values = []
+        for cell in new_row:
+            try:
+                int_value = int(cell)
+                formatted_values.append({'userEnteredValue': {'numberValue': int_value}})
+            except ValueError:
+                formatted_values.append({'userEnteredValue': {'stringValue': cell}})
+
+       
+        requests.append({
+            'updateCells': {
+                'range': {
+                    'sheetId': worksheet.id,
+                    'startRowIndex': 1,
+                    'endRowIndex': 2,
+                    'startColumnIndex': 0,
+                    'endColumnIndex': len(new_row)
+                },
+                'rows': [{'values': formatted_values}],
+                'fields': 'userEnteredValue'
+            }
+        })
+        log_info("Requisição de atualização de células para nova linha adicionada")
+
+        log_info("Iniciando batch_update")
+        worksheet.spreadsheet.batch_update({'requests': requests})
+        log_info("batch_update concluído com sucesso\n\n")
+
+    except Exception as e:
+        log_error(f"Ocorreu um erro ao inserir a linha e as colunas: {e}")
+
+def fill_scores_for_students(worksheet, num_questions, score=None):
+    try:
+        log_info(f"Valor inicial de `score`: {score} (tipo: {type(score)})")
         data = worksheet.get_all_values()
         score_values = {}
         
-        for key, value in score.items():
-            try:
-                score_values[key] = float(value)
-            except ValueError:
-                continue
+        if score is not None:
+            for key, value in score.items():
+                try:
+                    score_values[key] = float(value)
+                except ValueError:
+                    log_info(f"Erro ao converter {key}: {value} para float.")
+                    continue
+            score_sum = sum(score_values.values())
+            log_info(f"Score sum calculated as: {score_sum} (type: {type(score_sum)})")
+        else:
+            score_sum = 100
+            log_info("Score is None; setting score_sum to 100.")
 
-        score_sum = sum(score_values.values())
-        
         requests = []
 
         for row_idx, row in enumerate(data[1:], start=1): 
             final_score_column = 7 + num_questions
-            delivery_column=7
+            delivery_column = 7
+            
             try:
-                if (len(row) > delivery_column and float(row[delivery_column]) == 0) or \
-                   (len(row) > final_score_column and float(row[final_score_column]) == 0):
-                    question_scores = [0] * num_questions
+                if (len(row) > delivery_column and row[delivery_column].strip() and float(row[delivery_column]) == 0) or \
+                   (len(row) > final_score_column and row[final_score_column].strip() and float(row[final_score_column]) == 0):
+                    question_scores = ["=0"] * num_questions
+                    log_info(f"Inserindo 0 nas pontuações na linha {row_idx + 1}.")
                 
-                elif len(row) > final_score_column and float(row[final_score_column]) == score_sum:
-                    
-                    question_scores = [score_values.get(f'q{i + 1}', 0) for i in range(num_questions)]
+                elif len(row) > final_score_column and row[final_score_column].strip() and float(row[final_score_column]) == score_sum:
+                    log_info(f"Nota final completa na linha {row_idx + 1}. Inserindo fórmulas dinâmicas.")
+                    question_scores = [
+                        f"=${chr(68 + i)}$2" for i in range(num_questions)  
+                    ]
+                    log_info(f"Fórmulas para as questões na linha {row_idx + 1}: {question_scores}")
                 else:
+                    log_info(f"Condição não atendida para preenchimento na linha {row_idx + 1}. Pulando.")
                     continue 
 
-                    
-                for i, score_value in enumerate(question_scores):
+                for i, value in enumerate(question_scores):
                     column_index = 3 + i  
                     requests.append({
                         'updateCells': {
                             'rows': [{
-                                'values': [{'userEnteredValue': {'numberValue': score_value}}]
+                                'values': [{'userEnteredValue': {'formulaValue' if isinstance(value, str) else 'numberValue': value}}]
                             }],
                             'fields': 'userEnteredValue',
                             'start': {
@@ -527,16 +597,22 @@ def fill_scores_for_students(worksheet, num_questions, score):
                         }
                     })
 
-            except ValueError:
+            except ValueError as ve:
+                log_info(f"Erro ao processar valores na linha {row_idx + 1}: {ve}")
                 continue
                         
-            body = {
-                'requests': requests
-            }
+        if requests:
+            body = {'requests': requests}
             worksheet.spreadsheet.batch_update(body)
+            log_info("Atualização das pontuações concluída com sucesso.")
+        else:
+            log_info("Nenhuma atualização necessária.")
 
     except Exception as e:
         log_error(f"Ocorreu um erro ao preencher pontuações: {e}")
+
+
+
 
 def apply_dynamic_formula_in_column(worksheet, num_questions):
     try:
@@ -868,13 +944,13 @@ def get_gspread_client():
 def freeze_and_sort(worksheet):
     try:
         requests = [
-            # Congelar a primeira linha
+            # Congelar a primeira e a segunda linha
             {
                 "updateSheetProperties": {
                     "properties": {
                         "sheetId": worksheet.id,
                         "gridProperties": {
-                            "frozenRowCount": 1
+                            "frozenRowCount": 2
                         }
                     },
                     "fields": "gridProperties.frozenRowCount"
@@ -929,13 +1005,13 @@ def insert_header_title(worksheet, classroom_name, list_title):
                     "start": {"sheetId": worksheet.id, "rowIndex": 0, "columnIndex": 0}
                 }
             },
-            # Aplicar formatação nas linhas 1 e 2
+            # Aplicar formatação nas linhas 1, 2, 3
             {
                 "repeatCell": {
                     "range": {
                         "sheetId": worksheet.id,
                         "startRowIndex": 0,
-                        "endRowIndex": 2
+                        "endRowIndex": 3
                     },
                     "cell": {
                         "userEnteredFormat": {
@@ -950,13 +1026,13 @@ def insert_header_title(worksheet, classroom_name, list_title):
                     "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
                 }
             },
-            # Congelar as primeiras duas linhas e três colunas
+            # Congelar as primeiras três linhas e três colunas
             {
                 "updateSheetProperties": {
                     "properties": {
                         "sheetId": worksheet.id,
                         "gridProperties": {
-                            "frozenRowCount": 2,
+                            "frozenRowCount": 3,
                             "frozenColumnCount": 3
                         }
                     },
@@ -1445,7 +1521,6 @@ def compare_emails(sheet_id_beecrowd, worksheet2):
 
         worksheet1 = client.open_by_key(sheet_id_beecrowd).get_worksheet(0) 
 
-        # Extrai os e-mails das duas planilhas
         emails_planilha1 = set(email.strip() for email in worksheet1.col_values(6)[1:] if email)
         emails_planilha2 = set(email.strip() for email in worksheet2.col_values(2)[1:] if email)
 
@@ -1560,26 +1635,29 @@ def main():
                 rename_files(submissions_folder, list_title, questions_data, worksheet)
                 print("\nProcesso de verificar e renomear arquivos finalizado.")
                 delete_empty_subfolders(worksheet,submissions_folder)
-               
+
+                
                 if worksheet is not None:
+                    
                     sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt')
                     if sheet_id_beecrowd:
                         update_grades(sheet_id_beecrowd, worksheet, score)
                         compare_emails(sheet_id_beecrowd, worksheet)
                         insert_columns(worksheet, num_questions)
                         update_final_grade_for_no_submission(worksheet, num_questions)
-                        if score is not None:
-                            fill_scores_for_students(worksheet, num_questions, score)
-                            print("\nComo não foi passado a pontuação não foi preenchido as colunas de cada questão. E o valor inserido em nota final foi 0 ou 100.")
-                    else:
-                        update_final_grade_for_no_submission(worksheet, None)
-                        print("\nID da planilha do Beecrowd não foi encontrado no arquivo 'sheet_id_beecrowd.txt'. Não será adicionada as notas dos alunos que tiraram 0 ou 100.")
-                    
-                    if score is None:
-                        log_info(f"\nscore é {score}")
-                        #apply_dynamic_formula_in_column(worksheet, num_questions)
+                        insert_score_row(worksheet, score)
+                        fill_scores_for_students(worksheet, num_questions, score)
                         print("\nProcesso de colocar as notas do beecrowd na planilha finalizado.")
+                        
+                    else:
+                        insert_score_row(worksheet, score)
+                        update_final_grade_for_no_submission(worksheet, None) 
+                        print("\nID da planilha do Beecrowd não foi encontrado no arquivo 'sheet_id_beecrowd.txt'. Não será adicionada as notas dos alunos que tiraram 0 ou 100 na planilha do beecrowd.")
+                    
+                    apply_dynamic_formula_in_column(worksheet, num_questions)
+                    print("\nProcesso de colocar as fórmulas dinâmicas na planilha finalizado.")
 
+                    
                     freeze_and_sort(worksheet)
                     insert_header_title(worksheet, classroom_name, list_title)
                     print("\nProcesso de formatar a planilha finalizado.\n")
