@@ -150,6 +150,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                 atrasou = 0
                 formatacao = 0
                 comentarios = None
+                copia = 0
                 state = submission.get('state', 'UNKNOWN')
 
                 due_date = get_due_date(classroom_service, classroom_id, coursework_id)
@@ -207,7 +208,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                             if error.resp.status == 403 and 'cannotDownloadAbusiveFile' in str(error):
                                 comentarios = "Erro de submissão."
                                 if worksheet is not None and student_login not in alunos_registrados:
-                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao,None,None, "Erro de submissão: malware ou spam."]])
+                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao,copia,None, "Erro de submissão: malware ou spam."]])
                                     alunos_registrados.add(student_login)
                                 log_info(f"O arquivo {file_name} de {student_name} foi identificado como malware ou spam e não pode ser baixado.")
                                 if os.path.exists(file_path):
@@ -215,7 +216,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                             else:
                                 log_info(f"Erro ao baixar arquivo {file_name} de {student_name}: {error}")
                                 if worksheet is not None and student_login not in alunos_registrados:
-                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao,None,None, "Erro de submissão ou submissão não foi baixada"]])
+                                    worksheet.append_rows([[student_name, student_email, student_login,  0, atrasou, formatacao,copia,None, "Erro de submissão ou submissão não foi baixada"]])
                                     alunos_registrados.add(student_login)
                             continue  
 
@@ -248,13 +249,13 @@ def download_submissions(classroom_service, drive_service, submissions, download
 
 
                 if worksheet is not None and student_login not in alunos_registrados:
-                    worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao,None,None, comentarios]])
+                    worksheet.append_rows([[student_name, student_email, student_login, entregou, atrasou, formatacao,copia,None, comentarios]])
                     alunos_registrados.add(student_login)
                 
             except Exception as e:
                 log_info(f"Erro ao processar {student_name}: {e}")
                 if worksheet is not None and student_login not in alunos_registrados:
-                    worksheet.append_rows([[student_name, student_email, student_login, 0, atrasou, formatacao,None,None, "Erro de submissão: erro ao processar."]])
+                    worksheet.append_rows([[student_name, student_email, student_login, 0, atrasou, formatacao,copia,None, "Erro de submissão: erro ao processar."]])
                     alunos_registrados.add(student_login)
                 continue  
 
@@ -413,20 +414,16 @@ def update_final_grade_for_no_submission(worksheet, num_questions):
             entrega_valor_index = 3 + num_questions
             col_final_grade = 7 + num_questions
 
-        log_info(f"\n o percentage é {col_final_grade}, a entrega de valor é {entrega_valor_index}")
         for idx, row in enumerate(data):
             student_login = row[2] 
-            log_info(f"\n o estudante {student_login} e o percentage é {type(row[col_final_grade])}, a entrega de valor é {type(row[entrega_valor_index])}")
             if row[entrega_valor_index] == '0':
-                log_info(f"\n o estudante: {student_login} e o percentage é {row[col_final_grade]}, a entrega de valor é {row[entrega_valor_index]}")
                 updates.append({
                     'range': f'{chr(ord("H") + (num_questions if num_questions is not None else 0))}{idx + 1}', 
                     'values': [[0]]  
                 })
 
                 if row[col_final_grade] not in ('0', None, ''):
-                    log_info(f"\n o student: {student_login} e o percentage é {row[col_final_grade]}, a entrega de valor é {row[entrega_valor_index]}")
-                    comentario = f"O aluno tirou {row[col_final_grade]} no beecrowd, mas a entrega no classroom foi zerada."
+                    comentario = f"O aluno tirou 100 no beecrowd, mas a entrega no classroom foi zerada."
                     update_worksheet_comentario(worksheet, student_login, num_questions=num_questions, comentario=comentario) 
                 
         if updates:
@@ -481,9 +478,7 @@ def insert_columns(worksheet, num_questions):
 
 def insert_score_row(worksheet, score):
     try:
-        log_info("Entrou em insert_score_row")
         data = worksheet.get_all_values()
-        log_info(f"Dados da planilha obtidos: {data}")
 
         requests = []
 
@@ -498,7 +493,6 @@ def insert_score_row(worksheet, score):
                 'inheritFromBefore': False
             }
         })
-        log_info("Requisição de inserção de linha adicionada")
 
        
         if score is not None:
@@ -531,18 +525,15 @@ def insert_score_row(worksheet, score):
                 'fields': 'userEnteredValue'
             }
         })
-        log_info("Requisição de atualização de células para nova linha adicionada")
+        log_info("Requisição de atualização de células para nova linha adicionada\n\n")
 
-        log_info("Iniciando batch_update")
         worksheet.spreadsheet.batch_update({'requests': requests})
-        log_info("batch_update concluído com sucesso\n\n")
 
     except Exception as e:
         log_error(f"Ocorreu um erro ao inserir a linha e as colunas: {e}")
 
 def fill_scores_for_students(worksheet, num_questions, score=None):
     try:
-        log_info(f"Valor inicial de `score`: {score} (tipo: {type(score)})")
         data = worksheet.get_all_values()
         score_values = {}
         
@@ -604,15 +595,12 @@ def fill_scores_for_students(worksheet, num_questions, score=None):
         if requests:
             body = {'requests': requests}
             worksheet.spreadsheet.batch_update(body)
-            log_info("Atualização das pontuações concluída com sucesso.")
+            log_info("\nAtualização das pontuações concluída com sucesso.")
         else:
-            log_info("Nenhuma atualização necessária.")
+            log_info("\nNenhuma atualização necessária.")
 
     except Exception as e:
         log_error(f"Ocorreu um erro ao preencher pontuações: {e}")
-
-
-
 
 def apply_dynamic_formula_in_column(worksheet, num_questions):
     try:
@@ -629,12 +617,13 @@ def apply_dynamic_formula_in_column(worksheet, num_questions):
         columns_to_sum = ['D', 'E', 'F', 'G'][:num_questions]
         col_delay = chr(ord('E') + num_questions)
         col_form = chr(ord('F') + num_questions)
+        col_copy = chr(ord('G') + num_questions)
 
         for row_idx in range(1, last_filled_row + 1):
             try:
                 sum_formula = '+'.join([f"{col}{row_idx + 1}" for col in columns_to_sum])
                 #no final *(1 - Copia)
-                formula = f"={sum_formula} * (1 - (0.15*{col_delay}{row_idx + 1}) - (0.15*{col_form}{row_idx + 1}))"
+                formula = f"=({sum_formula}) * (1 - (0.15*{col_delay}{row_idx + 1}) - (0.15*{col_form}{row_idx + 1}))*(1 - {col_copy}{row_idx+1})"
 
                 requests.append({
                     'updateCells': {
@@ -658,7 +647,6 @@ def apply_dynamic_formula_in_column(worksheet, num_questions):
             'requests': requests
         }
         worksheet.spreadsheet.batch_update(body)
-        print('\nFórmula dinâmica aplicada na coluna de nota final.')
 
     except Exception as e:
         log_error(f"Erro ao aplicar formula dinâmica: {e}")
@@ -1056,7 +1044,6 @@ def insert_header_title(worksheet, classroom_name, list_title):
 
     except Exception as e:
         log_error(f"Erro ao inserir título da planilha no cabeçalho e formatar a planilha: {str(e)}")
-
 
 def list_questions_default(sheet_id):
     if sheet_id is not None:
@@ -1510,7 +1497,7 @@ def update_grades(sheet_id1, worksheet2, score):
         log_info(f"\nForam encontrados: {len(updates)} alunos nas duas planilhas com o mesmo email.")
         print(f"\nForam encontrados: {len(updates)} alunos nas duas planilhas com o mesmo email.")
         if len(updates) < len(emails): 
-            print("\nNem todos os alunos acertaram 100 ou 0 foram encontrados na planilha de resultados. Revise os emails no txt.")
+            print("\nNem todos os alunos acertaram 100 ou 0 foram encontrados na planilha de resultados. Revise os emails no not_found_emails_100_or_0.txt.")
                                
     except Exception as e:
         log_error(f"Erro ao atualizar planilha {str(e)}")  
@@ -1537,7 +1524,7 @@ def compare_emails(sheet_id_beecrowd, worksheet2):
             for email in sorted(only_in_planilha2):
                 file.write(f"{email}\n")
 
-        print("\nArquivo email_differences.txt criado com sucesso.")
+        print("\nArquivo email_differences.txt criado com sucesso. Nele você confere os emails que existem numa plataforma, mas não existem na outra.")
 
     except Exception as e:
         log_error(f"Erro ao comparar e-mails: {str(e)}")
@@ -1648,14 +1635,13 @@ def main():
                         insert_score_row(worksheet, score)
                         fill_scores_for_students(worksheet, num_questions, score)
                         print("\nProcesso de colocar as notas do beecrowd na planilha finalizado.")
+                        apply_dynamic_formula_in_column(worksheet, num_questions)
+                        print("\nProcesso de colocar as fórmulas dinâmicas na planilha finalizado.")
                         
                     else:
                         insert_score_row(worksheet, score)
                         update_final_grade_for_no_submission(worksheet, None) 
-                        print("\nID da planilha do Beecrowd não foi encontrado no arquivo 'sheet_id_beecrowd.txt'. Não será adicionada as notas dos alunos que tiraram 0 ou 100 na planilha do beecrowd.")
-                    
-                    apply_dynamic_formula_in_column(worksheet, num_questions)
-                    print("\nProcesso de colocar as fórmulas dinâmicas na planilha finalizado.")
+                        print("\nID da planilha do Beecrowd não foi encontrado no arquivo 'sheet_id_beecrowd.txt'. Não será adicionada as notas dos alunos que tiraram 0 ou 100 de acordo com a planilha do beecrowd.")
 
                     
                     freeze_and_sort(worksheet)
