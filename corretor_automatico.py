@@ -622,7 +622,7 @@ def apply_dynamic_formula_in_column(worksheet, num_questions):
         for row_idx in range(1, last_filled_row + 1):
             try:
                 sum_formula = '+'.join([f"{col}{row_idx + 1}" for col in columns_to_sum])
-                #no final *(1 - Copia)
+                
                 formula = f"=({sum_formula}) * (1 - (0.15*{col_delay}{row_idx + 1}) - (0.15*{col_form}{row_idx + 1}))*(1 - {col_copy}{row_idx+1})"
 
                 requests.append({
@@ -1353,7 +1353,6 @@ def rename_files(submissions_folder, list_title, questions_data, worksheet):
             rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet, 1)
             return
         else:
-            #if 'ARQUIVOS' not in list_title:
             no_c_files_in_directory(worksheet, submissions_folder)
             rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet)
     except Exception as e:
