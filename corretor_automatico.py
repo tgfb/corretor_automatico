@@ -532,80 +532,6 @@ def insert_score_row(worksheet, score):
     except Exception as e:
         log_error(f"Ocorreu um erro ao inserir a linha e as colunas: {e}")
 
-def fill_scores_for_students2(worksheet, num_questions, score=None):
-    try:
-        data = worksheet.get_all_values()
-        score_values = {}
-        
-        if score is not None:
-            for key, value in score.items():
-                try:
-                    score_values[key] = float(value)
-                except ValueError:
-                    log_info(f"Erro ao converter {key}: {value} para float.")
-                    continue
-            score_sum = sum(score_values.values())
-            log_info(f"Score sum calculated as: {score_sum} (type: {type(score_sum)})")
-        else:
-            score_sum = 100
-            log_info("Score is None; setting score_sum to 100.")
-
-        requests = []
-
-        for row_idx, row in enumerate(data[1:], start=1): 
-            final_score_column = 7 + num_questions
-            delivery_column = 7
-            
-            try:
-                log_info(f"Row final score value type: {type(row[final_score_column])} and score_sum: {score_sum}")
-                # Converta os valores para float, se possível
-                delivery_score = float(row[delivery_column]) if row[delivery_column].strip() else None
-                final_score = float(row[final_score_column]) if row[final_score_column].strip() else None
-
-                if (delivery_score == 0) or (final_score == 0):
-                    question_scores = ["=0"] * num_questions
-                    log_info(f"Inserindo 0 nas pontuações na linha {row_idx + 1}.")
-                
-                elif final_score == score_sum:
-                    log_info(f"Nota final completa na linha {row_idx + 1}. Inserindo fórmulas dinâmicas.")
-                    question_scores = [
-                        f"=${chr(68 + i)}$2" for i in range(num_questions)  
-                    ]
-                    log_info(f"Fórmulas para as questões na linha {row_idx + 1}: {question_scores}")
-                else:
-                    log_info(f"Condição não atendida para preenchimento na linha {row_idx + 1}. Pulando.")
-                    continue 
-            
-
-                for i, value in enumerate(question_scores):
-                    column_index = 3 + i  
-                    requests.append({
-                        'updateCells': {
-                            'rows': [{
-                                'values': [{'userEnteredValue': {'formulaValue' if isinstance(value, str) else 'numberValue': value}}]
-                            }],
-                            'fields': 'userEnteredValue',
-                            'start': {
-                                'sheetId': worksheet.id,
-                                'rowIndex': row_idx,
-                                'columnIndex': column_index
-                            }
-                        }
-                    })
-
-            except ValueError as ve:
-                log_info(f"Erro ao processar valores na linha {row_idx + 1}: {ve}")
-                continue
-                        
-        if requests:
-            body = {'requests': requests}
-            worksheet.spreadsheet.batch_update(body)
-            log_info("\nAtualização das pontuações concluída com sucesso.")
-        else:
-            log_info("\nNenhuma atualização necessária.")
-
-    except Exception as e:
-        log_error(f"Ocorreu um erro ao preencher pontuações: {e}")
 
 def fill_scores_for_students(worksheet, num_questions, score=None):
     try:
@@ -628,40 +554,46 @@ def fill_scores_for_students(worksheet, num_questions, score=None):
         requests = []
 
         for row_idx, row in enumerate(data[1:], start=1): 
-            final_score_column = 7 + num_questions
-            delivery_column = 7
+            final_score_column = 7 + num_questions if num_questions is not None else 7
+            delivery_column = 7 if num_questions is None else final_score_column
 
             try:
-                # Limpeza do valor antes da conversão
                 final_score_str = row[final_score_column].strip() if len(row) > final_score_column else ""
                 delivery_score_str = row[delivery_column].strip() if len(row) > delivery_column else ""
                 
                 log_info(f"[Linha {row_idx + 1}] Valor original de final_score: '{final_score_str}', delivery_score: '{delivery_score_str}'")
 
-                # Converta os valores para float, se possível
                 final_score = float(final_score_str) if final_score_str.replace('.', '', 1).isdigit() else None
                 delivery_score = float(delivery_score_str) if delivery_score_str.replace('.', '', 1).isdigit() else None
 
                 log_info(f"[Linha {row_idx + 1}] Verificando condições com final_score: {final_score}, delivery_score: {delivery_score}, e score_sum: {score_sum}")
 
-                # Nova ordem de condições com verificação adicional
-                if final_score == score_sum:
-                    log_info(f"[Linha {row_idx + 1}] Condição de score completo atendida (final_score == score_sum). Inserindo fórmulas dinâmicas.")
-                    question_scores = [
-                        f"=${chr(68 + i)}$2" for i in range(num_questions)  
-                    ]
-                    log_info(f"[Linha {row_idx + 1}] Fórmulas geradas para as questões: {question_scores}")
-                
-                elif (final_score is not None and final_score == 0) or (delivery_score is not None and delivery_score == 0):
-                    question_scores = ["=0"] * num_questions
-                    log_info(f"[Linha {row_idx + 1}] Condição de zero atendida. Inserindo 0 nas pontuações.")
+                if num_questions is not None:
+                    if final_score == score_sum:
+                        log_info(f"[Linha {row_idx + 1}] Condição de score completo atendida (final_score == score_sum). Inserindo fórmulas dinâmicas.")
+                        question_scores = [
+                            f"=${chr(68 + i)}$2" for i in range(num_questions)
+                        ]
+                        log_info(f"[Linha {row_idx + 1}] Fórmulas geradas para as questões: {question_scores}")
+                    
+                    elif final_score is not None and final_score == 0:
+                        question_scores = ["=0"] * num_questions
+                        log_info(f"[Linha {row_idx + 1}] Condição de zero atendida com final_score. Inserindo 0 nas pontuações.")
+                    
+                    else:
+                        log_info(f"[Linha {row_idx + 1}] Nenhuma condição atendida para preenchimento. Pulando linha.")
+                        continue
                 
                 else:
-                    log_info(f"[Linha {row_idx + 1}] Nenhuma condição atendida para preenchimento. Pulando linha.")
-                    continue 
+                    if delivery_score is not None and delivery_score == 0:
+                        question_scores = ["=0"]
+                        log_info(f"[Linha {row_idx + 1}] Condição de zero atendida com delivery_score. Inserindo 0.")
+                    else:
+                        log_info(f"[Linha {row_idx + 1}] Nenhuma condição atendida para preenchimento. Pulando linha.")
+                        continue
 
                 for i, value in enumerate(question_scores):
-                    column_index = 3 + i  
+                    column_index = 3 + i
                     requests.append({
                         'updateCells': {
                             'rows': [{
@@ -690,7 +622,6 @@ def fill_scores_for_students(worksheet, num_questions, score=None):
 
     except Exception as e:
         log_error(f"Ocorreu um erro ao preencher pontuações: {e}")
-
 
 
 def apply_dynamic_formula_in_column(worksheet, num_questions):
