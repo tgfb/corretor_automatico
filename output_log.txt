@@ -1,0 +1,950 @@
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:59.242Z', 'actorUserId': '108946421911115591929'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T23:28:18.830Z', 'actorUserId': '108946421911115591929'}}, {'gradeHistory': {'pointsEarned': 0.98, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:48.818Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:56.016Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.98, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:56.016Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T23:28:18.830Z, State: RETURNED
+Baixando jprda.zip de JOÃO PEDRO RODRIGUES DORNELAS DE ARAUJO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:20.314Z', 'actorUserId': '108120034092350759567'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T12:02:30.967Z', 'actorUserId': '108120034092350759567'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:08:56.537Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:58.200Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:58.200Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T12:02:30.967Z, State: RETURNED
+Baixando lfpa.zip de LUIZ FELIPE PESSOA DE ARRUDA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:19.595Z', 'actorUserId': '113247347703502637566'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.268Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.268Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.268Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}, {}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: None, State: RETURNED
+Aluno não entregou submissão.
+Nenhum anexo encontrado para DAVI FERNANDO MATIAS DA SILVA
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-09-24T01:12:25.950Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:12:25.950Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:59.753Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:59.753Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}, {}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: None, State: RETURNED
+Aluno não entregou submissão.
+Nenhum anexo encontrado para RODRIGO LUCENA CAVALCANTI
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:23.173Z', 'actorUserId': '109373462383660632580'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-02T13:01:17.601Z', 'actorUserId': '109373462383660632580'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:33.975Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:59.119Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:59.119Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-02T13:01:17.601Z, State: RETURNED
+Baixando mog.zip de MATHEOS DE OLIVEIRA GUERRA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:15.580Z', 'actorUserId': '101753890860030360469'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-09T02:38:47.606Z', 'actorUserId': '101753890860030360469'}}, {'gradeHistory': {'pointsEarned': 31, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:44.731Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:52.254Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:59.321Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:59.321Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-09T02:38:47.606Z, State: RETURNED
+Baixando phcp.zip de PAULO HENRIQUE CASSUNDÉ PORTELLA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:11:53.040Z', 'actorUserId': '113103216764172024869'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T17:04:04.924Z', 'actorUserId': '113103216764172024869'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:48.570Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:52.593Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:52.594Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T17:04:04.924Z, State: RETURNED
+Baixando cmaf.zip de CAIO MACHADO DE AQUINO FONSECA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:40.470Z', 'actorUserId': '107020238673694638328'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T02:59:16.033Z', 'actorUserId': '107020238673694638328'}}, {'gradeHistory': {'pointsEarned': 0.43, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:45.386Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.427Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.43, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.427Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T02:59:16.033Z, State: RETURNED
+Baixando camm.zip de CAIO AUGUSTO MACHADO DE MELO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:50.612Z', 'actorUserId': '100580258631839806643'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T21:59:45.043Z', 'actorUserId': '100580258631839806643'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:10:06.237Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:19:00.081Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:19:00.081Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T21:59:45.043Z, State: RETURNED
+Baixando tcq.zip de THIAGO COSTA QUEIROZ: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:13.077Z', 'actorUserId': '109731569772649203754'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T02:50:05.305Z', 'actorUserId': '109731569772649203754'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:10:36.038Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:19:00.478Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:19:00.478Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T02:50:05.305Z, State: RETURNED
+Baixando vct.zip de VINICIUS CAHU TAVARES: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:26.346Z', 'actorUserId': '100513811585389745203'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T22:21:03.781Z', 'actorUserId': '100513811585389745203'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:52.298Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:56.593Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:56.593Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T22:21:03.781Z, State: RETURNED
+Baixando jvln.zip de JOÃO VICTOR LEMOS NUNES: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:15.633Z', 'actorUserId': '118426350232027720044'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-03T22:57:36.440Z', 'actorUserId': '118426350232027720044'}}, {'stateHistory': {'state': 'RECLAIMED_BY_STUDENT', 'stateTimestamp': '2024-09-03T22:57:58.952Z', 'actorUserId': '118426350232027720044'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-03T22:58:29.109Z', 'actorUserId': '118426350232027720044'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:03:54.536Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.429Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.429Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-03T22:58:29.109Z, State: RETURNED
+Baixando apc.zip de ANTONIO PEREIRA CAMELO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:59.725Z', 'actorUserId': '111200281397138630701'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T02:43:10.831Z', 'actorUserId': '111200281397138630701'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:03:52.560Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.431Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.431Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T13:48:58.115Z', 'actorUserId': '101934640750488735163', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T13:49:39.236Z', 'actorUserId': '101934640750488735163'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T13:49:39.236Z', 'actorUserId': '101934640750488735163', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T02:43:10.831Z, State: RETURNED
+Baixando actf.zip de ANTONIO CRISANTO TRIGUEIRO FILHO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:52.774Z', 'actorUserId': '112715299611077028069'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-03T23:03:19.388Z', 'actorUserId': '112715299611077028069'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:31.044Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.427Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.427Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-03T23:03:19.388Z, State: RETURNED
+Baixando bbm.zip de BRUNO BARROS MAYER: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:46.919Z', 'actorUserId': '111751267051115487836'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T21:57:06.370Z', 'actorUserId': '111751267051115487836'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:42.939Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:55.711Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:55.711Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T21:57:06.370Z, State: RETURNED
+Baixando jpmd2.zip de JOÃO PEDRO MAMEDE DIAS: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:42.150Z', 'actorUserId': '110642578760143225911'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T00:53:38.360Z', 'actorUserId': '110642578760143225911'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:18.524Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:54.985Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:54.985Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T00:53:38.360Z, State: RETURNED
+Baixando hwg.zip de HENRIQUE WANDERLEY GUEIROS: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:40.388Z', 'actorUserId': '101194834872513104895'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T00:23:02.954Z', 'actorUserId': '101194834872513104895'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:08.879Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:54.898Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:54.898Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T00:23:02.954Z, State: RETURNED
+Baixando hft.zip de HENRIQUE FIGUEIRÊDO TEFILE: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:19.031Z', 'actorUserId': '117710103628795324671'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T12:23:53.378Z', 'actorUserId': '117710103628795324671'}}, {'stateHistory': {'state': 'RECLAIMED_BY_STUDENT', 'stateTimestamp': '2024-09-06T00:40:23.232Z', 'actorUserId': '117710103628795324671'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T00:42:09.295Z', 'actorUserId': '117710103628795324671'}}, {'gradeHistory': {'pointsEarned': 0.83, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:10:00.864Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:59.972Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.83, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:59.972Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T00:42:09.295Z, State: RETURNED
+Baixando Slag.zip de SAMUEL LUCAS DE ABREU GOUVEIA: 100%
+Renomeado Slag.zip para slag.zip de SAMUEL LUCAS DE ABREU GOUVEIA.
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:15:46.873Z', 'actorUserId': '107474606190081168904'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-03T19:13:23.800Z', 'actorUserId': '107474606190081168904'}}, {'gradeHistory': {'pointsEarned': 0.95, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:16.194Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.429Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.95, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.429Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-03T19:13:23.800Z, State: RETURNED
+Baixando abd2.zip de ARTUR BARROS DOWSLEY: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:27.287Z', 'actorUserId': '104588014315612498129'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T18:11:58.610Z', 'actorUserId': '104588014315612498129'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:08.504Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:58.259Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:58.259Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T18:11:58.610Z, State: RETURNED
+Baixando mcrcoa.zip de MARIA CLÁUDIA RODRIGUES CORRÊA DE OLIVEIRA ANDRADE: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:16.307Z', 'actorUserId': '112089430936371890244'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T20:53:06.070Z', 'actorUserId': '112089430936371890244'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:08:24.737Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:57.256Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:57.256Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T20:53:06.070Z, State: RETURNED
+Baixando lrc.zip de LUCAS RODRIGUES CAMPOS: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:49.155Z', 'actorUserId': '102243431168750999321'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:57.089Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:57.089Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:57.089Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}, {}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: None, State: RETURNED
+Aluno não entregou submissão.
+Nenhum anexo encontrado para KAIKE CAMPOS MEIRA DE ARAÚJO
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:29.714Z', 'actorUserId': '105395496005295613286'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T02:53:25.791Z', 'actorUserId': '105395496005295613286'}}, {'gradeHistory': {'pointsEarned': 0.5, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:10:32Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:19:00.333Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.5, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:19:00.333Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T02:53:25.791Z, State: RETURNED
+Baixando vbs4.zip de VINÍCIUS BERNARDO DA SILVA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:06.661Z', 'actorUserId': '100909375542499985343'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T01:00:26.085Z', 'actorUserId': '100909375542499985343'}}, {'stateHistory': {'state': 'RECLAIMED_BY_STUDENT', 'stateTimestamp': '2024-09-05T23:47:45.139Z', 'actorUserId': '100909375542499985343'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T23:48:13.758Z', 'actorUserId': '100909375542499985343'}}, {'stateHistory': {'state': 'RECLAIMED_BY_STUDENT', 'stateTimestamp': '2024-09-06T00:34:12.457Z', 'actorUserId': '100909375542499985343'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T00:36:36.708Z', 'actorUserId': '100909375542499985343'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:06:08.600Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:54.406Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:54.407Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T00:36:36.708Z, State: RETURNED
+Baixando gmvc.zip de GUILHERME MOURÃO VIEIRA COELHO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:30.137Z', 'actorUserId': '105179620154811019998'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T03:13:46.860Z', 'actorUserId': '105179620154811019998'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:18.366Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.433Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.433Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T03:13:46.860Z, State: RETURNED
+O arquivo asb6 (3).zip de ARTUR SALES BRASILIANO foi identificado como malware ou spam e não pode ser baixado.
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:39.728Z', 'actorUserId': '109839059963105079554'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T23:06:42.464Z', 'actorUserId': '109839059963105079554'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:10.970Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:54.967Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:54.967Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T23:06:42.464Z, State: RETURNED
+Baixando hscb.zip de HENRIQUE SÉRGIO CARNEIRO DE BRITO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:16:16.171Z', 'actorUserId': '102106068828321965406'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-08-30T21:32:15.767Z', 'actorUserId': '102106068828321965406'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:33.934Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:55.714Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:55.714Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-08-30T21:32:15.767Z, State: RETURNED
+Baixando jpam.zip de JOÃO PEDRO AGUIAR MORAIS: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:37.695Z', 'actorUserId': '116492955414734550745'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T00:06:03.674Z', 'actorUserId': '116492955414734550745'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:05:57.881Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.673Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.674Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T00:06:03.674Z, State: RETURNED
+Baixando frca2.zip de FELIPE RÊGO CARREIRO DE ANDRADE: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:08.409Z', 'actorUserId': '113867281777694581304'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T13:05:20.261Z', 'actorUserId': '113867281777694581304'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:08:05.850Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:57.094Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:57.094Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T13:05:20.261Z, State: RETURNED
+Baixando jtb.zip de JULIA TORRES DE BARROS: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:43.066Z', 'actorUserId': '112876824544748699470'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T02:40:22.337Z', 'actorUserId': '112876824544748699470'}}, {'gradeHistory': {'pointsEarned': 0.57, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:01.804Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.433Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.57, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.433Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T02:40:22.337Z, State: RETURNED
+Baixando axrm.zip de ARTHUR XAVIER REGO MONTEIRO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:11:47.658Z', 'actorUserId': '111673558288974850255'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T23:50:42.683Z', 'actorUserId': '111673558288974850255'}}, {'stateHistory': {'state': 'RECLAIMED_BY_STUDENT', 'stateTimestamp': '2024-09-06T00:11:01.317Z', 'actorUserId': '111673558288974850255'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T00:18:08.963Z', 'actorUserId': '111673558288974850255'}}, {'gradeHistory': {'pointsEarned': 0.5, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:10:10.469Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:19:00.225Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.5, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:19:00.225Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T00:18:08.963Z, State: RETURNED
+Baixando tvvb.zip de THIAGO VINNICIUS DE VASCONCELOS BRAYNER: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:37.705Z', 'actorUserId': '103920550129627468874'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-08-31T02:22:38.298Z', 'actorUserId': '103920550129627468874'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:23.026Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:55.379Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:55.379Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-08-31T02:22:38.298Z, State: RETURNED
+Baixando jbr2.zip de JERONIMO BARBOSA ROSSI: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:11.609Z', 'actorUserId': '112474758584609682973'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-03T14:19:24.446Z', 'actorUserId': '112474758584609682973'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:52.105Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.162Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.162Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-03T14:19:24.446Z, State: RETURNED
+Baixando ceec.zip de CARLOS EDUARDO ESPÓSITO CARDOSO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:33.101Z', 'actorUserId': '103559091337016626191'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T23:56:32.474Z', 'actorUserId': '103559091337016626191'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:40.328Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:59.254Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:59.254Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T23:56:32.474Z, State: RETURNED
+Baixando mmv.zip de MATHEUS MARTINS VERISSIMO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:29.204Z', 'actorUserId': '100100369535068901491'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T01:26:24.925Z', 'actorUserId': '100100369535068901491'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:07.791Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:54.787Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:54.787Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T01:26:24.925Z, State: RETURNED
+Baixando gmal.zip de GUSTAVO MARCONE AGUIAR LIMA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:59.485Z', 'actorUserId': '107933419144346793239'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T01:56:56.448Z', 'actorUserId': '107933419144346793239'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:08:42.765Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:57.669Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:57.669Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T01:56:56.448Z, State: RETURNED
+Baixando lfan lista 2.zip de LUIZ FELIPE ANDRETO NOGUEIRA: 100%
+Renomeado lfan lista 2.zip para lfan.zip de LUIZ FELIPE ANDRETO NOGUEIRA.
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:13.383Z', 'actorUserId': '102513536985647736565'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T01:38:35.994Z', 'actorUserId': '102513536985647736565'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:47.613Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:59.501Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:59.501Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T01:38:35.994Z, State: RETURNED
+Baixando padg.zip de PEDRO DE ARAÚJO DUARTE GUSMÃO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:53.010Z', 'actorUserId': '111278724419165819716'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T02:14:23.054Z', 'actorUserId': '111278724419165819716'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:25.034Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:58.837Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:58.838Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T02:14:23.054Z, State: RETURNED
+Baixando mhg.zip de MARINA HOFFMANN GUIMARÃES: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:26.823Z', 'actorUserId': '112955050423558576891'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T02:19:24.701Z', 'actorUserId': '112955050423558576891'}}, {'gradeHistory': {'pointsEarned': 0.5, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:08:16.179Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:57.084Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.5, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:57.084Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T02:19:24.701Z, State: RETURNED
+Baixando lmfs.zip de LAVÍNIA MARANHÃO FARIA DA SILVA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:49.014Z', 'actorUserId': '110039182896125999537'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-03T22:46:40.468Z', 'actorUserId': '110039182896125999537'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:10.654Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:58.332Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:58.333Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-03T22:46:40.468Z, State: RETURNED
+Baixando mjdma.zip de MARIA JULIA DANTAS MENDES DE ANDRADE: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:03.049Z', 'actorUserId': '108950437926326830213'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T18:38:21.745Z', 'actorUserId': '108950437926326830213'}}, {'gradeHistory': {'pointsEarned': 0.5, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:03:46.351Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.424Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.5, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.424Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T18:38:21.745Z, State: RETURNED
+Baixando aaal.zip de ANTÔNIO AUGUSTO DE ARRUDA LAPROVITERA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:00.341Z', 'actorUserId': '116595177296033863158'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T10:12:48.349Z', 'actorUserId': '116595177296033863158'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:27.919Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:58.835Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:58.835Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T10:12:48.349Z, State: RETURNED
+Baixando mar2.zip de MATEUS DE ALMEIDA RIBEIRO: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:11:55.944Z', 'actorUserId': '105160695348247344081'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-03T21:17:00.525Z', 'actorUserId': '105160695348247344081'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:47.281Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.972Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.972Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-03T21:17:00.525Z, State: RETURNED
+Baixando cflo.zip de CAIO FERREIRA LIRA DE OLIVEIRA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:15:53.674Z', 'actorUserId': '112612448702207607869'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T01:13:19.473Z', 'actorUserId': '112612448702207607869'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:26.271Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:55.574Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:55.574Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T01:13:19.473Z, State: RETURNED
+Baixando jhmm.zip de JOÃO HENRIQUE MICUCCI MENDES: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:15:20.914Z', 'actorUserId': '117822965365695225809'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T20:37:56.884Z', 'actorUserId': '117822965365695225809'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:10:39.377Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:19:00.755Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:19:00.755Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T20:37:56.884Z, State: RETURNED
+Baixando vjmm.zip de VINÍCIUS JOSÉ MATIAS MARQUES: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:16.175Z', 'actorUserId': '100865045540008695551'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T01:54:37.768Z', 'actorUserId': '100865045540008695551'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:08:35.167Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:57.658Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:57.658Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T01:54:37.768Z, State: RETURNED
+Baixando lgals.zip de LUIS GUILHERME ALVES LAURIA SOARES: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:14.514Z', 'actorUserId': '103567657672907021164'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-02T14:38:38.195Z', 'actorUserId': '103567657672907021164'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:21.265Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:55.179Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:55.179Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-02T14:38:38.195Z, State: RETURNED
+Baixando iafbs.zip de IRVIN AMILCAR DE FARIAS BOTELHO DA SILVA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:39.444Z', 'actorUserId': '103008484644755879623'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T00:33:09.184Z', 'actorUserId': '103008484644755879623'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:06:10.631Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:54.776Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:54.776Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T00:33:09.184Z, State: RETURNED
+Baixando gvrs.zip de GUILHERME VINÍCIUS RANGEL SILVA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:33.748Z', 'actorUserId': '116740346891828226819'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.640Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.641Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.641Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}, {}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: None, State: RETURNED
+Aluno não entregou submissão.
+Nenhum anexo encontrado para FELIPE GONÇALVES MOXOTÓ
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:44.058Z', 'actorUserId': '101760549179186677694'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T19:52:12.239Z', 'actorUserId': '101760549179186677694'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:05:21.662Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.306Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.306Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T19:52:12.239Z, State: RETURNED
+Baixando fcsls.zip de FABIANA COELHO DE SOUZA LEÃO SILVEIRA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:20.223Z', 'actorUserId': '101735083820470392975'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T21:41:58.573Z', 'actorUserId': '101735083820470392975'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:29.406Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:51.426Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:51.426Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T21:41:58.573Z, State: RETURNED
+Baixando bas.zip de BRUNO ASSUNÇÃO DA SILVA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:11:56.130Z', 'actorUserId': '100997022802284766489'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T13:35:41.171Z', 'actorUserId': '100997022802284766489'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:05:48.364Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.643Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.643Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T13:35:41.171Z, State: RETURNED
+Baixando fmmo.zip de FELIPE MARQUES MEIRA DE OLIVEIRA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:08.107Z', 'actorUserId': '104617362304764340815'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-01T23:44:08.274Z', 'actorUserId': '104617362304764340815'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:04:58.545Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:05:13.791Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.294Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.294Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-01T23:44:08.274Z, State: RETURNED
+Baixando dmo3.zip de DAVI MARQUES OLIVEIRA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:55.552Z', 'actorUserId': '103133145025599174738'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T01:31:48.313Z', 'actorUserId': '103133145025599174738'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:03:39.898Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:50.881Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.85, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:50.882Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T01:31:48.313Z, State: RETURNED
+Baixando amo.zip de AMANDA MONTARROIOS DE OLIVEIRA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:12:12.380Z', 'actorUserId': '101811466534904543548'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T21:35:42.886Z', 'actorUserId': '101811466534904543548'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:08:32.657Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:57.314Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:57.314Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T21:35:42.886Z, State: RETURNED
+Baixando lvc.zip de LUCAS VALOIS CALABRIA: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:14.290Z', 'actorUserId': '110884770503298900080'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-04T13:11:12.064Z', 'actorUserId': '110884770503298900080'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:07:59.973Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:56.625Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:56.625Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-04T13:11:12.064Z, State: RETURNED
+Baixando jmst.zip de Julia Maria Santos Teixeira: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:07.316Z', 'actorUserId': '101936506832255772554'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-08T01:21:11.749Z', 'actorUserId': '101936506832255772554'}}, {'gradeHistory': {'pointsEarned': 0.35, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:06:02.722Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.855Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.35, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.856Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-08T01:21:11.749Z, State: RETURNED
+Baixando fafhc.zip de FERNANDO AUGUSTO FERNANDEZ HOLANDA CAVALCANTI: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:03.430Z', 'actorUserId': '117232394869010475739'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T01:07:35.023Z', 'actorUserId': '117232394869010475739'}}, {'gradeHistory': {'pointsEarned': 0.95, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:09:15.512Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:58.504Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 0.95, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:58.504Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T01:07:35.023Z, State: RETURNED
+Baixando mldt.zip de MARIA LUÍZA DANTAS TAVARES: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:13:08.376Z', 'actorUserId': '112793403700949425006'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-05T07:00:49.856Z', 'actorUserId': '112793403700949425006'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:05:24.171Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.531Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.531Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-05T07:00:49.856Z, State: RETURNED
+Baixando fbmmca.zip de Fátima Beatriz Moraes: 100%
+
+Histórico de submissão: [{'stateHistory': {'state': 'CREATED', 'stateTimestamp': '2024-08-29T11:14:49.221Z', 'actorUserId': '104154926063041674544'}}, {'stateHistory': {'state': 'TURNED_IN', 'stateTimestamp': '2024-09-06T02:13:46.558Z', 'actorUserId': '104154926063041674544'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:05:19.061Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'DRAFT_GRADE_POINTS_EARNED_CHANGE'}}, {'stateHistory': {'state': 'RETURNED', 'stateTimestamp': '2024-09-24T01:18:53.292Z', 'actorUserId': '109659447439357836138'}}, {'gradeHistory': {'pointsEarned': 1, 'maxPoints': 1, 'gradeTimestamp': '2024-09-24T01:18:53.292Z', 'actorUserId': '109659447439357836138', 'gradeChangeType': 'ASSIGNED_GRADE_POINTS_EARNED_CHANGE'}}]
+Due date: 2024-09-06T02:59:59.000Z, Submission date: 2024-09-06T02:13:46.558Z, State: RETURNED
+Baixando dscpr.zip de DAVI SANTIAGO COSTA PESSOA RIBEIRO: 100%
+
+Histórico de submissão: []
+Due date: 2024-09-06T02:59:59.000Z, Submission date: None, State: NEW
+Aluno não entregou submissão.
+Nenhum anexo encontrado para CAIO MATHEWS DE FARIAS FERREIRA
+
+Histórico de submissão: []
+Due date: 2024-09-06T02:59:59.000Z, Submission date: None, State: NEW
+Aluno não entregou submissão.
+Nenhum anexo encontrado para GABRIEL MIRANDA MUCARBEL DE LIMA
+
+Arquivos extraídos de fafhc: ['fafhc']
+A pasta extraída fafhc já tem o nome correto. Movendo arquivos para Downloads/submissions/fafhc.
+Movendo arquivo: Downloads/submissions/fafhc/fafhc/q2_fafhc.c -> Downloads/submissions/fafhc/q2_fafhc.c
+Movendo arquivo: Downloads/submissions/fafhc/fafhc/q1_fafhc.c -> Downloads/submissions/fafhc/q1_fafhc.c
+Pasta extra deletada: Downloads/submissions/fafhc/fafhc
+
+Arquivos extraídos de mhg: ['mhg']
+A pasta extraída mhg já tem o nome correto. Movendo arquivos para Downloads/submissions/mhg.
+Movendo arquivo: Downloads/submissions/mhg/mhg/q1_mhg.c -> Downloads/submissions/mhg/q1_mhg.c
+Movendo arquivo: Downloads/submissions/mhg/mhg/q2_mhg.c -> Downloads/submissions/mhg/q2_mhg.c
+Pasta extra deletada: Downloads/submissions/mhg/mhg
+
+Arquivos extraídos de tvvb: ['tvvb']
+A pasta extraída tvvb já tem o nome correto. Movendo arquivos para Downloads/submissions/tvvb.
+Movendo arquivo: Downloads/submissions/tvvb/tvvb/q2_tvvb.c -> Downloads/submissions/tvvb/q2_tvvb.c
+Movendo arquivo: Downloads/submissions/tvvb/tvvb/q1_tvvb.c -> Downloads/submissions/tvvb/q1_tvvb.c
+Pasta extra deletada: Downloads/submissions/tvvb/tvvb
+
+Arquivos extraídos de hscb: ['hscb']
+A pasta extraída hscb já tem o nome correto. Movendo arquivos para Downloads/submissions/hscb.
+Movendo arquivo: Downloads/submissions/hscb/hscb/q2_hscb.c -> Downloads/submissions/hscb/q2_hscb.c
+Movendo arquivo: Downloads/submissions/hscb/hscb/q1_hscb.c -> Downloads/submissions/hscb/q1_hscb.c
+Pasta extra deletada: Downloads/submissions/hscb/hscb
+
+Arquivos extraídos de lvc: ['lvc']
+A pasta extraída lvc já tem o nome correto. Movendo arquivos para Downloads/submissions/lvc.
+Movendo arquivo: Downloads/submissions/lvc/lvc/q2_lvc.c -> Downloads/submissions/lvc/q2_lvc.c
+Movendo arquivo: Downloads/submissions/lvc/lvc/q1_lvc.c -> Downloads/submissions/lvc/q1_lvc.c
+Pasta extra deletada: Downloads/submissions/lvc/lvc
+
+Arquivos extraídos de bas: ['bas']
+A pasta extraída bas já tem o nome correto. Movendo arquivos para Downloads/submissions/bas.
+Movendo arquivo: Downloads/submissions/bas/bas/q2_bas.c -> Downloads/submissions/bas/q2_bas.c
+Movendo arquivo: Downloads/submissions/bas/bas/q1_bas.c -> Downloads/submissions/bas/q1_bas.c
+Pasta extra deletada: Downloads/submissions/bas/bas
+
+Arquivos extraídos de jhmm: ['jhmm']
+A pasta extraída jhmm já tem o nome correto. Movendo arquivos para Downloads/submissions/jhmm.
+Movendo arquivo: Downloads/submissions/jhmm/jhmm/q1_jhmm.c -> Downloads/submissions/jhmm/q1_jhmm.c
+Movendo arquivo: Downloads/submissions/jhmm/jhmm/q2_jhmm.c -> Downloads/submissions/jhmm/q2_jhmm.c
+Pasta extra deletada: Downloads/submissions/jhmm/jhmm
+
+Arquivos extraídos de mjdma: ['mjdma']
+A pasta extraída mjdma já tem o nome correto. Movendo arquivos para Downloads/submissions/mjdma.
+Movendo arquivo: Downloads/submissions/mjdma/mjdma/q1_mjdma.c -> Downloads/submissions/mjdma/q1_mjdma.c
+Movendo arquivo: Downloads/submissions/mjdma/mjdma/q2_mjdma.c -> Downloads/submissions/mjdma/q2_mjdma.c
+Pasta extra deletada: Downloads/submissions/mjdma/mjdma
+
+Arquivos extraídos de axrm: ['axrm']
+A pasta extraída axrm já tem o nome correto. Movendo arquivos para Downloads/submissions/axrm.
+Movendo arquivo: Downloads/submissions/axrm/axrm/q2_axrm.c -> Downloads/submissions/axrm/q2_axrm.c
+Movendo arquivo: Downloads/submissions/axrm/axrm/q1_axrm.c -> Downloads/submissions/axrm/q1_axrm.c
+Pasta extra deletada: Downloads/submissions/axrm/axrm
+
+Arquivos extraídos de ceec: ['ceec']
+A pasta extraída ceec já tem o nome correto. Movendo arquivos para Downloads/submissions/ceec.
+Movendo arquivo: Downloads/submissions/ceec/ceec/q2_ceec.c -> Downloads/submissions/ceec/q2_ceec.c
+Movendo arquivo: Downloads/submissions/ceec/ceec/q1_ceec.c -> Downloads/submissions/ceec/q1_ceec.c
+Pasta extra deletada: Downloads/submissions/ceec/ceec
+
+Arquivos extraídos de bbm: ['bbm']
+A pasta extraída bbm já tem o nome correto. Movendo arquivos para Downloads/submissions/bbm.
+Movendo arquivo: Downloads/submissions/bbm/bbm/q1_bbm.c -> Downloads/submissions/bbm/q1_bbm.c
+Movendo arquivo: Downloads/submissions/bbm/bbm/q2_bbm.c -> Downloads/submissions/bbm/q2_bbm.c
+Pasta extra deletada: Downloads/submissions/bbm/bbm
+
+Arquivos extraídos de cflo: ['cflo']
+A pasta extraída cflo já tem o nome correto. Movendo arquivos para Downloads/submissions/cflo.
+Movendo arquivo: Downloads/submissions/cflo/cflo/q2_cflo.c -> Downloads/submissions/cflo/q2_cflo.c
+Movendo arquivo: Downloads/submissions/cflo/cflo/q1_cflo.c -> Downloads/submissions/cflo/q1_cflo.c
+Pasta extra deletada: Downloads/submissions/cflo/cflo
+
+Arquivos extraídos de phcp: ['phcp']
+A pasta extraída phcp já tem o nome correto. Movendo arquivos para Downloads/submissions/phcp.
+Movendo arquivo: Downloads/submissions/phcp/phcp/q1_phcp.c -> Downloads/submissions/phcp/q1_phcp.c
+Movendo arquivo: Downloads/submissions/phcp/phcp/q2_phcp.c -> Downloads/submissions/phcp/q2_phcp.c
+Pasta extra deletada: Downloads/submissions/phcp/phcp
+
+Arquivos extraídos de hwg: ['hwg']
+A pasta extraída hwg já tem o nome correto. Movendo arquivos para Downloads/submissions/hwg.
+Movendo arquivo: Downloads/submissions/hwg/hwg/q2_hwg.c -> Downloads/submissions/hwg/q2_hwg.c
+Movendo arquivo: Downloads/submissions/hwg/hwg/q1_hwg.c -> Downloads/submissions/hwg/q1_hwg.c
+Pasta extra deletada: Downloads/submissions/hwg/hwg
+
+Arquivos extraídos de vbs4: ['vbs4']
+A pasta extraída vbs4 já tem o nome correto. Movendo arquivos para Downloads/submissions/vbs4.
+Movendo arquivo: Downloads/submissions/vbs4/vbs4/q2_vbs4.c -> Downloads/submissions/vbs4/q2_vbs4.c
+Movendo arquivo: Downloads/submissions/vbs4/vbs4/q1_vbs4.c -> Downloads/submissions/vbs4/q1_vbs4.c
+Pasta extra deletada: Downloads/submissions/vbs4/vbs4
+
+Arquivos extraídos de frca2: ['frca2']
+A pasta extraída frca2 já tem o nome correto. Movendo arquivos para Downloads/submissions/frca2.
+Movendo arquivo: Downloads/submissions/frca2/frca2/q2_frca2.c -> Downloads/submissions/frca2/q2_frca2.c
+Movendo arquivo: Downloads/submissions/frca2/frca2/q1_frca2.c -> Downloads/submissions/frca2/q1_frca2.c
+Pasta extra deletada: Downloads/submissions/frca2/frca2
+
+Arquivos extraídos de jpam: ['jpam']
+A pasta extraída jpam já tem o nome correto. Movendo arquivos para Downloads/submissions/jpam.
+Movendo arquivo: Downloads/submissions/jpam/jpam/q1_jpam.c -> Downloads/submissions/jpam/q1_jpam.c
+Movendo arquivo: Downloads/submissions/jpam/jpam/q2_jpam.c -> Downloads/submissions/jpam/q2_jpam.c
+Pasta extra deletada: Downloads/submissions/jpam/jpam
+
+Arquivos extraídos de dmo3: ['dmo3']
+A pasta extraída dmo3 já tem o nome correto. Movendo arquivos para Downloads/submissions/dmo3.
+Movendo arquivo: Downloads/submissions/dmo3/dmo3/q1_dmo3.c -> Downloads/submissions/dmo3/q1_dmo3.c
+Movendo arquivo: Downloads/submissions/dmo3/dmo3/q2_dmo3.c -> Downloads/submissions/dmo3/q2_dmo3.c
+Pasta extra deletada: Downloads/submissions/dmo3/dmo3
+
+Arquivos extraídos de cmaf: ['cmaf']
+A pasta extraída cmaf já tem o nome correto. Movendo arquivos para Downloads/submissions/cmaf.
+Movendo arquivo: Downloads/submissions/cmaf/cmaf/q2_cmaf.c -> Downloads/submissions/cmaf/q2_cmaf.c
+Movendo arquivo: Downloads/submissions/cmaf/cmaf/q1_cmaf.c -> Downloads/submissions/cmaf/q1_cmaf.c
+Pasta extra deletada: Downloads/submissions/cmaf/cmaf
+
+Arquivos extraídos de jbr2: ['jbr2']
+A pasta extraída jbr2 já tem o nome correto. Movendo arquivos para Downloads/submissions/jbr2.
+Movendo arquivo: Downloads/submissions/jbr2/jbr2/q2_jbr2.c -> Downloads/submissions/jbr2/q2_jbr2.c
+Movendo arquivo: Downloads/submissions/jbr2/jbr2/q1_jbr2.c -> Downloads/submissions/jbr2/q1_jbr2.c
+Pasta extra deletada: Downloads/submissions/jbr2/jbr2
+Removendo pasta __MACOSX de Downloads/submissions/vct
+
+Arquivos extraídos de vct: ['vct']
+A pasta extraída vct já tem o nome correto. Movendo arquivos para Downloads/submissions/vct.
+Movendo arquivo: Downloads/submissions/vct/vct/.DS_Store -> Downloads/submissions/vct/.DS_Store
+Movendo arquivo: Downloads/submissions/vct/vct/output -> Downloads/submissions/vct/output
+Movendo arquivo: Downloads/submissions/vct/vct/vct -> Downloads/submissions/vct/vct
+Erro ao mover arquivo: Destination path 'Downloads/submissions/vct/vct/vct' already exists
+Movendo arquivo: Downloads/submissions/vct/vct/.vscode -> Downloads/submissions/vct/.vscode
+Pasta extra Downloads/submissions/vct/vct ainda contém arquivos e não será deletada.
+
+Arquivos extraídos de dscpr: ['dscpr']
+A pasta extraída dscpr já tem o nome correto. Movendo arquivos para Downloads/submissions/dscpr.
+Movendo arquivo: Downloads/submissions/dscpr/dscpr/q2_dscpr.c -> Downloads/submissions/dscpr/q2_dscpr.c
+Movendo arquivo: Downloads/submissions/dscpr/dscpr/q1_dscpr.c -> Downloads/submissions/dscpr/q1_dscpr.c
+Pasta extra deletada: Downloads/submissions/dscpr/dscpr
+
+Arquivos extraídos de aaal: ['aaal']
+A pasta extraída aaal já tem o nome correto. Movendo arquivos para Downloads/submissions/aaal.
+Movendo arquivo: Downloads/submissions/aaal/aaal/q2_aaal.c -> Downloads/submissions/aaal/q2_aaal.c
+Movendo arquivo: Downloads/submissions/aaal/aaal/q1_aaal.c -> Downloads/submissions/aaal/q1_aaal.c
+Pasta extra deletada: Downloads/submissions/aaal/aaal
+
+Arquivos extraídos de jvln: ['jvln']
+A pasta extraída jvln já tem o nome correto. Movendo arquivos para Downloads/submissions/jvln.
+Movendo arquivo: Downloads/submissions/jvln/jvln/q2_jvln.c -> Downloads/submissions/jvln/q2_jvln.c
+Movendo arquivo: Downloads/submissions/jvln/jvln/q1_jvln.c -> Downloads/submissions/jvln/q1_jvln.c
+Pasta extra deletada: Downloads/submissions/jvln/jvln
+
+Arquivos extraídos de mog: ['mog']
+A pasta extraída mog já tem o nome correto. Movendo arquivos para Downloads/submissions/mog.
+Movendo arquivo: Downloads/submissions/mog/mog/q2_mog.c -> Downloads/submissions/mog/q2_mog.c
+Movendo arquivo: Downloads/submissions/mog/mog/q1_mog.c -> Downloads/submissions/mog/q1_mog.c
+Pasta extra deletada: Downloads/submissions/mog/mog
+
+Arquivos extraídos de tcq: ['tcq']
+A pasta extraída tcq já tem o nome correto. Movendo arquivos para Downloads/submissions/tcq.
+Movendo arquivo: Downloads/submissions/tcq/tcq/q1_tcq.c -> Downloads/submissions/tcq/q1_tcq.c
+Movendo arquivo: Downloads/submissions/tcq/tcq/q2_tcq.c -> Downloads/submissions/tcq/q2_tcq.c
+Pasta extra deletada: Downloads/submissions/tcq/tcq
+
+Arquivos extraídos de gvrs: ['gvrs']
+A pasta extraída gvrs já tem o nome correto. Movendo arquivos para Downloads/submissions/gvrs.
+Movendo arquivo: Downloads/submissions/gvrs/gvrs/q2_gvrs.c -> Downloads/submissions/gvrs/q2_gvrs.c
+Movendo arquivo: Downloads/submissions/gvrs/gvrs/q1_gvrs.c -> Downloads/submissions/gvrs/q1_gvrs.c
+Pasta extra deletada: Downloads/submissions/gvrs/gvrs
+
+Arquivos extraídos de vjmm: ['vjmm']
+A pasta extraída vjmm já tem o nome correto. Movendo arquivos para Downloads/submissions/vjmm.
+Movendo arquivo: Downloads/submissions/vjmm/vjmm/q2_vjmm.c -> Downloads/submissions/vjmm/q2_vjmm.c
+Movendo arquivo: Downloads/submissions/vjmm/vjmm/q1_vjmm.c -> Downloads/submissions/vjmm/q1_vjmm.c
+Pasta extra deletada: Downloads/submissions/vjmm/vjmm
+
+Arquivos extraídos de fmmo: ['fmmo']
+A pasta extraída fmmo já tem o nome correto. Movendo arquivos para Downloads/submissions/fmmo.
+Movendo arquivo: Downloads/submissions/fmmo/fmmo/q2_fmmo.c -> Downloads/submissions/fmmo/q2_fmmo.c
+Movendo arquivo: Downloads/submissions/fmmo/fmmo/q1_fmmo.c -> Downloads/submissions/fmmo/q1_fmmo.c
+Pasta extra deletada: Downloads/submissions/fmmo/fmmo
+
+Arquivos extraídos de fcsls: ['fcsls']
+A pasta extraída fcsls já tem o nome correto. Movendo arquivos para Downloads/submissions/fcsls.
+Movendo arquivo: Downloads/submissions/fcsls/fcsls/q1_fcsls.c -> Downloads/submissions/fcsls/q1_fcsls.c
+Movendo arquivo: Downloads/submissions/fcsls/fcsls/q2_fcsls.c -> Downloads/submissions/fcsls/q2_fcsls.c
+Pasta extra deletada: Downloads/submissions/fcsls/fcsls
+
+Arquivos extraídos de slag: ['q2_slag.c', 'q1_slag.c']
+
+Arquivos extraídos de abd2: ['abd2']
+A pasta extraída abd2 já tem o nome correto. Movendo arquivos para Downloads/submissions/abd2.
+Movendo arquivo: Downloads/submissions/abd2/abd2/q2_abd2.c -> Downloads/submissions/abd2/q2_abd2.c
+Movendo arquivo: Downloads/submissions/abd2/abd2/q1_abd2.c -> Downloads/submissions/abd2/q1_abd2.c
+Pasta extra deletada: Downloads/submissions/abd2/abd2
+
+Arquivos extraídos de camm: ['camm']
+A pasta extraída camm já tem o nome correto. Movendo arquivos para Downloads/submissions/camm.
+Movendo arquivo: Downloads/submissions/camm/camm/q2_camm.c.c -> Downloads/submissions/camm/q2_camm.c.c
+Movendo arquivo: Downloads/submissions/camm/camm/q1_camm.c.c -> Downloads/submissions/camm/q1_camm.c.c
+Pasta extra deletada: Downloads/submissions/camm/camm
+
+Arquivos extraídos de hft: ['hft']
+A pasta extraída hft já tem o nome correto. Movendo arquivos para Downloads/submissions/hft.
+Movendo arquivo: Downloads/submissions/hft/hft/q1_hft.c -> Downloads/submissions/hft/q1_hft.c
+Movendo arquivo: Downloads/submissions/hft/hft/q2_hft.c -> Downloads/submissions/hft/q2_hft.c
+Pasta extra deletada: Downloads/submissions/hft/hft
+
+Arquivos extraídos de lrc: ['lrc']
+A pasta extraída lrc já tem o nome correto. Movendo arquivos para Downloads/submissions/lrc.
+Movendo arquivo: Downloads/submissions/lrc/lrc/qp2_lrc.c -> Downloads/submissions/lrc/qp2_lrc.c
+Movendo arquivo: Downloads/submissions/lrc/lrc/qp1_lrc.c -> Downloads/submissions/lrc/qp1_lrc.c
+Pasta extra deletada: Downloads/submissions/lrc/lrc
+
+Arquivos extraídos de mmv: ['mmv']
+A pasta extraída mmv já tem o nome correto. Movendo arquivos para Downloads/submissions/mmv.
+Movendo arquivo: Downloads/submissions/mmv/mmv/q2_mmv.c -> Downloads/submissions/mmv/q2_mmv.c
+Movendo arquivo: Downloads/submissions/mmv/mmv/q1_mmv.c -> Downloads/submissions/mmv/q1_mmv.c
+Pasta extra deletada: Downloads/submissions/mmv/mmv
+
+Arquivos extraídos de lmfs: ['lmfs']
+A pasta extraída lmfs já tem o nome correto. Movendo arquivos para Downloads/submissions/lmfs.
+Movendo arquivo: Downloads/submissions/lmfs/lmfs/q1_lmfs.c -> Downloads/submissions/lmfs/q1_lmfs.c
+Pasta extra deletada: Downloads/submissions/lmfs/lmfs
+
+Arquivos extraídos de actf: ['actf']
+A pasta extraída actf já tem o nome correto. Movendo arquivos para Downloads/submissions/actf.
+Movendo arquivo: Downloads/submissions/actf/actf/q1_actf.c -> Downloads/submissions/actf/q1_actf.c
+Movendo arquivo: Downloads/submissions/actf/actf/q2_actf.c -> Downloads/submissions/actf/q2_actf.c
+Pasta extra deletada: Downloads/submissions/actf/actf
+
+Arquivos extraídos de amo: ['q2_amo.c', 'q1_amo.c']
+Pasta renomeada de lfan lista 2 para lfan
+
+Arquivos extraídos de lfan: ['lfan']
+A pasta extraída lfan já tem o nome correto. Movendo arquivos para Downloads/submissions/lfan.
+Movendo arquivo: Downloads/submissions/lfan/lfan/q1l2.c -> Downloads/submissions/lfan/q1l2.c
+Movendo arquivo: Downloads/submissions/lfan/lfan/q2l2.c -> Downloads/submissions/lfan/q2l2.c
+Pasta extra deletada: Downloads/submissions/lfan/lfan
+
+Arquivos extraídos de jprda: ['jprda']
+A pasta extraída jprda já tem o nome correto. Movendo arquivos para Downloads/submissions/jprda.
+Movendo arquivo: Downloads/submissions/jprda/jprda/q1_jprda.c -> Downloads/submissions/jprda/q1_jprda.c
+Movendo arquivo: Downloads/submissions/jprda/jprda/q2_jprda.c -> Downloads/submissions/jprda/q2_jprda.c
+Pasta extra deletada: Downloads/submissions/jprda/jprda
+
+Arquivos extraídos de jpmd2: ['q1_jpmd2.c', 'q2_jpmd2.c']
+
+Arquivos extraídos de mldt: ['mldt']
+A pasta extraída mldt já tem o nome correto. Movendo arquivos para Downloads/submissions/mldt.
+Movendo arquivo: Downloads/submissions/mldt/mldt/q1_mldt.c -> Downloads/submissions/mldt/q1_mldt.c
+Movendo arquivo: Downloads/submissions/mldt/mldt/q2_mldt.c -> Downloads/submissions/mldt/q2_mldt.c
+Pasta extra deletada: Downloads/submissions/mldt/mldt
+
+Arquivos extraídos de fbmmca: ['fbmmca']
+A pasta extraída fbmmca já tem o nome correto. Movendo arquivos para Downloads/submissions/fbmmca.
+Movendo arquivo: Downloads/submissions/fbmmca/fbmmca/q1_fbmmca.c -> Downloads/submissions/fbmmca/q1_fbmmca.c
+Movendo arquivo: Downloads/submissions/fbmmca/fbmmca/q2_fbmmca.c -> Downloads/submissions/fbmmca/q2_fbmmca.c
+Pasta extra deletada: Downloads/submissions/fbmmca/fbmmca
+
+Arquivos extraídos de mar2: ['mar2']
+A pasta extraída mar2 já tem o nome correto. Movendo arquivos para Downloads/submissions/mar2.
+Movendo arquivo: Downloads/submissions/mar2/mar2/q2_mar2.c -> Downloads/submissions/mar2/q2_mar2.c
+Movendo arquivo: Downloads/submissions/mar2/mar2/q1_mar2.c -> Downloads/submissions/mar2/q1_mar2.c
+Pasta extra deletada: Downloads/submissions/mar2/mar2
+
+Arquivos extraídos de padg: ['padg']
+A pasta extraída padg já tem o nome correto. Movendo arquivos para Downloads/submissions/padg.
+Movendo arquivo: Downloads/submissions/padg/padg/q2_padg.c -> Downloads/submissions/padg/q2_padg.c
+Movendo arquivo: Downloads/submissions/padg/padg/q1_padg.c -> Downloads/submissions/padg/q1_padg.c
+Pasta extra deletada: Downloads/submissions/padg/padg
+
+Arquivos extraídos de lfpa: ['lfpa']
+A pasta extraída lfpa já tem o nome correto. Movendo arquivos para Downloads/submissions/lfpa.
+Movendo arquivo: Downloads/submissions/lfpa/lfpa/q1_lfpa.c -> Downloads/submissions/lfpa/q1_lfpa.c
+Movendo arquivo: Downloads/submissions/lfpa/lfpa/q2_lfpa.c -> Downloads/submissions/lfpa/q2_lfpa.c
+Pasta extra deletada: Downloads/submissions/lfpa/lfpa
+
+Arquivos extraídos de lgals: ['lgals']
+A pasta extraída lgals já tem o nome correto. Movendo arquivos para Downloads/submissions/lgals.
+Movendo arquivo: Downloads/submissions/lgals/lgals/q2_lgals.c -> Downloads/submissions/lgals/q2_lgals.c
+Movendo arquivo: Downloads/submissions/lgals/lgals/q1_lgals.c -> Downloads/submissions/lgals/q1_lgals.c
+Pasta extra deletada: Downloads/submissions/lgals/lgals
+
+Arquivos extraídos de gmvc: ['gmvc']
+A pasta extraída gmvc já tem o nome correto. Movendo arquivos para Downloads/submissions/gmvc.
+Movendo arquivo: Downloads/submissions/gmvc/gmvc/q2_gmvc.c -> Downloads/submissions/gmvc/q2_gmvc.c
+Movendo arquivo: Downloads/submissions/gmvc/gmvc/q1_gmvc.c -> Downloads/submissions/gmvc/q1_gmvc.c
+Pasta extra deletada: Downloads/submissions/gmvc/gmvc
+
+Arquivos extraídos de mcrcoa: ['q2_mcrcoa.c', 'q1_mcrcoa.c']
+
+Arquivos extraídos de iafbs: ['iafbs']
+A pasta extraída iafbs já tem o nome correto. Movendo arquivos para Downloads/submissions/iafbs.
+Movendo arquivo: Downloads/submissions/iafbs/iafbs/q1_iafbs.c -> Downloads/submissions/iafbs/q1_iafbs.c
+Movendo arquivo: Downloads/submissions/iafbs/iafbs/q2_iafbs.c -> Downloads/submissions/iafbs/q2_iafbs.c
+Pasta extra deletada: Downloads/submissions/iafbs/iafbs
+
+Arquivos extraídos de jmst: ['jmst']
+A pasta extraída jmst já tem o nome correto. Movendo arquivos para Downloads/submissions/jmst.
+Movendo arquivo: Downloads/submissions/jmst/jmst/q1_jmst.c -> Downloads/submissions/jmst/q1_jmst.c
+Movendo arquivo: Downloads/submissions/jmst/jmst/q2_jmst.c -> Downloads/submissions/jmst/q2_jmst.c
+Pasta extra deletada: Downloads/submissions/jmst/jmst
+
+Arquivos extraídos de apc: ['apc']
+A pasta extraída apc já tem o nome correto. Movendo arquivos para Downloads/submissions/apc.
+Movendo arquivo: Downloads/submissions/apc/apc/q2_apc.c -> Downloads/submissions/apc/q2_apc.c
+Movendo arquivo: Downloads/submissions/apc/apc/q1_apc.c -> Downloads/submissions/apc/q1_apc.c
+Pasta extra deletada: Downloads/submissions/apc/apc
+
+Arquivos extraídos de jtb: ['jtb']
+A pasta extraída jtb já tem o nome correto. Movendo arquivos para Downloads/submissions/jtb.
+Movendo arquivo: Downloads/submissions/jtb/jtb/q2_jtb.c -> Downloads/submissions/jtb/q2_jtb.c
+Movendo arquivo: Downloads/submissions/jtb/jtb/q1_jtb.c -> Downloads/submissions/jtb/q1_jtb.c
+Pasta extra deletada: Downloads/submissions/jtb/jtb
+
+Arquivos extraídos de gmal: ['gmal']
+A pasta extraída gmal já tem o nome correto. Movendo arquivos para Downloads/submissions/gmal.
+Movendo arquivo: Downloads/submissions/gmal/gmal/q1_gmal.c -> Downloads/submissions/gmal/q1_gmal.c
+Movendo arquivo: Downloads/submissions/gmal/gmal/q2_gmal.c -> Downloads/submissions/gmal/q2_gmal.c
+Pasta extra deletada: Downloads/submissions/gmal/gmal
+Deletando arquivo oculto: Downloads/submissions/vct/.DS_Store
+
+Verificando pasta do estudante: Downloads/submissions/vjmm
+Verificando arquivo: q2_vjmm.c
+O arquivo 'q2_vjmm.c' já está no formato correto.
+Verificando arquivo: q1_vjmm.c
+O arquivo 'q1_vjmm.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/axrm
+Verificando arquivo: q2_axrm.c
+O arquivo 'q2_axrm.c' já está no formato correto.
+Verificando arquivo: q1_axrm.c
+O arquivo 'q1_axrm.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/mmv
+Verificando arquivo: q2_mmv.c
+O arquivo 'q2_mmv.c' já está no formato correto.
+Verificando arquivo: q1_mmv.c
+O arquivo 'q1_mmv.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/amo
+Verificando arquivo: q2_amo.c
+O arquivo 'q2_amo.c' já está no formato correto.
+Verificando arquivo: q1_amo.c
+O arquivo 'q1_amo.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/mhg
+Verificando arquivo: q1_mhg.c
+O arquivo 'q1_mhg.c' já está no formato correto.
+Verificando arquivo: q2_mhg.c
+O arquivo 'q2_mhg.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/phcp
+Verificando arquivo: q1_phcp.c
+O arquivo 'q1_phcp.c' já está no formato correto.
+Verificando arquivo: q2_phcp.c
+O arquivo 'q2_phcp.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/aaal
+Verificando arquivo: q2_aaal.c
+O arquivo 'q2_aaal.c' já está no formato correto.
+Verificando arquivo: q1_aaal.c
+O arquivo 'q1_aaal.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/vbs4
+Verificando arquivo: q2_vbs4.c
+O arquivo 'q2_vbs4.c' já está no formato correto.
+Verificando arquivo: q1_vbs4.c
+O arquivo 'q1_vbs4.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/jpam
+Verificando arquivo: q1_jpam.c
+O arquivo 'q1_jpam.c' já está no formato correto.
+Verificando arquivo: q2_jpam.c
+O arquivo 'q2_jpam.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/jprda
+Verificando arquivo: q1_jprda.c
+O arquivo 'q1_jprda.c' já está no formato correto.
+Verificando arquivo: q2_jprda.c
+O arquivo 'q2_jprda.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/apc
+Verificando arquivo: q2_apc.c
+O arquivo 'q2_apc.c' já está no formato correto.
+Verificando arquivo: q1_apc.c
+O arquivo 'q1_apc.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/bbm
+Verificando arquivo: q1_bbm.c
+O arquivo 'q1_bbm.c' já está no formato correto.
+Verificando arquivo: q2_bbm.c
+O arquivo 'q2_bbm.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/hscb
+Verificando arquivo: q2_hscb.c
+O arquivo 'q2_hscb.c' já está no formato correto.
+Verificando arquivo: q1_hscb.c
+O arquivo 'q1_hscb.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/cflo
+Verificando arquivo: q2_cflo.c
+O arquivo 'q2_cflo.c' já está no formato correto.
+Verificando arquivo: q1_cflo.c
+O arquivo 'q1_cflo.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/lfan
+Verificando arquivo: q1l2.c
+Tentando correspondência parcial para o arquivo q1l2.c
+['questão1']
+['questao1']
+['q1']
+Renomeando'q1l2.c' para 'q1_lfan.c' para o estudante 'lfan'
+Verificando arquivo: q2l2.c
+Tentando correspondência parcial para o arquivo q2l2.c
+['questão2']
+['questao2']
+['q2']
+Renomeando'q2l2.c' para 'q2_lfan.c' para o estudante 'lfan'
+
+Verificando pasta do estudante: Downloads/submissions/mcrcoa
+Verificando arquivo: q2_mcrcoa.c
+O arquivo 'q2_mcrcoa.c' já está no formato correto.
+Verificando arquivo: q1_mcrcoa.c
+O arquivo 'q1_mcrcoa.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/gvrs
+Verificando arquivo: q2_gvrs.c
+O arquivo 'q2_gvrs.c' já está no formato correto.
+Verificando arquivo: q1_gvrs.c
+O arquivo 'q1_gvrs.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/fmmo
+Verificando arquivo: q2_fmmo.c
+O arquivo 'q2_fmmo.c' já está no formato correto.
+Verificando arquivo: q1_fmmo.c
+O arquivo 'q1_fmmo.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/fbmmca
+Verificando arquivo: q1_fbmmca.c
+O arquivo 'q1_fbmmca.c' já está no formato correto.
+Verificando arquivo: q2_fbmmca.c
+O arquivo 'q2_fbmmca.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/jvln
+Verificando arquivo: q2_jvln.c
+O arquivo 'q2_jvln.c' já está no formato correto.
+Verificando arquivo: q1_jvln.c
+O arquivo 'q1_jvln.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/lfpa
+Verificando arquivo: q1_lfpa.c
+O arquivo 'q1_lfpa.c' já está no formato correto.
+Verificando arquivo: q2_lfpa.c
+O arquivo 'q2_lfpa.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/mar2
+Verificando arquivo: q2_mar2.c
+O arquivo 'q2_mar2.c' já está no formato correto.
+Verificando arquivo: q1_mar2.c
+O arquivo 'q1_mar2.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/camm
+Verificando arquivo: q2_camm.c.c
+Tentando correspondência parcial para o arquivo q2_camm.c.c
+['questão1']
+['questao1']
+['q1']
+['q1']
+['1']
+['questão2']
+['questao2']
+['q2']
+Renomeando'q2_camm.c.c' para 'q2_camm.c' para o estudante 'camm'
+Verificando arquivo: q1_camm.c.c
+Tentando correspondência parcial para o arquivo q1_camm.c.c
+['questão1']
+['questao1']
+['q1']
+Renomeando'q1_camm.c.c' para 'q1_camm.c' para o estudante 'camm'
+
+Verificando pasta do estudante: Downloads/submissions/actf
+Verificando arquivo: q1_actf.c
+O arquivo 'q1_actf.c' já está no formato correto.
+Verificando arquivo: q2_actf.c
+O arquivo 'q2_actf.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/frca2
+Verificando arquivo: q2_frca2.c
+O arquivo 'q2_frca2.c' já está no formato correto.
+Verificando arquivo: q1_frca2.c
+O arquivo 'q1_frca2.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/lgals
+Verificando arquivo: q2_lgals.c
+O arquivo 'q2_lgals.c' já está no formato correto.
+Verificando arquivo: q1_lgals.c
+O arquivo 'q1_lgals.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/jmst
+Verificando arquivo: q1_jmst.c
+O arquivo 'q1_jmst.c' já está no formato correto.
+Verificando arquivo: q2_jmst.c
+O arquivo 'q2_jmst.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/gmal
+Verificando arquivo: q1_gmal.c
+O arquivo 'q1_gmal.c' já está no formato correto.
+Verificando arquivo: q2_gmal.c
+O arquivo 'q2_gmal.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/mog
+Verificando arquivo: q2_mog.c
+O arquivo 'q2_mog.c' já está no formato correto.
+Verificando arquivo: q1_mog.c
+O arquivo 'q1_mog.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/ceec
+Verificando arquivo: q2_ceec.c
+O arquivo 'q2_ceec.c' já está no formato correto.
+Verificando arquivo: q1_ceec.c
+O arquivo 'q1_ceec.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/lrc
+Verificando arquivo: qp2_lrc.c
+Tentando correspondência parcial para o arquivo qp2_lrc.c
+['questão1']
+['questao1']
+['q1']
+['q1']
+['1']
+['questão2']
+['questao2']
+['q2']
+['q2']
+['2']
+Renomeando'qp2_lrc.c' para 'q2_lrc.c' para o estudante 'lrc'
+Verificando arquivo: qp1_lrc.c
+Tentando correspondência parcial para o arquivo qp1_lrc.c
+['questão1']
+['questao1']
+['q1']
+['q1']
+['1']
+Renomeando'qp1_lrc.c' para 'q1_lrc.c' para o estudante 'lrc'
+
+Verificando pasta do estudante: Downloads/submissions/tcq
+Verificando arquivo: q1_tcq.c
+O arquivo 'q1_tcq.c' já está no formato correto.
+Verificando arquivo: q2_tcq.c
+O arquivo 'q2_tcq.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/hwg
+Verificando arquivo: q2_hwg.c
+O arquivo 'q2_hwg.c' já está no formato correto.
+Verificando arquivo: q1_hwg.c
+O arquivo 'q1_hwg.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/jtb
+Verificando arquivo: q2_jtb.c
+O arquivo 'q2_jtb.c' já está no formato correto.
+Verificando arquivo: q1_jtb.c
+O arquivo 'q1_jtb.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/fcsls
+Verificando arquivo: q1_fcsls.c
+O arquivo 'q1_fcsls.c' já está no formato correto.
+Verificando arquivo: q2_fcsls.c
+O arquivo 'q2_fcsls.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/jhmm
+Verificando arquivo: q1_jhmm.c
+O arquivo 'q1_jhmm.c' já está no formato correto.
+Verificando arquivo: q2_jhmm.c
+O arquivo 'q2_jhmm.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/padg
+Verificando arquivo: q2_padg.c
+O arquivo 'q2_padg.c' já está no formato correto.
+Verificando arquivo: q1_padg.c
+O arquivo 'q1_padg.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/vct
+Verificando arquivo: q2_vct.c
+O arquivo 'q2_vct.c' já está no formato correto.
+Verificando arquivo: q1_vct.c
+O arquivo 'q1_vct.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/hft
+Verificando arquivo: q1_hft.c
+O arquivo 'q1_hft.c' já está no formato correto.
+Verificando arquivo: q2_hft.c
+O arquivo 'q2_hft.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/iafbs
+Verificando arquivo: q1_iafbs.c
+O arquivo 'q1_iafbs.c' já está no formato correto.
+Verificando arquivo: q2_iafbs.c
+O arquivo 'q2_iafbs.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/slag
+Verificando arquivo: q2_slag.c
+O arquivo 'q2_slag.c' já está no formato correto.
+Verificando arquivo: q1_slag.c
+O arquivo 'q1_slag.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/bas
+Verificando arquivo: q2_bas.c
+O arquivo 'q2_bas.c' já está no formato correto.
+Verificando arquivo: q1_bas.c
+O arquivo 'q1_bas.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/jpmd2
+Verificando arquivo: q1_jpmd2.c
+O arquivo 'q1_jpmd2.c' já está no formato correto.
+Verificando arquivo: q2_jpmd2.c
+O arquivo 'q2_jpmd2.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/fafhc
+Verificando arquivo: q2_fafhc.c
+O arquivo 'q2_fafhc.c' já está no formato correto.
+Verificando arquivo: q1_fafhc.c
+O arquivo 'q1_fafhc.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/jbr2
+Verificando arquivo: q2_jbr2.c
+O arquivo 'q2_jbr2.c' já está no formato correto.
+Verificando arquivo: q1_jbr2.c
+O arquivo 'q1_jbr2.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/gmvc
+Verificando arquivo: q2_gmvc.c
+O arquivo 'q2_gmvc.c' já está no formato correto.
+Verificando arquivo: q1_gmvc.c
+O arquivo 'q1_gmvc.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/tvvb
+Verificando arquivo: q2_tvvb.c
+O arquivo 'q2_tvvb.c' já está no formato correto.
+Verificando arquivo: q1_tvvb.c
+O arquivo 'q1_tvvb.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/cmaf
+Verificando arquivo: q2_cmaf.c
+O arquivo 'q2_cmaf.c' já está no formato correto.
+Verificando arquivo: q1_cmaf.c
+O arquivo 'q1_cmaf.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/lmfs
+Verificando arquivo: q1_lmfs.c
+O arquivo 'q1_lmfs.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/dscpr
+Verificando arquivo: q2_dscpr.c
+O arquivo 'q2_dscpr.c' já está no formato correto.
+Verificando arquivo: q1_dscpr.c
+O arquivo 'q1_dscpr.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/abd2
+Verificando arquivo: q2_abd2.c
+O arquivo 'q2_abd2.c' já está no formato correto.
+Verificando arquivo: q1_abd2.c
+O arquivo 'q1_abd2.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/mjdma
+Verificando arquivo: q1_mjdma.c
+O arquivo 'q1_mjdma.c' já está no formato correto.
+Verificando arquivo: q2_mjdma.c
+O arquivo 'q2_mjdma.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/lvc
+Verificando arquivo: q2_lvc.c
+O arquivo 'q2_lvc.c' já está no formato correto.
+Verificando arquivo: q1_lvc.c
+O arquivo 'q1_lvc.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/dmo3
+Verificando arquivo: q1_dmo3.c
+O arquivo 'q1_dmo3.c' já está no formato correto.
+Verificando arquivo: q2_dmo3.c
+O arquivo 'q2_dmo3.c' já está no formato correto.
+
+Verificando pasta do estudante: Downloads/submissions/mldt
+Verificando arquivo: q1_mldt.c
+O arquivo 'q1_mldt.c' já está no formato correto.
+Verificando arquivo: q2_mldt.c
+O arquivo 'q2_mldt.c' já está no formato correto.
+Arquivo sheet_id_beecrowd.txt não encontrado.
+Score é None; nova linha será em branco
+Requisição de atualização de células para nova linha adicionada
+
+
+
+
+Notas finais atualizadas para alunos com entrega 0.
+Arquivos e pastas, exceto 'submissions', foram deletados com sucesso.

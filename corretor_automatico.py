@@ -1565,6 +1565,29 @@ def delete_empty_subfolders(worksheet,submissions_folder):
     except Exception as e:
         log_error(f"Erro ao deletar pastas vazias dentro de {submissions_folder}: {str(e)}")
 
+
+def delete_compacted_files(download_folder):
+    try:
+        if not os.path.exists(download_folder):
+            print(f"O diretório {download_folder} não existe.")
+            return
+
+        for item in os.listdir(download_folder):
+            item_path = os.path.join(download_folder, item)
+
+            if item == "submissions":
+                continue
+
+            if os.path.isfile(item_path) or os.path.islink(item_path):
+                os.remove(item_path)
+            elif os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+
+        log_info("Arquivos e pastas, exceto 'submissions', foram deletados com sucesso.")  
+    except Exception as e:
+        log_error(f"Erro ao deletar os arquivos compactados: {str(e)}")
+
+
 def log_error(error_message):
     try:
         with open("error_log.txt", "a") as log_file:
@@ -1667,6 +1690,9 @@ def main():
                     
                     freeze_and_sort(worksheet)
                     insert_header_title(worksheet, classroom_name, list_title)
+                    delete = int(input("\n Deseja deletar todo o download dos arquivos compactados? \n0 - Não \n1 - Sim \n \n "))
+                    if delete:
+                        delete_compacted_files(download_folder)
                     print("\nProcesso de formatar a planilha finalizado.\n")
                     print(f"\nProcesso da {classroom_name} - {list_name} concluído.")
                     
