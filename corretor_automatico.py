@@ -7,6 +7,7 @@ import string
 import zipfile
 import rarfile
 import gspread
+import subprocess
 from datetime import datetime
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -1373,10 +1374,13 @@ def rename_files(submissions_folder, list_title, questions_data, worksheet):
         if 'HASKELL' in list_title:
             no_hs_files_in_directory(worksheet, submissions_folder)
             rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet, 1)
-            return
+            language = 'haskell'
+            return language
         else:
             no_c_files_in_directory(worksheet, submissions_folder)
             rename_files_based_on_dictionary(submissions_folder, questions_data,worksheet)
+            language = 'c'
+            return language
     except Exception as e:
         log_error(f"Erro no metodo renomear arquivos {str(e)}")          
         
@@ -1587,6 +1591,61 @@ def delete_compacted_files(download_folder):
     except Exception as e:
         log_error(f"Erro ao deletar os arquivos compactados: {str(e)}")
 
+def moss_script(submissions_folder, language, list_name, num_questions):
+    try:
+        if not os.path.exists(submissions_folder):
+            raise FileNotFoundError(f"A pasta '{submissions_folder}' não existe.")
+         
+        moss_script_path = "moss.pl"  
+        links = {}  
+
+        for i in range(1, num_questions + 1):
+            files = []
+            for folder in os.listdir(submissions_folder):
+                folder_path = os.path.join(submissions_folder, folder)
+                if os.path.isdir(folder_path): 
+                    question_file = f"q{i}_{folder}.c"
+                    question_file_path = os.path.join(folder_path, question_file)
+                    if os.path.isfile(question_file_path):
+                        files.append(question_file_path)
+                        log_info(f"Arquivo encontrado para q{i}: {question_file_path}")
+                    else:
+                        log_info(f"Arquivo não encontrado para q{i}: {question_file_path}")
+
+            if not files:
+                log_info(f"Nenhum arquivo encontrado para a questão {i}. Pulando para a próxima.")
+                continue
+
+            comment = f"Análise de similaridade | {list_name} | Questão {i}"
+            command = ["perl", moss_script_path, "-l", language, "-c", comment, "-d"] + files
+
+            log_info(f"\nExecutando comando MOSS para questão {i}:")
+            log_info(" ".join(command))
+            log_info("Arquivos incluídos no comando:")
+            for file in files:
+                log_info(f" - {file}")
+
+            try:
+                result = subprocess.run(command, capture_output=True, text=True, check=True)
+                output = result.stdout.strip()
+                report_url = output.split("\n")[-1]  
+                links[f"q{i}"] = report_url  
+            except subprocess.CalledProcessError as e:
+                log_error(f"Erro ao executar o script MOSS para q{i}: {e.stderr}")
+                continue
+
+        if not links:
+            print("\nNenhum relatório foi gerado.")
+        else:
+            print("\nLinks gerados para cada questão:")
+            for question, link in links.items():
+                print(f"{question}: {link}")
+
+        return links
+
+    except Exception as e:
+        log_error(f"Erro ao rodar o script MOSS: {str(e)}")
+
 
 def log_error(error_message):
     try:
@@ -1609,6 +1668,7 @@ def main():
             classroom_service = build("classroom", "v1", credentials=creds)
             drive_service = build("drive", "v3", credentials=creds)
             num = 1
+            goMoss = 0
             while num ==1:
                 classroom_id, coursework_id, classroom_name, list_name, list_title = list_classroom_data(classroom_service)
                 if classroom_id and coursework_id and classroom_name and list_name and list_title: 
@@ -1663,11 +1723,11 @@ def main():
 
                 print("\nProcesso de extrair e organizar pastas finalizado. Arquivos salvos em:", os.path.abspath(submissions_folder))
 
-                rename_files(submissions_folder, list_title, questions_data, worksheet)
+                language = rename_files(submissions_folder, list_title, questions_data, worksheet)
                 print("\nProcesso de verificar e renomear arquivos finalizado.")
                 delete_empty_subfolders(worksheet,submissions_folder)
-
                 
+                print(f"nq e gM: {num_questions, goMoss} ")
                 if worksheet is not None:
                     
                     sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt')
@@ -1690,20 +1750,31 @@ def main():
                     
                     freeze_and_sort(worksheet)
                     insert_header_title(worksheet, classroom_name, list_title)
-                    delete = int(input("\n Deseja deletar todo o download dos arquivos compactados? \n0 - Não \n1 - Sim \n \n "))
-                    if delete:
-                        delete_compacted_files(download_folder)
                     print("\nProcesso de formatar a planilha finalizado.\n")
                     print(f"\nProcesso da {classroom_name} - {list_name} concluído.")
-                    
-                try:
-                    num = int(input("\n\nDeseja baixar mais uma atividade? \n0 - Não \n1 - Sim \n \n "))
-                    if num == 0:
-                        print("\nProcesso encerrado.")
+                
+                delete = int(input("\nDeseja deletar todo o download dos arquivos compactados? \n0 - Não \n1 - Sim\n:"))
+                if delete:
+                    delete_compacted_files(download_folder)
+                
+                if goMoss == num_questions:
+                    moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
+                    if moss :
+                        moss_script(submissions_folder, language, list_name, num_questions)
+                        delete = int(input("\nDeseja deletar todos os arquivos da pasta submissions? \n0 - Não \n1 - Sim\n:"))
+                        if delete:
+                            delete_compacted_files(submissions_folder)
+                else:    
+                    try:
+                        num = int(input("\n\nDeseja baixar mais uma atividade? \n0 - Não \n1 - Sim\n\n:"))
+                        if num == 0:
+                            print("\nProcesso encerrado.")
+                            break
+                        else:
+                            goMoss+=1
+                    except ValueError:
+                        print("\nEntrada inválida. Encerrando processo.")
                         break
-                except ValueError:
-                    print("\nEntrada inválida. Encerrando processo.")
-                    break
                 
         except HttpError as error:
             print(f"Um erro ocorreu: {error}")

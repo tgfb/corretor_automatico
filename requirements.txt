@@ -4,3 +4,4 @@ google-auth-oauthlib
 gspread 
 oauth2client
 rarfile
+perl
