@@ -1668,7 +1668,7 @@ def main():
             classroom_service = build("classroom", "v1", credentials=creds)
             drive_service = build("drive", "v3", credentials=creds)
             num = 1
-            goMoss = 0
+            goMoss = 1
             while num ==1:
                 classroom_id, coursework_id, classroom_name, list_name, list_title = list_classroom_data(classroom_service)
                 if classroom_id and coursework_id and classroom_name and list_name and list_title: 
@@ -1727,7 +1727,6 @@ def main():
                 print("\nProcesso de verificar e renomear arquivos finalizado.")
                 delete_empty_subfolders(worksheet,submissions_folder)
                 
-                print(f"nq e gM: {num_questions, goMoss} ")
                 if worksheet is not None:
                     
                     sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt')
@@ -1761,20 +1760,23 @@ def main():
                     moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
                     if moss :
                         moss_script(submissions_folder, language, list_name, num_questions)
+                        print("\nRodando o moss...")
                         delete = int(input("\nDeseja deletar todos os arquivos da pasta submissions? \n0 - Não \n1 - Sim\n:"))
                         if delete:
                             delete_compacted_files(submissions_folder)
-                else:    
-                    try:
-                        num = int(input("\n\nDeseja baixar mais uma atividade? \n0 - Não \n1 - Sim\n\n:"))
-                        if num == 0:
-                            print("\nProcesso encerrado.")
-                            break
-                        else:
-                            goMoss+=1
-                    except ValueError:
-                        print("\nEntrada inválida. Encerrando processo.")
+                    
+                try:
+                    num = int(input("\n\nDeseja baixar mais uma atividade? \n0 - Não \n1 - Sim\n\n:"))
+                    if num == 0:
+                        print("\nProcesso encerrado.")
                         break
+                    elif num == 1:
+                        goMoss += 1
+                    else:
+                        print("Opção inválida. Por favor, digite 0 ou 1.")
+                except ValueError:
+                    print("\nEntrada inválida. Encerrando processo.")
+                    break
                 
         except HttpError as error:
             print(f"Um erro ocorreu: {error}")
