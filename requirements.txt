@@ -5,3 +5,4 @@ gspread
 oauth2client
 rarfile
 perl
+beautifulsoup4

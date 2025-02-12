@@ -1,6 +1,2 @@
-lfan: de q1l2.c para q1_lfan.c
-lfan: de q2l2.c para q2_lfan.c
-camm: de q2_camm.c.c para q2_camm.c
-camm: de q1_camm.c.c para q1_camm.c
-lrc: de qp2_lrc.c para q2_lrc.c
-lrc: de qp1_lrc.c para q1_lrc.c
+lfan: de l5q2.c para q2_lfan.c
+lfan: de l5q1.c para q1_lfan.c

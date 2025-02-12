@@ -1573,14 +1573,14 @@ def delete_empty_subfolders(worksheet,submissions_folder):
         log_error(f"Erro ao deletar pastas vazias dentro de {submissions_folder}: {str(e)}")
 
 
-def delete_compacted_files(download_folder):
+def delete_files(folder):
     try:
-        if not os.path.exists(download_folder):
-            print(f"O diretório {download_folder} não existe.")
+        if not os.path.exists(folder):
+            print(f"O diretório {folder} não existe.")
             return
 
-        for item in os.listdir(download_folder):
-            item_path = os.path.join(download_folder, item)
+        for item in os.listdir(folder):
+            item_path = os.path.join(folder, item)
 
             if item == "submissions":
                 continue
@@ -1593,6 +1593,16 @@ def delete_compacted_files(download_folder):
         log_info("\nArquivos e pastas, exceto 'submissions', foram deletados com sucesso.")  
     except Exception as e:
         log_error(f"Erro ao deletar os arquivos compactados: {str(e)}")
+
+def delete_folder(folder):
+    try:
+        if os.path.exists(folder): 
+            shutil.rmtree(folder)  
+            print(f"Pasta '{folder}' deletada com sucesso.")
+        else:
+            print(f"A pasta '{folder}' não existe.")
+    except Exception as e:
+        print(f"Erro ao deletar a pasta '{folder}': {e}")
 
 def moss_script(submissions_folder, language, list_name, num_questions):
     try:
@@ -1813,16 +1823,17 @@ def main():
                 
                 delete = int(input("\nDeseja deletar todo o download dos arquivos compactados? \n0 - Não \n1 - Sim\n:"))
                 if delete:
-                    delete_compacted_files(download_folder)
+                    delete_files(download_folder)
                 
                 if goMoss == num_questions:
                     moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
                     if moss :
                         print("\nRodando o moss...")
                         moss_script(submissions_folder, language, list_name, num_questions)
-                        delete = int(input("\nDeseja deletar todos os arquivos da pasta submissions? \n0 - Não \n1 - Sim\n:"))
+                        delete = int(input("\nDeseja deletar a pasta submissions? \n0 - Não \n1 - Sim\n:"))
                         if delete:
-                            delete_compacted_files(submissions_folder)
+                            delete_folder(submissions_folder)
+                            delete_folder(download_folder)
                     
                 try:
                     num = int(input("\n\nDeseja baixar mais uma atividade? \n0 - Não \n1 - Sim\n\n:"))
