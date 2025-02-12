@@ -7,8 +7,11 @@ import string
 import zipfile
 import rarfile
 import gspread
+import requests
 import subprocess
+from bs4 import BeautifulSoup
 from datetime import datetime
+from urllib.parse import urlparse
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from gspread.exceptions import WorksheetNotFound
@@ -1587,7 +1590,7 @@ def delete_compacted_files(download_folder):
             elif os.path.isdir(item_path):
                 shutil.rmtree(item_path)
 
-        log_info("Arquivos e pastas, exceto 'submissions', foram deletados com sucesso.")  
+        log_info("\nArquivos e pastas, exceto 'submissions', foram deletados com sucesso.")  
     except Exception as e:
         log_error(f"Erro ao deletar os arquivos compactados: {str(e)}")
 
@@ -1608,7 +1611,6 @@ def moss_script(submissions_folder, language, list_name, num_questions):
                     question_file_path = os.path.join(folder_path, question_file)
                     if os.path.isfile(question_file_path):
                         files.append(question_file_path)
-                        log_info(f"Arquivo encontrado para q{i}: {question_file_path}")
                     else:
                         log_info(f"Arquivo não encontrado para q{i}: {question_file_path}")
 
@@ -1619,17 +1621,13 @@ def moss_script(submissions_folder, language, list_name, num_questions):
             comment = f"Análise de similaridade | {list_name} | Questão {i}"
             command = ["perl", moss_script_path, "-l", language, "-c", comment, "-d"] + files
 
-            log_info(f"\nExecutando comando MOSS para questão {i}:")
-            log_info(" ".join(command))
-            log_info("Arquivos incluídos no comando:")
-            for file in files:
-                log_info(f" - {file}")
+            log_info(f"\nExecutando comando MOSS para questão {i}...")
 
             try:
                 result = subprocess.run(command, capture_output=True, text=True, check=True)
                 output = result.stdout.strip()
                 report_url = output.split("\n")[-1]  
-                links[f"q{i}"] = report_url  
+                links[f"q{i}"] = report_url 
             except subprocess.CalledProcessError as e:
                 log_error(f"Erro ao executar o script MOSS para q{i}: {e.stderr}")
                 continue
@@ -1639,13 +1637,74 @@ def moss_script(submissions_folder, language, list_name, num_questions):
         else:
             print("\nLinks gerados para cada questão:")
             for question, link in links.items():
-                print(f"{question}: {link}")
+                print(f"\n{question}: {link}")
+                if validate_url(link):  
+                    analyze_moss_report(link)
+                else:
+                    print(f"\nURL inválida: {link}")
 
         return links
 
     except Exception as e:
         log_error(f"Erro ao rodar o script MOSS: {str(e)}")
 
+def validate_url(url):
+    try: 
+        parsed = urlparse(url)
+        return bool(parsed.scheme and parsed.netloc)
+    except Exception as e:
+        log_error(f"Erro ao validar a URL: {str(e)}")
+
+
+def analyze_moss_report(report_url):
+    try:
+        response = requests.get(report_url)
+        response.raise_for_status()
+        html_content = response.text
+
+        soup = BeautifulSoup(html_content, 'html.parser')
+
+        results = set()
+
+        table_rows = soup.find_all('tr')
+        
+        for row in table_rows:
+            columns = row.find_all('td')
+
+            if len(columns) >= 2:  # Cada linha válida tem pelo menos 2 colunas (arquivo1, arquivo2)
+                file1_text = columns[0].get_text(strip=True)
+                file2_text = columns[1].get_text(strip=True)
+
+                # Student login
+                student1_match = re.search(r"/([^/]+)/\s*\(\d+%\)", file1_text)
+                student2_match = re.search(r"/([^/]+)/\s*\(\d+%\)", file2_text)
+
+                student1 = student1_match.group(1) if student1_match else file1_text
+                student2 = student2_match.group(1) if student2_match else file2_text
+                
+                # Porcentagem
+                match1 = re.search(r"\((\d+)%\)", file1_text)
+                match2 = re.search(r"\((\d+)%\)", file2_text)
+
+                percentage_file1 = int(match1.group(1)) if match1 else None
+                percentage_file2 = int(match2.group(1)) if match2 else None
+
+                # porcentagem  >= 80%
+                if (percentage_file1 and percentage_file1 >= 80) or (percentage_file2 and percentage_file2 >= 80):
+                    pair = tuple(sorted([(student1, percentage_file1), (student2, percentage_file2)]))
+                    results.add(pair)
+
+        print("\nArquivos com possível cópia detectada (>=80%):\n")
+        for student_pair in results:
+            student1, percentage1 = student_pair[0]
+            student2, percentage2 = student_pair[1]
+            print(f"Student 1: {student1} ({percentage1}%) <-> "
+                  f"Student 2: {student2} ({percentage2}%)")
+
+        return list(results)          
+
+    except Exception as e:
+        print(f"Erro ao processar o relatório Moss: {e}")
 
 def log_error(error_message):
     try:
@@ -1759,8 +1818,8 @@ def main():
                 if goMoss == num_questions:
                     moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
                     if moss :
-                        moss_script(submissions_folder, language, list_name, num_questions)
                         print("\nRodando o moss...")
+                        moss_script(submissions_folder, language, list_name, num_questions)
                         delete = int(input("\nDeseja deletar todos os arquivos da pasta submissions? \n0 - Não \n1 - Sim\n:"))
                         if delete:
                             delete_compacted_files(submissions_folder)
