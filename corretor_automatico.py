@@ -1774,7 +1774,7 @@ def analyze_moss_report(report_url):
     except Exception as e:
         print(f"Erro ao processar o relatório Moss: {e}")
 
-def update_moss_results(worksheet, moss_results):
+def update_moss_results(worksheet, moss_results, num_questions):
     try:
         data = worksheet.get_all_values()
         updates = []
@@ -1797,10 +1797,14 @@ def update_moss_results(worksheet, moss_results):
                     
                     log_info(f"Encontrado {student_login} na linha {idx + 1}. Marcando como cópia.")
 
-                    # Atualiza coluna I (Cópia) para 1
-                    updates.append({"range": f'I{idx + 1}', "values": [[1]]})
+                    # Atualiza a Cópia
+                    col = ord('G') - ord('A') + num_questions   
+                    
+                    
+                    cell_range = f'{chr(65 + col)}{idx + 1}'
+                    updates.append({"range": cell_range, "values": [[1]]})
 
-                    # Atualiza a coluna K (Comentários)
+                    # Atualiza Comentários
                     col = ord('I') - ord('A') + 1  # Começa em K
                     while col < len(row) and row[col]:  
                         col += 1  
@@ -1840,8 +1844,8 @@ def main():
             classroom_service = build("classroom", "v1", credentials=creds)
             drive_service = build("drive", "v3", credentials=creds)
             num = 1
-            goMoss = 1
             worksheets = []
+            goMoss = 1
 
             while num ==1:
                 classroom_id, coursework_id, classroom_name, list_name, list_title = list_classroom_data(classroom_service)
@@ -1932,24 +1936,21 @@ def main():
                 if delete:
                     delete_files(download_folder)
                 
-                if goMoss == num_questions:
-                    moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
-                    if moss :
-                        print("\nRodando o moss...")
-                        moss_results = moss_script(submissions_folder, language, list_name, num_questions)
+                    if goMoss != 1 :
+                        moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
+                        if moss :
+                            print("\nRodando o moss...")
+                            goMoss = 1
+                            moss_results = moss_script(submissions_folder, language, list_name, num_questions)
 
-                        print("\nPlanilhas criadas para atualização do MOSS:")
-                        for idx, ws in enumerate(worksheets):
-                            print(f"{idx + 1}: {ws.title}")
-
-                        for ws in worksheets:
-                            print(f"\nAtualizando {ws.title} com os resultados do MOSS...")
-                            update_moss_results(ws, moss_results)
+                            for ws in worksheets:
+                                print(f"\nAtualizando {ws.title} com os resultados do MOSS...")
+                                update_moss_results(ws, moss_results, num_questions)
                         
-                        delete = int(input("\nDeseja deletar a pasta submissions? \n0 - Não \n1 - Sim\n:"))
-                        if delete:
-                            delete_folder(submissions_folder)
-                            delete_folder(download_folder)
+                            delete = int(input("\nDeseja deletar a pasta submissions? \n0 - Não \n1 - Sim\n:"))
+                            if delete:
+                                delete_folder(submissions_folder)
+                                delete_folder(download_folder)
                         
                     
                 try:
