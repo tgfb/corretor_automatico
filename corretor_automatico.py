@@ -432,7 +432,6 @@ def update_final_grade_for_no_submission(worksheet, num_questions):
                 
         if updates:
             worksheet.batch_update(updates)
-            log_info(f"\n\nNotas finais atualizadas para alunos com entrega 0.")
         else:
             log_info("\nNenhuma atualização necessária; nenhum aluno com entrega 0.")
     except Exception as e:
@@ -500,12 +499,9 @@ def insert_score_row(worksheet, score):
 
        
         if score is not None:
-            log_info(f"Score recebido: {score}")
             new_row = [''] * 3 + list(score.values())  
-            log_info(f"Nova linha a ser inserida com valores de score: {new_row}")
         else:
             new_row = [''] * len(data[0])  
-            log_info("Score é None; nova linha será em branco")
 
         formatted_values = []
         for cell in new_row:
@@ -547,13 +543,10 @@ def fill_scores_for_students(worksheet, num_questions, score=None):
                 try:
                     score_values[key] = float(value)
                 except ValueError:
-                    log_info(f"Erro ao converter {key}: {value} para float.")
                     continue
             score_sum = sum(score_values.values())
-            log_info(f"Score sum calculated as: {score_sum} (type: {type(score_sum)})")
         else:
             score_sum = 100
-            log_info("Score is None; setting score_sum to 100.")
 
         requests = []
 
@@ -564,36 +557,26 @@ def fill_scores_for_students(worksheet, num_questions, score=None):
             try:
                 final_score_str = row[final_score_column].strip() if len(row) > final_score_column else ""
                 delivery_score_str = row[delivery_column].strip() if len(row) > delivery_column else ""
-                
-                log_info(f"[Linha {row_idx + 1}] Valor original de final_score: '{final_score_str}', delivery_score: '{delivery_score_str}'")
 
                 final_score = float(final_score_str) if final_score_str.replace('.', '', 1).isdigit() else None
                 delivery_score = float(delivery_score_str) if delivery_score_str.replace('.', '', 1).isdigit() else None
 
-                log_info(f"[Linha {row_idx + 1}] Verificando condições com final_score: {final_score}, delivery_score: {delivery_score}, e score_sum: {score_sum}")
-
                 if num_questions is not None:
                     if final_score == score_sum:
-                        log_info(f"[Linha {row_idx + 1}] Condição de score completo atendida (final_score == score_sum). Inserindo fórmulas dinâmicas.")
                         question_scores = [
                             f"=${chr(68 + i)}$2" for i in range(num_questions)
                         ]
-                        log_info(f"[Linha {row_idx + 1}] Fórmulas geradas para as questões: {question_scores}")
                     
                     elif final_score is not None and final_score == 0:
                         question_scores = ["=0"] * num_questions
-                        log_info(f"[Linha {row_idx + 1}] Condição de zero atendida com final_score. Inserindo 0 nas pontuações.")
                     
                     else:
-                        log_info(f"[Linha {row_idx + 1}] Nenhuma condição atendida para preenchimento. Pulando linha.")
                         continue
                 
                 else:
                     if delivery_score is not None and delivery_score == 0:
                         question_scores = ["=0"]
-                        log_info(f"[Linha {row_idx + 1}] Condição de zero atendida com delivery_score. Inserindo 0.")
                     else:
-                        log_info(f"[Linha {row_idx + 1}] Nenhuma condição atendida para preenchimento. Pulando linha.")
                         continue
 
                 for i, value in enumerate(question_scores):
@@ -611,10 +594,8 @@ def fill_scores_for_students(worksheet, num_questions, score=None):
                             }
                         }
                     })
-                log_info(f"[Linha {row_idx + 1}] Requests para atualização de células preparado.")
 
             except ValueError as ve:
-                log_info(f"Erro ao processar valores na linha {row_idx + 1}: {ve}")
                 continue
                         
         if requests:
@@ -1443,10 +1424,7 @@ def read_id_from_file_beecrowd(filename, list_name, classroom_name):
             normalized_list_name = list_name.replace(" ", "").upper()
             normalized_classroom_name = extract_turma_name(classroom_name).replace(" ", "").upper()
             
-            log_info(f"Comparando: Lista {list_part.upper()} == {normalized_list_name} e Turma {class_part.upper()} == {normalized_classroom_name}")
-            
             if list_part.upper() == normalized_list_name and class_part.upper() == normalized_classroom_name:
-                log_info(f"Match encontrado! Adicionando sheet_id: {sheet_id}")
                 matched_ids.append(sheet_id)
                 return sheet_id
         
@@ -1533,7 +1511,7 @@ def header_worksheet(worksheet):
     except Exception as e:
         log_error(f"Erro ao criar o cabeçalho da planilha: {str(e)}")  
 
-def update_grades(sheet_id1, worksheet2, score):
+def update_grades(sheet_id1, worksheet2, score, classroom_name):
     try: 
         client = get_gspread_client()
 
@@ -1543,7 +1521,7 @@ def update_grades(sheet_id1, worksheet2, score):
         emails = [email.strip() for email in worksheet1.col_values(6)[1:] if email] 
         percentages = [percent.strip() for percent in worksheet1.col_values(10)[1:] if percent]   
         log_info(f"\nProcurando os emails {emails}")
-        print("\nProcurando os alunos com a nota 100 e 0.\n")
+        print("\nProcurando os alunos com a nota 100 e 0...\n")
         updates = []
         not_found_emails = []
 
@@ -1582,7 +1560,8 @@ def update_grades(sheet_id1, worksheet2, score):
             worksheet2.batch_update(updates)
 
         if not_found_emails:
-            with open("not_found_emails_100_or_0.txt", "w") as file:
+            with open("not_found_emails_100_or_0.txt", "a") as file:
+                file.write(f"\nClassroom: {classroom_name}\n")
                 for email in not_found_emails:
                     file.write(f"{email}\n")
         
@@ -1594,7 +1573,7 @@ def update_grades(sheet_id1, worksheet2, score):
     except Exception as e:
         log_error(f"Erro ao atualizar planilha {str(e)}")  
 
-def compare_emails(sheet_id_beecrowd, worksheet2):
+def compare_emails(sheet_id_beecrowd, worksheet2, classroom_name):
     try:
         client = get_gspread_client()
 
@@ -1607,7 +1586,8 @@ def compare_emails(sheet_id_beecrowd, worksheet2):
 
         only_in_planilha2 = emails_planilha2 - emails_planilha1
 
-        with open("email_differences.txt", "w") as file:
+        with open("email_differences.txt", "a") as file:
+            file.write(f"\nClassroom: {classroom_name}\n")
             file.write("Beecrowd\n")
             for email in sorted(only_in_planilha1):
                 file.write(f"{email}\n")
@@ -1675,7 +1655,7 @@ def moss_script(submissions_folder, language, list_name, num_questions):
          
         moss_script_path = "moss.pl"  
         links = {} 
-        moss_results = {} 
+        moss_results = [] 
 
         for i in range(1, num_questions + 1):
             files = []
@@ -1714,8 +1694,19 @@ def moss_script(submissions_folder, language, list_name, num_questions):
             for question, link in links.items():
                 print(f"\n{question}: {link}")
                 if validate_url(link):  
-                    moss_result = analyze_moss_report(link)
-                    moss_results[f"q{i}"] = moss_result
+                    moss_data = analyze_moss_report(link)
+
+                    for student_pair in moss_data:
+                        student1, percentage1 = student_pair[0]
+                        student2, percentage2 = student_pair[1]
+
+                        moss_results.append({
+                            "question": f"q{i}",
+                            "student1": student1,
+                            "percentage1": percentage1,
+                            "student2": student2,
+                            "percentage2": percentage2
+                        })
                 else:
                     log_info(f"URL inválida para questão {i}: {report_url}")
 
@@ -1788,19 +1779,15 @@ def update_moss_results(worksheet, moss_results):
         data = worksheet.get_all_values()
         updates = []
 
-        print("\n--- Iniciando atualização do MOSS ---")
-        print(f"Total de entradas do MOSS: {len(moss_results)}")
-
-        for student1, percentage1, student2, percentage2 in moss_results:
-            found1, found2 = False, False
-
-            print(f"\nProcurando: {student1} ({percentage1}%) <-> {student2} ({percentage2}%)")
+        for result in moss_results:
+            student1, percentage1 = result["student1"], result["percentage1"]
+            student2, percentage2 = result["student2"], result["percentage2"]
 
             for idx, row in enumerate(data):
                 if len(row) <= 2:
-                    continue 
-                
-                student_login = row[2] 
+                    continue  
+
+                student_login = row[2]  
 
                 if student_login == student1 or student_login == student2:
                     student = student1 if student_login == student1 else student2
@@ -1808,27 +1795,21 @@ def update_moss_results(worksheet, moss_results):
                     other_student = student2 if student_login == student1 else student1
                     other_percentage = percentage2 if student_login == student1 else percentage1
                     
-                    if student_login == student1:
-                        found1 = True
-                    else:
-                        found2 = True
+                    log_info(f"Encontrado {student_login} na linha {idx + 1}. Marcando como cópia.")
 
-                    print(f"Encontrado {student_login} na linha {idx + 1}. Marcando como cópia.")
-
+                    # Atualiza coluna I (Cópia) para 1
                     updates.append({"range": f'I{idx + 1}', "values": [[1]]})
 
+                    # Atualiza a coluna K (Comentários)
+                    col = ord('I') - ord('A') + 1  # Começa em K
+                    while col < len(row) and row[col]:  
+                        col += 1  
+                    
+                    cell_range = f'{chr(65 + col)}{idx + 1}'
                     comment_text = f"Student 1: {student} ({percentage}%) <-> Student 2: {other_student} ({other_percentage}%)"
-                    updates.append({"range": f'K{idx + 1}', "values": [[comment_text]]})
-
-            if not found1:
-                print(f"Student login {student1} NÃO encontrado na planilha.")
-            if not found2:
-                print(f"Student login {student2} NÃO encontrado na planilha.")
+                    updates.append({"range": cell_range, "values": [[comment_text]]})
 
         if updates:
-            print("\n--- Atualizações a serem aplicadas ---")
-            for update in updates:
-                print(update)
             print("\n--- Aplicando atualizações... ---")
             worksheet.batch_update(updates)
             print("Atualização concluída com sucesso!")
@@ -1860,6 +1841,8 @@ def main():
             drive_service = build("drive", "v3", credentials=creds)
             num = 1
             goMoss = 1
+            worksheets = []
+
             while num ==1:
                 classroom_id, coursework_id, classroom_name, list_name, list_title = list_classroom_data(classroom_service)
                 if classroom_id and coursework_id and classroom_name and list_name and list_title: 
@@ -1895,6 +1878,7 @@ def main():
                     try:
                         worksheet = create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id)
                         header_worksheet(worksheet)
+                        worksheets.append(worksheet)
                     except HttpError as e:
                         print(f"\nErro ao criar ou verificar a planilha e aba: {e}")
                 else:
@@ -1922,8 +1906,8 @@ def main():
                     
                     sheet_id_beecrowd = read_id_from_file_beecrowd('sheet_id_beecrowd.txt', list_name, classroom_name)
                     if sheet_id_beecrowd:
-                        update_grades(sheet_id_beecrowd, worksheet, score)
-                        compare_emails(sheet_id_beecrowd, worksheet)
+                        update_grades(sheet_id_beecrowd, worksheet, score, classroom_name)
+                        compare_emails(sheet_id_beecrowd, worksheet, classroom_name)
                         insert_columns(worksheet, num_questions)
                         update_final_grade_for_no_submission(worksheet, num_questions)
                         insert_score_row(worksheet, score)
@@ -1953,11 +1937,20 @@ def main():
                     if moss :
                         print("\nRodando o moss...")
                         moss_results = moss_script(submissions_folder, language, list_name, num_questions)
+
+                        print("\nPlanilhas criadas para atualização do MOSS:")
+                        for idx, ws in enumerate(worksheets):
+                            print(f"{idx + 1}: {ws.title}")
+
+                        for ws in worksheets:
+                            print(f"\nAtualizando {ws.title} com os resultados do MOSS...")
+                            update_moss_results(ws, moss_results)
+                        
                         delete = int(input("\nDeseja deletar a pasta submissions? \n0 - Não \n1 - Sim\n:"))
                         if delete:
                             delete_folder(submissions_folder)
                             delete_folder(download_folder)
-                        update_moss_results(worksheet, moss_results)
+                        
                     
                 try:
                     num = int(input("\n\nDeseja baixar mais uma atividade? \n0 - Não \n1 - Sim\n\n:"))
