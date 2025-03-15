@@ -1398,6 +1398,70 @@ def read_id_from_file(filename):
     except Exception as e:
         log_error(f"Erro ao ler o id da planilha do arquivo {filename}: {e}")
         return None 
+    
+def get_sheet_title(sheet_id):
+    try:
+        client = get_gspread_client()
+        spreadsheet = client.open_by_key(sheet_id)
+        return spreadsheet.title
+    except Exception as e:
+        log_error(f"Erro ao obter título da planilha {sheet_id}: {e}")
+        return None
+
+def extract_turma_name(classroom_name):
+    match = re.search(r'TURMA\s*[A-Z]', classroom_name)
+    return match.group().replace(" ", "_") if match else classroom_name
+
+def read_id_from_file_beecrowd(filename, list_name, classroom_name):
+    try:
+        with open(filename, 'r') as file:
+            sheet_ids = file.readlines()
+        
+        matched_ids = []
+        
+        for sheet_id in sheet_ids:
+            sheet_id = sheet_id.strip()
+            
+            sheet_title = get_sheet_title(sheet_id)
+            
+            if not sheet_title:
+                log_info(f"Ignorando planilha {sheet_id}, pois não foi possível obter o título.")
+                continue
+            
+            parts = sheet_title.split('_')
+            if len(parts) < 2:
+                log_info(f"Título inesperado: {sheet_title}. Pulando...")
+                continue
+            
+            list_part = parts[0]
+            class_part = '_'.join(parts[1:]) 
+            
+            match = re.search(r'TURMA_[A-Z]', class_part)
+            if match:
+                class_part = match.group()
+            
+            normalized_list_name = list_name.replace(" ", "").upper()
+            normalized_classroom_name = extract_turma_name(classroom_name).replace(" ", "").upper()
+            
+            log_info(f"Comparando: Lista {list_part.upper()} == {normalized_list_name} e Turma {class_part.upper()} == {normalized_classroom_name}")
+            
+            if list_part.upper() == normalized_list_name and class_part.upper() == normalized_classroom_name:
+                log_info(f"Match encontrado! Adicionando sheet_id: {sheet_id}")
+                matched_ids.append(sheet_id)
+                return sheet_id
+        
+        if matched_ids:
+            return matched_ids
+        
+        print(f"Não foi encontrado o sheet id da planilha do Beecrowd da {list_name}, da {classroom_name}.")
+        return None
+    except FileNotFoundError:
+        log_info(f"Arquivo {filename} não encontrado.")
+        return None
+    except Exception as e:
+        log_error(f"Erro ao ler o id da planilha do arquivo {filename}: {e}")
+        return None
+
 
 def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
     try:
@@ -1610,7 +1674,8 @@ def moss_script(submissions_folder, language, list_name, num_questions):
             raise FileNotFoundError(f"A pasta '{submissions_folder}' não existe.")
          
         moss_script_path = "moss.pl"  
-        links = {}  
+        links = {} 
+        moss_results = {} 
 
         for i in range(1, num_questions + 1):
             files = []
@@ -1649,11 +1714,13 @@ def moss_script(submissions_folder, language, list_name, num_questions):
             for question, link in links.items():
                 print(f"\n{question}: {link}")
                 if validate_url(link):  
-                    analyze_moss_report(link)
+                    moss_result = analyze_moss_report(link)
+                    moss_results[f"q{i}"] = moss_result
                 else:
-                    print(f"\nURL inválida: {link}")
+                    log_info(f"URL inválida para questão {i}: {report_url}")
 
-        return links
+
+        return moss_results
 
     except Exception as e:
         log_error(f"Erro ao rodar o script MOSS: {str(e)}")
@@ -1715,6 +1782,61 @@ def analyze_moss_report(report_url):
 
     except Exception as e:
         print(f"Erro ao processar o relatório Moss: {e}")
+
+def update_moss_results(worksheet, moss_results):
+    try:
+        data = worksheet.get_all_values()
+        updates = []
+
+        print("\n--- Iniciando atualização do MOSS ---")
+        print(f"Total de entradas do MOSS: {len(moss_results)}")
+
+        for student1, percentage1, student2, percentage2 in moss_results:
+            found1, found2 = False, False
+
+            print(f"\nProcurando: {student1} ({percentage1}%) <-> {student2} ({percentage2}%)")
+
+            for idx, row in enumerate(data):
+                if len(row) <= 2:
+                    continue 
+                
+                student_login = row[2] 
+
+                if student_login == student1 or student_login == student2:
+                    student = student1 if student_login == student1 else student2
+                    percentage = percentage1 if student_login == student1 else percentage2
+                    other_student = student2 if student_login == student1 else student1
+                    other_percentage = percentage2 if student_login == student1 else percentage1
+                    
+                    if student_login == student1:
+                        found1 = True
+                    else:
+                        found2 = True
+
+                    print(f"Encontrado {student_login} na linha {idx + 1}. Marcando como cópia.")
+
+                    updates.append({"range": f'I{idx + 1}', "values": [[1]]})
+
+                    comment_text = f"Student 1: {student} ({percentage}%) <-> Student 2: {other_student} ({other_percentage}%)"
+                    updates.append({"range": f'K{idx + 1}', "values": [[comment_text]]})
+
+            if not found1:
+                print(f"Student login {student1} NÃO encontrado na planilha.")
+            if not found2:
+                print(f"Student login {student2} NÃO encontrado na planilha.")
+
+        if updates:
+            print("\n--- Atualizações a serem aplicadas ---")
+            for update in updates:
+                print(update)
+            print("\n--- Aplicando atualizações... ---")
+            worksheet.batch_update(updates)
+            print("Atualização concluída com sucesso!")
+
+    except Exception as e:
+        print(f"Erro ao atualizar a planilha com resultados do Moss: {e}")
+
+
 
 def log_error(error_message):
     try:
@@ -1798,7 +1920,7 @@ def main():
                 
                 if worksheet is not None:
                     
-                    sheet_id_beecrowd = read_id_from_file('sheet_id_beecrowd.txt')
+                    sheet_id_beecrowd = read_id_from_file_beecrowd('sheet_id_beecrowd.txt', list_name, classroom_name)
                     if sheet_id_beecrowd:
                         update_grades(sheet_id_beecrowd, worksheet, score)
                         compare_emails(sheet_id_beecrowd, worksheet)
@@ -1809,6 +1931,7 @@ def main():
                         print("\nProcesso de colocar as notas do beecrowd na planilha finalizado.")
                         apply_dynamic_formula_in_column(worksheet, num_questions)
                         print("\nProcesso de colocar as fórmulas dinâmicas na planilha finalizado.")
+                        
                         
                     else:
                         insert_score_row(worksheet, score)
@@ -1829,11 +1952,12 @@ def main():
                     moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
                     if moss :
                         print("\nRodando o moss...")
-                        moss_script(submissions_folder, language, list_name, num_questions)
+                        moss_results = moss_script(submissions_folder, language, list_name, num_questions)
                         delete = int(input("\nDeseja deletar a pasta submissions? \n0 - Não \n1 - Sim\n:"))
                         if delete:
                             delete_folder(submissions_folder)
                             delete_folder(download_folder)
+                        update_moss_results(worksheet, moss_results)
                     
                 try:
                     num = int(input("\n\nDeseja baixar mais uma atividade? \n0 - Não \n1 - Sim\n\n:"))
