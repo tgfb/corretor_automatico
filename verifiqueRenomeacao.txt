@@ -1,2 +1,0 @@
-lfan: de l5q2.c para q2_lfan.c
-lfan: de l5q1.c para q1_lfan.c

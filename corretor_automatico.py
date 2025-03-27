@@ -1659,6 +1659,7 @@ def moss_script(submissions_folder, language, list_name, num_questions):
 
         for i in range(1, num_questions + 1):
             files = []
+            log_info(f"\nListando os arquivos da Questão {i}...")
             for folder in os.listdir(submissions_folder):
                 folder_path = os.path.join(submissions_folder, folder)
                 if os.path.isdir(folder_path): 
@@ -1936,21 +1937,21 @@ def main():
                 if delete:
                     delete_files(download_folder)
                 
-                    if goMoss != 1 :
-                        moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
-                        if moss :
-                            print("\nRodando o moss...")
-                            goMoss = 1
-                            moss_results = moss_script(submissions_folder, language, list_name, num_questions)
+                if goMoss != 1 :
+                    moss = int(input("\n\nVocê quer rodar o moss agora? \n0 - Não \n1 - Sim\n:"))
+                    if moss :
+                        print("\nRodando o moss...")
+                        moss_results = moss_script(submissions_folder, language, list_name, num_questions)
 
-                            for ws in worksheets:
-                                print(f"\nAtualizando {ws.title} com os resultados do MOSS...")
-                                update_moss_results(ws, moss_results, num_questions)
-                        
-                            delete = int(input("\nDeseja deletar a pasta submissions? \n0 - Não \n1 - Sim\n:"))
-                            if delete:
-                                delete_folder(submissions_folder)
-                                delete_folder(download_folder)
+                        for ws in worksheets:
+                            print(f"\nAtualizando {ws.title} com os resultados do MOSS...")
+                            update_moss_results(ws, moss_results, num_questions)
+
+                        goMoss = 1                    
+                        delete = int(input("\nDeseja deletar a pasta submissions? \n0 - Não \n1 - Sim\n:"))
+                        if delete:
+                            delete_folder(submissions_folder)
+                            delete_folder(download_folder)
                         
                     
                 try:
