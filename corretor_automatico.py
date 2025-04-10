@@ -478,6 +478,8 @@ def insert_columns(worksheet, num_questions):
 
     except Exception as e:
         log_error(f"Ocorreu um erro ao inserir as colunas: {e}")
+        print(f"Ocorreu um erro ao inserir as colunas: {e}")
+        exit()
 
 def insert_score_row(worksheet, score):
     try:
@@ -1481,7 +1483,7 @@ def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
                 return worksheet
             except Exception:
 
-                worksheet = spreadsheet.add_worksheet(title=list_name, rows=100, cols=20)
+                worksheet = spreadsheet.add_worksheet(title=list_name, rows=100, cols=40)
                 print(f"A aba '{list_name}' foi criada na planilha '{classroom_name}'.\n")
             
             return worksheet
@@ -1543,6 +1545,7 @@ def update_grades(sheet_id1, worksheet2, score, classroom_name):
                 try:
                     
                     cell = worksheet2.find(email, in_column=2)
+                    value_to_update = 0
                     if cell:
                         value_to_update = float(score_sum) if percentage == "100" else 0
 
