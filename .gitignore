@@ -1,7 +1,10 @@
 # APP specific files
 credentials.json
+**/token.json
+**/credentials.json
 token.json
-ErroFormatacao.txt
+check_rename.txt
+output_log.txt
 test_class.txt
 
 # Byte-compiled / optimized / DLL files
