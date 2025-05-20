@@ -1285,25 +1285,19 @@ def no_c_files_in_directory(worksheet,submissions_folder):
                                 update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path} "))
 
                 elif file_extension != '.c':
-                    if file_extension:
-                        if '.c' in file_name:
-                            base_name = file_name.split('.c')[0] 
-                            new_file_path = os.path.join(root, base_name + '.c')
-                            log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
-                            os.rename(file_path, new_file_path)
-                            if worksheet is not None:
-                                update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path} "))  
-                        else:    
-                            log_info(f"Deletando arquivo: {file_path}")
-                            os.remove(file_path)
-                            if worksheet is not None:
-                                update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_path} "))
-                    else:
-                        new_file_path = os.path.join(root, file_name + '.c')
+                    if '.c' in file_name:
+                        base_name = file_name.split('.c')[0] 
+                        new_file_path = os.path.join(root, base_name + '.c')
                         log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                         os.rename(file_path, new_file_path)
                         if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: de {file_path} para {new_file_path} "))
+                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path} "))  
+                    else:    
+                        log_info(f"Deletando arquivo: {file_path}")
+                        os.remove(file_path)
+                        if worksheet is not None:
+                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_path} "))
+
     except Exception as e:
         log_error(f"Erro no metodo no c files no diretorio {str(e)}")
 
@@ -1334,24 +1328,17 @@ def no_hs_files_in_directory(worksheet, submissions_folder):
                         update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: {file_path} "))
 
                 elif file_extension != '.hs':
-                    if file_extension:
-                        if '.hs' in file_name:
-                            base_name = file_name.split('.hs')[0] 
-                            new_file_path = os.path.join(root, base_name + '.hs')
-                            log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
-                            os.rename(file_path, new_file_path)
-                            if worksheet is not None:
-                                update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path}"))
-                        log_info(f"Deletando arquivo: {file_path}")
-                        os.remove(file_path)
-                        if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_name} "))
-                    else:
-                        new_file_path = os.path.join(root, file_name + '.hs')
+                    if '.hs' in file_name:
+                        base_name = file_name.split('.hs')[0] 
+                        new_file_path = os.path.join(root, base_name + '.hs')
                         log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                         os.rename(file_path, new_file_path)
                         if worksheet is not None:
-                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: renomeando arquivo: {file_name} "))
+                            update_worksheet_formatacao(worksheet,folder_name,formatacao=0,comentario=(f"Erro de formatação no arquivo: renomeado arquivo: {file_path} para {new_file_path}"))
+                    log_info(f"Deletando arquivo: {file_path}")
+                    os.remove(file_path)
+                    if worksheet is not None:
+                        update_worksheet_formatacao(worksheet,folder_name,formatacao=0, comentario=(f"Erro de formatação no arquivo: deletado arquivo: {file_name} "))
     except Exception as e:
         log_error(f"Erro no metodo no hs files no diretorio {str(e)}")                    
                  
