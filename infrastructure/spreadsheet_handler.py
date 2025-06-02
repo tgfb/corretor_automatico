@@ -1,11 +1,10 @@
-import gspread
 from googleapiclient.discovery import build
-from google.oauth2.credentials import Credentials
 from utils.utils import log_error, log_info
 from infrastructure.auth_google import get_gspread_client
 from infrastructure.auth_google import get_credentials
 
-def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
+
+def get_google_sheet_if_exists(classroom_name, list_name, folder_id):
     try:
         client = get_gspread_client()
         drive_service = build("drive", "v3", credentials=get_credentials())
@@ -21,50 +20,81 @@ def create_or_get_google_sheet_in_folder(classroom_name, list_name, folder_id):
             try:
                 worksheet = spreadsheet.worksheet(list_name)
                 print(f"A aba '{list_name}' já existe na planilha.\n")
-                worksheet = None
-                return worksheet
+                return spreadsheet, worksheet
             except Exception:
-
-                worksheet = spreadsheet.add_worksheet(title=list_name, rows=100, cols=20)
-                print(f"A aba '{list_name}' foi criada na planilha '{classroom_name}'.\n")
-            
-            return worksheet
+                print(f"A aba '{list_name}' ainda não existe na planilha '{classroom_name}'.\n")
+                return spreadsheet, None
         else:
-            spreadsheet = client.create(classroom_name)
-            print(f"Planilha '{classroom_name}' criada com sucesso.\n")
+            return None, None
 
-            file_id = spreadsheet.id
-            drive_service.files().update(fileId=file_id, addParents=folder_id, removeParents='root').execute()
+    except Exception as e:
+        log_error(f"Erro ao buscar planilha existente: {str(e)}")
+        return None, None
+    
+def create_google_sheet_and_worksheet(classroom_name, list_name, folder_id):
+    try:
+        client = get_gspread_client()
+        drive_service = build("drive", "v3", credentials=get_credentials())
 
+        query = (
+            f"'{folder_id}' in parents and mimeType='application/vnd.google-apps.spreadsheet' "
+            f"and name='{classroom_name}'"
+        )
+        response = drive_service.files().list(
+            q=query, spaces='drive', fields='files(id, name, trashed)'
+        ).execute()
+
+        for file in response.get("files", []):
+            if not file.get("trashed", False):
+                print(f"Planilha '{classroom_name}' já existe. Nenhuma planilha será criada.\n")
+                return None, None
+
+        spreadsheet = client.create(classroom_name)
+        print(f"Planilha '{classroom_name}' criada com sucesso.\n")
+
+        file_id = spreadsheet.id
+        drive_service.files().update(
+            fileId=file_id,
+            addParents=folder_id,
+            removeParents='root'
+        ).execute()
+
+        try:
+            worksheet = spreadsheet.worksheet(list_name)
+            print(f"A aba '{list_name}' já existe na planilha.\n")
+        except:
             worksheet = spreadsheet.get_worksheet(0)
             worksheet.update_title(list_name)
-            
-            return worksheet
+            print(f"Aba inicial renomeada para '{list_name}'.\n")
+
+        return spreadsheet, worksheet
 
     except Exception as e:
-        log_error(f"Erro ao criar ou verificar a planilha e aba: {str(e)}")
+        log_error(f"Erro ao criar planilha e aba: {str(e)}")
+        return None, None
 
-def header_worksheet(worksheet, num_questions, score):
+def header_worksheet(worksheet, class_name, list_title, num_questions, score_dict):
     try:
-        question_headers = [f"QUESTÃO {i + 1}" for i in range(num_questions)]
-        header = [['NOME DO ALUNO', 'EMAIL', 'STUDENT LOGIN'] + question_headers +
-                  ['ENTREGA?', 'ATRASO?', 'FORMATAÇÃO?', 'CÓPIA?', 'NOTA TOTAL', 'COMENTÁRIOS']]
-        if not worksheet.get_all_values():
-            worksheet.append_rows(header, table_range='A1')
+        title = f"{class_name} - {list_title}"
+        worksheet.insert_row([title], index=1)
 
-        score_row = [''] * 3
-        score_row += [score.get(f'q{i + 1}', '') for i in range(num_questions)]
-        score_row += [''] * 6
-        worksheet.insert_row(score_row, index=2)
+        headers = ["NOME DO ALUNO", "EMAIL", "STUDENT LOGIN"] + \
+                  [f"QUESTÃO {i+1}" for i in range(num_questions)] + \
+                  ["ENTREGA?", "ATRASO?", "FORMATAÇÃO?", "CÓPIA?", "NOTA TOTAL", "COMENTÁRIO"]
+        worksheet.insert_row(headers, index=2)
 
-        log_info("Cabeçalho e linha de score adicionados com sucesso.")
+        log_info("Título, cabeçalho adicionados com sucesso.")
+        return True
     except Exception as e:
         log_error(f"Erro ao configurar cabeçalho da planilha: {e}")
+        return False
 
-def insert_header_title(worksheet, classroom_name, list_title):
+def insert_header_title(worksheet, score_dict, num_questions):
     try:
-        title = f"{classroom_name} - {list_title}"
-        worksheet.insert_row([title], index=1)
+        score_row = [''] * 3
+        score_row += [score_dict.get(f"q{i+1}", "") for i in range(num_questions)]
+        score_row += [''] * 6
+        worksheet.insert_row(score_row, index=3)
 
         sheet_id = worksheet.id
         spreadsheet = worksheet.spreadsheet
@@ -108,7 +138,7 @@ def insert_header_title(worksheet, classroom_name, list_title):
             ]
         })
 
-        log_info("Título e formatação aplicados com sucesso.")
+        log_info("Formatação aplicados com sucesso.")
     except Exception as e:
         log_error(f"Erro ao inserir título e aplicar formatação: {e}")
 
@@ -204,8 +234,9 @@ def fill_worksheet_with_students(worksheet, students, num_questions):
             return
 
         rows = [student.to_list(num_questions) for student in students]
-        worksheet.append_rows(rows)
-        log_info(f"{len(rows)} alunos inseridos na planilha com sucesso.")
-    except Exception as e:
-        log_error(f"Erro ao preencher a planilha com alunos: {e}")
+        range_start = "A4"
+        worksheet.update(range_start, rows, value_input_option="USER_ENTERED")
 
+        log_info(f"{len(rows)} alunos inseridos na planilha com sucesso (linha 4 em diante).")
+    except Exception as e:
+        log_error(f"Erro ao preencher a planilha com alunos em batch: {e}")
