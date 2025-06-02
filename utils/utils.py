@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 from datetime import datetime
 
 def read_id_from_file(filename):
@@ -86,3 +87,20 @@ def log_info(message):
             file.write(f"{message}\n")
     except Exception:
         log_error(f"Erro ao escrever log de info: {message}")
+
+def move_logs_to_base(base_path):
+    try:
+        src_output_dir = "output"
+        dest_output_dir = os.path.join(base_path, "output")
+        os.makedirs(dest_output_dir, exist_ok=True)
+
+        for log_filename in ["output_log.txt", "check_rename.txt"]:
+            src_file = os.path.join(src_output_dir, log_filename)
+            if os.path.exists(src_file):
+                shutil.move(src_file, os.path.join(dest_output_dir, log_filename))
+
+        if os.path.exists(src_output_dir) and not os.listdir(src_output_dir):
+            os.rmdir(src_output_dir)
+
+    except Exception as e:
+        print(f"Erro ao mover os arquivos de log: {e}")

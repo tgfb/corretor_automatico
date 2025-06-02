@@ -50,6 +50,7 @@ def moss_main():
 
         print("\nRodando o MOSS...")
         moss_results = moss_script(submissions_folder, language, list_name, num_questions)
+        
 
         if moss_results:
             print("\nAtualizando arquivos JSON com os resultados...")

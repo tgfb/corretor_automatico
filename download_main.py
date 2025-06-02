@@ -13,6 +13,7 @@ from infrastructure.classroom_gateway import list_classroom_data
 from utils.sheet_id_handler import semester_informations, list_questions
 from core.models.list_metadata import ListMetadata
 from infrastructure.folders_organizer import (organize_extracted_files, move_non_zip_files, if_there_is_a_folder_inside, delete_subfolders_in_student_folders, remove_empty_folders)
+from services.code_analyzer import log_small_submissions
 
 def main():
     try:
@@ -132,6 +133,7 @@ def main():
 
         print("\nSubmissões unificadas em:", final_submissions_folder)
 
+        log_small_submissions(submissions_folder, num_questions, base_path)
         #move_logs_to_base(base_path)
 
     except Exception as e:
