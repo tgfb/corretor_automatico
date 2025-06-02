@@ -4,14 +4,14 @@ import shutil
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
-from core.models.student_submission import StudentSubmission, save_students_to_txt, load_students_from_txt
+from core.models.student_submission import StudentSubmission, save_students_to_json, load_students_from_json
 from services.file_renamer import rename_files, integrate_renaming
 from infrastructure.submission_handler import download_submissions
-from utils.utils import log_error, format_list_title, read_id_from_file, log_info
+from utils.utils import log_error, format_list_title, read_id_from_file, log_info, move_logs_to_base
 from infrastructure.auth_google import get_credentials, get_gspread_client
 from infrastructure.classroom_gateway import list_classroom_data
-from utils.sheet_id_handler import  list_informations, list_questions
-from core.models.list_metadata import ListMetadata, save_metadata_to_json, load_metadata_from_json
+from utils.sheet_id_handler import semester_informations, list_questions
+from core.models.list_metadata import ListMetadata
 from infrastructure.folders_organizer import (organize_extracted_files, move_non_zip_files, if_there_is_a_folder_inside, delete_subfolders_in_student_folders, remove_empty_folders)
 
 def main():
@@ -25,7 +25,7 @@ def main():
             print("Arquivo 'sheet_id.txt' não encontrado.\n")
             return
 
-        semester, lists = list_informations(sheet_id)
+        semester = semester_informations(sheet_id)
 
         list_name = list_title = None
         list_title_a = None
@@ -86,31 +86,32 @@ def main():
 
             metadata_filename = f"metadata_turma{class_letter.upper()}.json"
             metadata_path = os.path.join(base_path, metadata_filename)
-            save_metadata_to_json(metadata, metadata_path)
+            ListMetadata.save_metadata_to_json(metadata, metadata_path)
 
             submissions = classroom_service.courses().courseWork().studentSubmissions().list(
                 courseId=classroom_id, courseWorkId=coursework_id).execute()
 
             print(f"\nComeçando download da turma {class_letter} ...")
-            student_list = download_submissions(classroom_service, drive_service, submissions, zips_folder, classroom_id, coursework_id)
+            student_list = download_submissions(classroom_service, drive_service, submissions, zips_folder, classroom_id, coursework_id, num_questions)
             print("\nDownload completo. Arquivos salvos em:", os.path.abspath(zips_folder))
 
             students_filename = f"students_turma{class_letter.upper()}.json"
             students_path = os.path.join(base_path, students_filename)
-            save_students_to_txt(student_list, students_path)
+            save_students_to_json(student_list, students_path)
 
             organize_extracted_files(zips_folder, student_list, formatted_class)
             move_non_zip_files(zips_folder, formatted_class)
             if_there_is_a_folder_inside(student_list, submissions_folder)
             delete_subfolders_in_student_folders(submissions_folder)
             remove_empty_folders(submissions_folder)
-            save_students_to_txt(student_list, students_path)
+            save_students_to_json(student_list, students_path)
 
             print("\nProcesso de organização de pastas finalizado:", os.path.abspath(submissions_folder))
 
             language = rename_files(submissions_folder, list_title, questions_data, student_list)
-            #save_metadata_to_json(metadata: ListMetadata, path:str) #salvar o language aqui
-            save_students_to_txt(student_list, students_path)
+            metadata_path = os.path.join(base_path, f"metadata_turma{class_letter.upper()}.json")
+            ListMetadata.update_language(metadata_path, language)
+            save_students_to_json(student_list, students_path)
             print("\nProcesso de verificação e renomeação finalizado.")
 
         integrate_renaming(turma_folders, list_title, questions_data)
@@ -130,6 +131,8 @@ def main():
             log_info(f"Pasta deletada: {src_submission_path}")
 
         print("\nSubmissões unificadas em:", final_submissions_folder)
+
+        #move_logs_to_base(base_path)
 
     except Exception as e:
         log_error(f"Erro no fluxo principal: {e}")

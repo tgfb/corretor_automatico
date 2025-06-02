@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 from utils.utils import log_error, log_info
-from core.models.student_submission import save_students_to_txt, load_students_from_txt
+from core.models.student_submission import save_students_to_json, load_students_from_json
 
 def verification_renamed(message):
     try:
@@ -251,9 +251,9 @@ def integrate_renaming(turmas, list_title, questions_data):
                 log_error(f"Pasta de submissões não encontrada: {submissions_path}")
                 continue
 
-            students = load_students_from_txt(students_path)
+            students = load_students_from_json(students_path)
             rename_files(submissions_path, list_title, questions_data, students)
-            save_students_to_txt(students, students_path)
+            save_students_to_json(students, students_path)
 
         log_info("Renomeação e salvamento dos dados finais concluídos com sucesso.")
 

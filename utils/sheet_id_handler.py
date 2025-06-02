@@ -4,7 +4,7 @@ from gspread.exceptions import WorksheetNotFound
 from utils.utils import log_error
 from infrastructure.auth_google import get_gspread_client
 
-def list_informations(sheet_id):
+def semester_informations(sheet_id):
     try:
         client = get_gspread_client()
         spreadsheet = client.open_by_key(sheet_id)
@@ -15,15 +15,11 @@ def list_informations(sheet_id):
             print(f"O título da planilha deve estar no formato 'YYYY.S' (ex: 2024.2). Encontrado: '{semester}'\n")
             return None, None
 
-        lists = [ws.title for ws in spreadsheet.worksheets()]
-        return semester, lists
+        return semester
 
-    except WorksheetNotFound:
-        print(f"A aba '{sheet_name}' não foi encontrada na planilha de nomes para as questões.\n")
-        return list_questions_default(sheet_id)
     except Exception as e:
         log_error(f"Erro em pegar da planilha o semestre e a lista: {str(e)}")
-        return list_questions_default(sheet_id)
+   
 
 def list_questions(sheet_id, sheet_name):
     try:

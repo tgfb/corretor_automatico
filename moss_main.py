@@ -1,13 +1,31 @@
 import os
 from infrastructure.moss_handler import moss_script, update_moss_results_json
-from core.models.list_metadata import load_metadata_from_json
-from utils.utils import log_info
+from core.models.list_metadata import ListMetadata
 
 def moss_main():
     try:
-        script_dir = os.path.dirname(os.path.abspath(_file_))
-        formatted_list = input("Digite o nome da lista formatada (ex: lista01, lista02...): ").strip()
-        base_path = os.path.join(script_dir, "..", "Downloads", formatted_list)
+
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        downloads_path = os.path.join(script_dir, "Downloads")
+
+        folders = [f for f in os.listdir(downloads_path) if os.path.isdir(os.path.join(downloads_path, f))]
+        if not folders:
+            print("Nenhuma pasta encontrada em 'Downloads'.")
+            return
+
+        folders = folders[::-1] 
+
+        print("\nEscolha a lista que deseja rodar o MOSS:")
+        for idx, folder in enumerate(folders):
+            print(f"{idx + 1} - {folder}")
+
+        choice = input("Digite o número da lista: ").strip()
+        if not choice.isdigit() or not (1 <= int(choice) <= len(folders)):
+            print("Opção inválida.")
+            return
+
+        selected_folder = folders[int(choice) - 1]
+        base_path = os.path.join(downloads_path, selected_folder)
         submissions_folder = os.path.join(base_path, "submissions")
 
         if not os.path.exists(submissions_folder):
@@ -22,9 +40,9 @@ def moss_main():
             return
 
         if os.path.exists(metadata_a_path):
-            metadata = load_metadata_from_json(metadata_a_path)
+            metadata = ListMetadata.load_metadata_from_json(metadata_a_path)
         else:
-            metadata = load_metadata_from_json(metadata_b_path)
+            metadata = ListMetadata.load_metadata_from_json(metadata_b_path)
 
         list_name = metadata.list_name
         num_questions = metadata.num_questions
@@ -42,5 +60,5 @@ def moss_main():
     except Exception as e:
         print(f"Erro ao executar o MOSS: {e}")
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     moss_main()

@@ -4,16 +4,18 @@ import re
 import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-from core.models.student_submission import StudentSubmission, load_students_from_txt, save_students_to_txt
-from utils.utils import log_error, loog_info
+from core.models.student_submission import load_students_from_json
+from utils.utils import log_error, log_info
 
 
-def moss_script(submissions_folder, language, list_name, num_questions, base_path):
+def moss_script(submissions_folder, language, list_name, num_questions):
     try:
         if not os.path.exists(submissions_folder):
             raise FileNotFoundError(f"A pasta '{submissions_folder}' não existe.")
          
-        moss_script_path = os.path.join("infrastructure", "external_tools", "moss.pl") 
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        moss_script_path = os.path.join(base_dir, "external_tools", "moss.pl")
+
         links = {} 
         moss_results = [] 
 
@@ -33,7 +35,7 @@ def moss_script(submissions_folder, language, list_name, num_questions, base_pat
                 log_info(f"Nenhum arquivo encontrado para a questão {i}. Pulando para a próxima.")
                 continue
 
-            comment = f"Análise de similaridade | {list_name} | Questão {i}"
+            comment = f'"Análise de similaridade | {list_name} | Questão {i}"'
             command = ["perl", moss_script_path, "-l", language, "-c", comment, "-d"] + files
 
             log_info(f"\nExecutando comando MOSS para questão {i}...")
@@ -75,6 +77,91 @@ def moss_script(submissions_folder, language, list_name, num_questions, base_pat
 
     except Exception as e:
         log_error(f"Erro ao rodar o script MOSS: {str(e)}")
+
+def moss_script2(submissions_folder, language, list_name, num_questions):
+    try:
+        if not os.path.exists(submissions_folder):
+            raise FileNotFoundError(f"A pasta '{submissions_folder}' não existe.")
+         
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        moss_script_path = os.path.join(base_dir, "external_tools", "moss.pl")
+        print(moss_script_path)
+        
+
+        links = {} 
+        moss_results = [] 
+
+        print(f"Usando MOSS script: {moss_script_path}")
+
+        for i in range(1, num_questions + 1):
+            files = []
+            for folder in os.listdir(submissions_folder):
+                folder_path = os.path.join(submissions_folder, folder)
+                #print(f"Verificando pasta: {folder_path}")
+
+                if os.path.isdir(folder_path): 
+                    question_file = f"q{i}_{folder}.c"
+                    question_file_path = os.path.join(folder_path, question_file)
+
+                    if os.path.isfile(question_file_path):
+                        with open(question_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            content = f.read().strip()
+                            if len(content) < 10:
+                                print(f"Arquivo muito pequeno: {question_file_path}")
+                            else:
+                                print(f"Arquivo válido: {question_file_path}")
+                                files.append(question_file_path)
+
+            print(f"Total de arquivos para q{i}: {len(files)}")
+            if not files:
+                log_info(f"Nenhum arquivo encontrado para a questão {i}. Pulando para a próxima.")
+                continue
+            
+            comment = f'"Análise de similaridade | {list_name} | Questão {i}"'
+            language = language.strip().lower()
+            command = ["perl", moss_script_path, "-l", language, "-c", comment, "-d"] + files
+
+            print(f"Comando a ser executado para q{i}:\n{' '.join(command)}")
+            log_info(f"\nExecutando comando MOSS para questão {i}...")
+
+            try:
+                result = subprocess.run(command, capture_output=True, text=True, check=True)
+                output = result.stdout.strip()
+                print(f"Saída do MOSS para q{i}:\n{output}")
+                report_url = output.split("\n")[-1]  
+                links[f"q{i}"] = report_url 
+            except subprocess.CalledProcessError as e:
+                log_error(f"Erro ao executar o script MOSS para q{i}: {e.stderr}")
+                continue
+
+        if not links:
+            print("\nNenhum relatório foi gerado.")
+        else:
+            print("\nLinks gerados para cada questão:")
+            for question, link in links.items():
+                print(f"\n{question}: {link}")
+                if validate_url(link):  
+                    moss_data = analyze_moss_report(link)
+
+                    for student_pair in moss_data:
+                        student1, percentage1 = student_pair[0]
+                        student2, percentage2 = student_pair[1]
+
+                        moss_results.append({
+                            "question": question,
+                            "student1": student1,
+                            "percentage1": percentage1,
+                            "student2": student2,
+                            "percentage2": percentage2
+                        })
+                else:
+                    log_info(f"URL inválida para questão {question}: {link}")
+
+        return moss_results
+
+    except Exception as e:
+        log_error(f"Erro ao rodar o script MOSS: {str(e)}")
+
 
 def validate_url(url):
     try: 
