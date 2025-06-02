@@ -7,7 +7,8 @@ from infrastructure.spreadsheet_handler import (
     fill_worksheet_with_students,
     freeze_and_sort,
     get_google_sheet_if_exists,
-    create_google_sheet_and_worksheet
+    create_google_sheet_and_worksheet,
+    apply_dynamic_formula_in_column
 )
 from core.models.student_submission import load_students_from_json
 from utils.utils import log_error, log_info, read_id_from_file
@@ -74,12 +75,17 @@ def main():
             if spreadsheet is None:
                 spreadsheet, worksheet = create_google_sheet_and_worksheet(class_name, list_name, folder_id)
             elif worksheet is None:
-                worksheet = spreadsheet.add_worksheet(title=list_name, rows=100, cols=40)
+                worksheet = spreadsheet.add_worksheet(title=list_name, rows=100, cols=50)
                 print(f"Aba '{list_name}' criada na planilha existente.\n")
 
             if worksheet is None:
                 print("Não foi possível obter ou criar a planilha e aba.\n")
                 return
+
+            existing_values = worksheet.get_all_values()
+            if len(existing_values) > 3:
+                print(f"A aba '{list_name}' já está preenchida. Pulando preenchimento.")
+                continue
 
             header_ok = header_worksheet(worksheet, class_name, list_title, num_questions, score)
 
@@ -87,6 +93,7 @@ def main():
                 freeze_and_sort(worksheet)
                 insert_header_title(worksheet, score, num_questions)
                 fill_worksheet_with_students(worksheet, students, num_questions)
+                apply_dynamic_formula_in_column(worksheet, num_questions)
             else:
                 log_error("Erro ao configurar cabeçalho. Dados dos alunos não foram enviados.")
             

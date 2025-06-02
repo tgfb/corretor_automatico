@@ -270,8 +270,7 @@ def extract_prefix(email):
     try:
         return email.split('@')[0]
     except Exception as e:
-        log_error(f"Erro em extrair o prefixo do email {str(e)}")
- 
+        log_error(f"Erro em extrair o prefixo do email {str(e)}") 
     
 def get_submission_timestamp(submission, student_id):
     try:
@@ -381,7 +380,6 @@ def update_worksheet_formatacao(worksheet, student_login, formatacao=None, comen
     except Exception as e:
         log_error(f"Erro ao atualizar a planilha com formatação e comentário: {e}")
 
-
 def update_worksheet_comentario(worksheet, student_login, num_questions=None, comentario=None):
     try:
         data = worksheet.get_all_values()
@@ -404,7 +402,6 @@ def update_worksheet_comentario(worksheet, student_login, num_questions=None, co
         log_info(f"Login {student_login} não encontrado na planilha.")
     except Exception as e:
         log_error(f"Erro ao atualizar a planilha com comentário: {e}")
-
 
 def update_final_grade_for_no_submission(worksheet, num_questions):
     try:
@@ -436,7 +433,6 @@ def update_final_grade_for_no_submission(worksheet, num_questions):
             log_info("\nNenhuma atualização necessária; nenhum aluno com entrega 0.")
     except Exception as e:
         log_error(f"Erro ao atualizar notas finais para alunos com entrega 0: {e}")
-
 
 def insert_columns(worksheet, num_questions):
     try:
@@ -534,7 +530,6 @@ def insert_score_row(worksheet, score):
     except Exception as e:
         log_error(f"Ocorreu um erro ao inserir a linha e as colunas: {e}")
 
-
 def fill_scores_for_students(worksheet, num_questions, score=None):
     try:
         data = worksheet.get_all_values()
@@ -609,7 +604,6 @@ def fill_scores_for_students(worksheet, num_questions, score=None):
 
     except Exception as e:
         log_error(f"Ocorreu um erro ao preencher pontuações: {e}")
-
 
 def apply_dynamic_formula_in_column(worksheet, num_questions):
     try:
@@ -1429,7 +1423,6 @@ def read_id_from_file_beecrowd(filename, list_name, classroom_name):
         log_error(f"Erro ao ler o id da planilha do arquivo {filename}: {e}")
         return None
 
-
 def create_google_sheet_in_folder(classroom_name, list_name, folder_id):
     try:
         client = get_gspread_client()
@@ -1714,7 +1707,6 @@ def validate_url(url):
     except Exception as e:
         log_error(f"Erro ao validar a URL: {str(e)}")
 
-
 def analyze_moss_report(report_url):
     try:
         response = requests.get(report_url)
@@ -1811,8 +1803,6 @@ def update_moss_results(worksheet, moss_results, num_questions):
 
     except Exception as e:
         print(f"Erro ao atualizar a planilha com resultados do Moss: {e}")
-
-
 
 def log_error(error_message):
     try:
