@@ -77,7 +77,7 @@ def handle_attachment(file_id, file_name, student_folder, student_obj, drive_ser
             student_obj.add_comment(f"Erro de submissão: erro ao baixar arquivo {file_name}.")
             log_info(f"Erro ao baixar arquivo {file_name} de {student_obj.name}: {error}")
 
-def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, coursework_id):
+def download_submissions(classroom_service, drive_service, submissions, download_folder, classroom_id, coursework_id, num_questions):
     try:
         students = []
         due_date = get_due_date(classroom_service, classroom_id, coursework_id)
@@ -105,6 +105,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                     name=student_name,
                     email=student_email,
                     login=student_login,
+                    questions={f"q{i+1}": "" for i in range(num_questions)},
                     entregou=entregou,
                     atrasou=atrasou,
                     formatacao=formatacao,
