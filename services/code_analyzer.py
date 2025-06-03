@@ -4,8 +4,10 @@ from utils.utils import log_info
 def log_small_submissions(submissions_folder, num_questions, base_path):
     small_files_log = []
 
-    os.makedirs(base_path, exist_ok=True)
-    output_path = os.path.join(base_path, "small_files.txt")
+    output_dir = os.path.join(base_path, "output")
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "small_files.txt")
+    #output_path = os.path.join(base_path, "small_files.txt")
 
     for i in range(1, num_questions + 1):
         for folder in os.listdir(submissions_folder):
@@ -17,7 +19,7 @@ def log_small_submissions(submissions_folder, num_questions, base_path):
                     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read().strip()
                         if len(content) < 10:
-                            small_files_log.append(f"{folder} | Questão q{i} | {filename}")
+                            small_files_log.append(f"{folder} | q{i} | {filename}")
 
     with open(output_path, "w", encoding="utf-8") as out:
         out.write("Arquivos muito pequenos detectados:\n\n")

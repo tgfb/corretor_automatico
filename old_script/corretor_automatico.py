@@ -1584,7 +1584,6 @@ def compare_emails(sheet_id_beecrowd, worksheet2, classroom_name):
     except Exception as e:
         log_error(f"Erro ao comparar e-mails: {str(e)}")
 
-
 def delete_empty_subfolders(worksheet,submissions_folder):
     try:
         for folder_name in os.listdir(submissions_folder):
