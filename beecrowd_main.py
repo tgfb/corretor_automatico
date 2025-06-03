@@ -1,60 +1,80 @@
 import os
-import re
-from time import sleep
-from infrastructure.auth_google import get_gspread_client
+from utils.utils import log_info, log_error
 from infrastructure.spreadsheet_handler import get_google_sheet_if_exists
 from core.models.list_metadata import ListMetadata
 from core.models.student_submission import load_students_from_json
 from infrastructure.beecrowd_handle import (
     read_id_from_file_beecrowd,
-    update_grades,
-    update_final_grade_for_no_submission,
-    compare_emails
+    update_grades_json,
+    update_final_grade_for_no_submission_json,
+    compare_emails,
+    fill_scores_for_students_json
 )
-from utils.utils import log_info, log_error
-
 
 def main():
     try:
-        input_folder = os.path.join("Downloads")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        downloads_root = os.path.join(script_dir, "Downloads")
+
+        folders = [f for f in os.listdir(downloads_root) if os.path.isdir(os.path.join(downloads_root, f))]
+        if not folders:
+            print("Nenhuma pasta encontrada em 'Downloads'.")
+            return
+
+        folders = folders[::-1]
+
+        print("\nEscolha a lista que deseja incluir as notas do Beecrowd:")
+        for idx, folder in enumerate(folders):
+            print(f"{idx + 1} - {folder}")
+
+
+        choice = input("\n\nDigite o número da lista: ").strip()
+        if not choice.isdigit() or not (1 <= int(choice) <= len(folders)):
+            print("Opção inválida.")
+            return
+
+        selected_folder = folders[int(choice) - 1]
+        downloads_path = os.path.join(downloads_root, selected_folder)
+
         turmas = ["A", "B"]
 
         for turma in turmas:
-            students_path = os.path.join(input_folder, f"students_turma{turma}.json")
-            metadata_path = os.path.join(input_folder, f"metadata_turma{turma}.json")
+            students_path = os.path.join(downloads_path, f"students_turma{turma}.json")
+            metadata_path = os.path.join(downloads_path, f"metadata_turma{turma}.json")
 
-            if not os.path.exists(students_path) or not os.path.exists(metadata_path):
-                print(f"Arquivos da turma {turma} não encontrados.")
+            if not os.path.exists(students_path):
+                print(f"O arquivo '{students_path}' não foi encontrado.")
                 continue
 
-            students = load_students_from_json(students_path)
+            if not os.path.exists(metadata_path):
+                print(f"O arquivo '{metadata_path}' não foi encontrado.")
+                continue
+
             metadata = ListMetadata.load_metadata_from_json(metadata_path)
 
+            if metadata is None:
+                print(f"Metadados inválidos para turma {turma}")
+                continue
+
             class_name = metadata.class_name
-            list_name = metadata.list_name
-            list_title = list_name.split(" - ")[0] if " - " in list_name else list_name
+            list_title = metadata.list_name
             num_questions = metadata.num_questions
+            list_name = list_title.split(" - ")[0].strip()
             score = metadata.score
 
-            sheet_id = read_id_from_file_beecrowd("input/sheet_id_beecrowd.txt", list_title, class_name)
+
+            sheet_id = read_id_from_file_beecrowd("input/sheet_id_beecrowd.txt", list_name, class_name)
             if sheet_id is None:
                 continue
 
-            spreadsheet, worksheet = get_google_sheet_if_exists(class_name, list_title, folder_id=None)
-            if worksheet is None:
-                print(f"A planilha da turma {class_name} ainda não foi criada ou a aba '{list_title}' não foi criada.")
-                continue
-
-            update_grades(sheet_id, worksheet, score, class_name)
-            sleep(1)
-            update_final_grade_for_no_submission(worksheet, num_questions)
-            sleep(1)
-            compare_emails(sheet_id, worksheet, class_name)
+            update_grades_json(sheet_id, students_path, score, class_name)
+            update_final_grade_for_no_submission_json(students_path)
+            fill_scores_for_students_json(students_path, num_questions, score)
+            compare_emails(sheet_id, students_path, class_name)
             print(f"\nSincronização finalizada para a turma {class_name}.\n")
 
     except Exception as e:
         log_error(f"Erro no fluxo principal do Beecrowd: {str(e)}")
-
 
 if __name__ == "__main__":
     main()

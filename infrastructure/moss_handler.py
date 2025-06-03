@@ -15,11 +15,12 @@ def moss_script(submissions_folder, language, list_name, num_questions):
          
         base_dir = os.path.dirname(os.path.abspath(__file__))
         moss_script_path = os.path.join(base_dir, "external_tools", "moss.pl")
-
+        
         links = {} 
         moss_results = [] 
 
         for i in range(1, num_questions + 1):
+            question_key = f"q{i}"
             files = []
             for folder in os.listdir(submissions_folder):
                 folder_path = os.path.join(submissions_folder, folder)
@@ -34,7 +35,7 @@ def moss_script(submissions_folder, language, list_name, num_questions):
             if not files:
                 log_info(f"Nenhum arquivo encontrado para a questão {i}. Pulando para a próxima.")
                 continue
-
+            
             comment = f'"Análise de similaridade | {list_name} | Questão {i}"'
             command = ["perl", moss_script_path, "-l", language, "-c", comment, "-d"] + files
 
@@ -44,7 +45,7 @@ def moss_script(submissions_folder, language, list_name, num_questions):
                 result = subprocess.run(command, capture_output=True, text=True, check=True)
                 output = result.stdout.strip()
                 report_url = output.split("\n")[-1]  
-                links[f"q{i}"] = report_url 
+                links[question_key] = report_url
             except subprocess.CalledProcessError as e:
                 log_error(f"Erro ao executar o script MOSS para q{i}: {e.stderr}")
                 continue
@@ -144,7 +145,7 @@ def update_moss_results_json(base_path, moss_results, num_questions):
             if not os.path.exists(json_path):
                 log_info(f"Arquivo JSON não encontrado para turma {turma}")
                 continue
-
+            updated = False
             students = load_students_from_json(json_path)
 
             for result in moss_results:

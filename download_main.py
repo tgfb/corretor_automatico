@@ -133,8 +133,9 @@ def main():
 
         print("\nSubmissões unificadas em:", final_submissions_folder)
 
-        log_small_submissions(submissions_folder, num_questions, base_path)
-        #move_logs_to_base(base_path)
+        final_base_path = os.path.abspath(os.path.join("Downloads", formatted_list))
+        log_small_submissions(final_submissions_folder, num_questions, final_base_path)
+        
 
     except Exception as e:
         log_error(f"Erro no fluxo principal: {e}")

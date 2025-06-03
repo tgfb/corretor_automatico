@@ -44,3 +44,12 @@ def get_gspread_client():
         return gspread.authorize(creds)
     except Exception as e:
         log_error(f"Erro em conseguir a credencial do google spreadsheet {str(e)}")
+
+def get_sheet_title(sheet_id):
+    try:
+        client = get_gspread_client()
+        spreadsheet = client.open_by_key(sheet_id)
+        return spreadsheet.title
+    except Exception as e:
+        log_error(f"Erro ao obter título da planilha {sheet_id}: {e}")
+        return None

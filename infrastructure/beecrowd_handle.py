@@ -1,41 +1,36 @@
 import re
 import time
-import gspread
+import json
 from utils.utils import log_info, log_error
-from infrastructure.auth_google import get_gspread_client
-from infrastructure.google_utils import get_sheet_title, extract_turma_name
-from core.utils.update_worksheet_comentario import update_worksheet_comentario
+from infrastructure.auth_google import get_gspread_client, get_sheet_title
+from core.models.student_submission import StudentSubmission, save_students_to_json, load_students_from_json
+from utils.utils import  extract_turma_name
 
-def update_final_grade_for_no_submission(worksheet, num_questions):
+
+def update_final_grade_for_no_submission_json(json_path):
     try:
-        data = worksheet.get_all_values()
-        updates = []
+        students = load_students_from_json(json_path)
+        updated = False
 
-        if num_questions is None:
-            entrega_valor_index = 3 
-            col_final_grade = 7
+        for student in students:
+            entregou = int(student.entregou)
+            nota_total = student.nota_total.strip() if student.nota_total else ""
+
+            if entregou == 0:
+                if nota_total not in ("0", "", None):
+                    student.update_field("nota_total", "0")
+                    student.add_comment("O aluno tirou 100 no beecrowd, mas a entrega no classroom foi zerada.")
+                    updated = True
+
+        if updated:
+            save_students_to_json(students, json_path)
+            log_info(f"Arquivo atualizado com notas zeradas e comentários: {json_path}")
         else:
-            entrega_valor_index = 3 + num_questions
-            col_final_grade = 7 + num_questions
+            log_info(f"Nenhuma alteração necessária em {json_path}")
 
-        for idx, row in enumerate(data):
-            student_login = row[2] 
-            if row[entrega_valor_index] == '0':
-                updates.append({
-                    'range': f'{chr(ord("H") + (num_questions if num_questions is not None else 0))}{idx + 1}', 
-                    'values': [[0]]  
-                })
-
-                if row[col_final_grade] not in ('0', None, ''):
-                    comentario = f"O aluno tirou 100 no beecrowd, mas a entrega no classroom foi zerada."
-                    update_worksheet_comentario(worksheet, student_login, num_questions=num_questions, comentario=comentario) 
-                
-        if updates:
-            worksheet.batch_update(updates)
-        else:
-            log_info("\nNenhuma atualização necessária; nenhum aluno com entrega 0.")
     except Exception as e:
-        log_error(f"Erro ao atualizar notas finais para alunos com entrega 0: {e}")
+        log_error(f"Erro ao processar o arquivo JSON {json_path}: {e}")
+
 
 def read_id_from_file_beecrowd(filename, list_name, classroom_name):
     try:
@@ -84,94 +79,134 @@ def read_id_from_file_beecrowd(filename, list_name, classroom_name):
         log_error(f"Erro ao ler o id da planilha do arquivo {filename}: {e}")
         return None
     
-def update_grades(sheet_id1, worksheet2, score, classroom_name):
-    try: 
+
+def update_grades_json(sheet_id1, student_json_path, score, classroom_name):
+    try:
         client = get_gspread_client()
+        worksheet1 = client.open_by_key(sheet_id1).get_worksheet(0)
 
-        worksheet1 = client.open_by_key(sheet_id1)
-        worksheet1 = worksheet1.get_worksheet(0)  
-        
-        emails = [email.strip() for email in worksheet1.col_values(6)[1:] if email] 
-        percentages = [percent.strip() for percent in worksheet1.col_values(10)[1:] if percent]   
+        emails = [email.strip().lower() for email in worksheet1.col_values(6)[1:] if email]
+        percentages = [percent.strip() for percent in worksheet1.col_values(10)[1:] if percent]
+
         log_info(f"\nProcurando os emails {emails}")
-        print("\nProcurando os alunos com a nota 100 e 0...\n")
-        updates = []
-        not_found_emails = []
+        print("\nAtualizando notas no JSON com base na planilha Beecrowd...\n")
 
-       
+        students = load_students_from_json(student_json_path)
+
         if isinstance(score, dict):
             score_values = {key: float(value) for key, value in score.items()}
             score_sum = float(sum(score_values.values()))
         else:
-            log_info("\nComo a pontuação estava None, foi usado a porcentagem do beecrowd para preencher 100, mas para calcular com a pontuação o 'score' precisa estar preenchido na planilha.\n")
-            score_sum = 100  
-  
-        
-        for idx, (email, percentage) in enumerate(zip(emails, percentages), start=2):
+            log_info("\nPontuação não fornecida, usando 100 como base.")
+            score_sum = 100
+
+        updated_emails = []
+        not_found_emails = []
+
+        for email, percentage in zip(emails, percentages):
             if not email:
-                break
+                continue
+
             time.sleep(1)
+            match_found = False
 
-            if percentage in ["100", "0"]: 
-                try:
-                    
-                    cell = worksheet2.find(email, in_column=2)
-                    value_to_update = 0
-                    if cell:
-                        value_to_update = float(score_sum) if percentage == "100" else 0
+            for student in students:
+                if student.email.strip().lower() == email:
+                    if percentage == "100":
+                        student.update_field("nota_total", str(score_sum))
+                        student.add_comment("")
+                    elif percentage == "0":
+                        student.update_field("nota_total", "0")
+                        student.add_comment("O aluno tirou 0 no beecrowd.")
+                    updated_emails.append(email)
+                    match_found = True
+                    break
 
-                            
-                        updates.append({
-                            "range": f"H{cell.row}",
-                            "values": [[value_to_update]]
-                        })
-                    else:
-                        not_found_emails.append(f"{email}: {value_to_update}")
-                except gspread.exceptions.APIError:
-                    pass  
+            if not match_found and percentage in ("100", "0"):
+                not_found_emails.append((email, percentage))
 
-        if updates:
-            worksheet2.batch_update(updates)
+        save_students_to_json(students, student_json_path)
 
-        if not_found_emails:
-            with open("not_found_emails_100_or_0.txt", "a") as file:
-                file.write(f"\nClassroom: {classroom_name}\n")
-                for email in not_found_emails:
-                    file.write(f"{email}\n")
-        
-        log_info(f"\nForam encontrados: {len(updates)} alunos nas duas planilhas com o mesmo email.")
-        print(f"\nForam encontrados: {len(updates)} alunos nas duas planilhas com o mesmo email.")
-        if len(updates) < len(emails): 
-            print("\nNem todos os alunos acertaram 100 ou 0 foram encontrados na planilha de resultados. Revise os emails no not_found_emails_100_or_0.txt.")
-                               
+        log_info(f"\n{len(updated_emails)} alunos atualizados no JSON.")
+        print(f"\n{len(updated_emails)} alunos atualizados no JSON.")
+
+        save_not_found_emails(not_found_emails, classroom_name)
+
     except Exception as e:
-        log_error(f"Erro ao atualizar planilha {str(e)}")  
+        log_error(f"Erro ao atualizar JSON com notas do Beecrowd: {e}")
 
-def compare_emails(sheet_id_beecrowd, worksheet2, classroom_name):
+
+def save_not_found_emails(not_found_emails, classroom_name, filename="output/not_found_emails_100_or_0.txt"):
+    if not_found_emails:
+        with open(filename, "a", encoding="utf-8") as file:
+            file.write(f"\n{classroom_name}\n")
+            for email, percentage in not_found_emails:
+                file.write(f"{email}\t{percentage}\n")
+        print(f"\nAlguns emails não foram encontrados no JSON. Veja o arquivo {filename}.")
+
+def compare_emails(sheet_id_beecrowd, student_json_path, classroom_name):
     try:
         client = get_gspread_client()
+        worksheet1 = client.open_by_key(sheet_id_beecrowd).get_worksheet(0)
 
-        worksheet1 = client.open_by_key(sheet_id_beecrowd).get_worksheet(0) 
+        emails_beecrowd = set(email.strip().lower() for email in worksheet1.col_values(6)[1:] if email)
 
-        emails_planilha1 = set(email.strip() for email in worksheet1.col_values(6)[1:] if email)
-        emails_planilha2 = set(email.strip() for email in worksheet2.col_values(2)[1:] if email)
+        with open(student_json_path, "r", encoding="utf-8") as f:
+            students = json.load(f)
 
-        only_in_planilha1 = emails_planilha1 - emails_planilha2
+        emails_json = set(student["email"].strip().lower() for student in students if "email" in student)
 
-        only_in_planilha2 = emails_planilha2 - emails_planilha1
+        only_in_beecrowd = emails_beecrowd - emails_json
+        only_in_json = emails_json - emails_beecrowd
 
-        with open("email_differences.txt", "a") as file:
+        with open("output/email_differences.txt", "a", encoding="utf-8") as file:
             file.write(f"\nClassroom: {classroom_name}\n")
             file.write("Beecrowd\n")
-            for email in sorted(only_in_planilha1):
+            for email in sorted(only_in_beecrowd):
                 file.write(f"{email}\n")
 
-            file.write("\nClassroom\n")
-            for email in sorted(only_in_planilha2):
+            file.write("\nClassroom (JSON)\n")
+            for email in sorted(only_in_json):
                 file.write(f"{email}\n")
 
-        print("\nArquivo email_differences.txt criado com sucesso. Nele você confere os emails que existem numa plataforma, mas não existem na outra.")
+        print("\nArquivo 'email_differences.txt' criado com sucesso. Nele você confere os e-mails que existem apenas em uma das plataformas.")
 
     except Exception as e:
-        log_error(f"Erro ao comparar e-mails: {str(e)}")
+        log_error(f"Erro ao comparar e-mails entre Beecrowd e JSON: {str(e)}")
 
+def fill_scores_for_students_json(json_path, num_questions, score=None):
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            student_dicts = json.load(f)
+        students = [StudentSubmission(**s) for s in student_dicts]
+
+        score_values = {}
+        if score is not None:
+            for key, value in score.items():
+                try:
+                    score_values[key] = float(value)
+                except ValueError:
+                    continue
+            score_sum = sum(score_values.values())
+        else:
+            score_sum = 100
+
+        for student in students:
+            final_score = float(student.nota_total) if student.nota_total.replace('.', '', 1).isdigit() else None
+
+            if num_questions is not None:
+                if final_score == score_sum:
+                    for i in range(num_questions):
+                        student.update_field(f'q{i+1}', score_values.get(f'q{i+1}', 0))
+                elif final_score == 0:
+                    for i in range(num_questions):
+                        student.update_field(f'q{i+1}', 0)
+            else:
+                if final_score == 0:
+                    student.update_field('q1', 0)
+
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump([s.__dict__ for s in students], f, indent=4, ensure_ascii=False)
+
+    except Exception as e:
+        log_error(f"Erro ao preencher pontuações no JSON: {e}")

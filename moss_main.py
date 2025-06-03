@@ -19,7 +19,7 @@ def moss_main():
         for idx, folder in enumerate(folders):
             print(f"{idx + 1} - {folder}")
 
-        choice = input("Digite o número da lista: ").strip()
+        choice = input("\n\nDigite o número da lista: ").strip()
         if not choice.isdigit() or not (1 <= int(choice) <= len(folders)):
             print("Opção inválida.")
             return
@@ -27,7 +27,6 @@ def moss_main():
         selected_folder = folders[int(choice) - 1]
         base_path = os.path.join(downloads_path, selected_folder)
         submissions_folder = os.path.join(base_path, "submissions")
-
         if not os.path.exists(submissions_folder):
             print(f"Pasta '{submissions_folder}' não encontrada.")
             return
@@ -50,7 +49,6 @@ def moss_main():
 
         print("\nRodando o MOSS...")
         moss_results = moss_script(submissions_folder, language, list_name, num_questions)
-        
 
         if moss_results:
             print("\nAtualizando arquivos JSON com os resultados...")

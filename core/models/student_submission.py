@@ -49,9 +49,7 @@ class StudentSubmission:
 def save_students_to_json(student_list, path):
     try:
         with open(path, 'w', encoding='utf-8') as file:
-            for student in student_list:
-                json.dump(asdict(student), file, ensure_ascii=False)
-                file.write('\n')
+            json.dump([asdict(student) for student in student_list], file, ensure_ascii=False, indent=4)
         log_info(f"Lista de alunos salva com sucesso em {path}")
     except Exception as e:
         log_error(f"Erro ao salvar alunos em {path}: {e}")
@@ -60,14 +58,11 @@ def load_students_from_json(path):
     students = []
     try:
         with open(path, 'r', encoding='utf-8') as file:
-            for line in file:
-                data = json.loads(line.strip())
-
-                # Separar q1, q2, ... em questions
+            data_list = json.load(file)
+            for data in data_list:
                 questions = {k: data.pop(k) for k in list(data.keys()) if k.startswith('q')}
                 student = StudentSubmission(**data, questions=questions)
                 students.append(student)
-
         log_info(f"Lista de alunos carregada com sucesso de {path}")
     except Exception as e:
         log_error(f"Erro ao carregar alunos de {path}: {e}")
