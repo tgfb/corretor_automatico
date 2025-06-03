@@ -176,9 +176,7 @@ def compare_emails(sheet_id_beecrowd, student_json_path, classroom_name):
 
 def fill_scores_for_students_json(json_path, num_questions, score=None):
     try:
-        with open(json_path, 'r', encoding='utf-8') as f:
-            student_dicts = json.load(f)
-        students = [StudentSubmission(**s) for s in student_dicts]
+        students = load_students_from_json(json_path)
 
         score_values = {}
         if score is not None:
@@ -205,8 +203,7 @@ def fill_scores_for_students_json(json_path, num_questions, score=None):
                 if final_score == 0:
                     student.update_field('q1', 0)
 
-        with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump([s.__dict__ for s in students], f, indent=4, ensure_ascii=False)
+        save_students_to_json(students, json_path)
 
     except Exception as e:
         log_error(f"Erro ao preencher pontuações no JSON: {e}")
