@@ -195,7 +195,7 @@ def apply_dynamic_formula_in_column(worksheet, num_questions):
         col_form = chr(ord('F') + num_questions)
         col_copy = chr(ord('G') + num_questions)
 
-        for row_idx in range(1, last_filled_row + 1):
+        for row_idx in range(3, last_filled_row + 1):
             try:
                 sum_formula = '+'.join([f"{col}{row_idx + 1}" for col in columns_to_sum])
                 

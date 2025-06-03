@@ -48,8 +48,16 @@ class StudentSubmission:
 
 def save_students_to_json(student_list, path):
     try:
+        data = []
+        for student in student_list:
+            d = asdict(student)
+            # Evita aninhamento de dicionário 
+            q_flat = d.pop("questions", {})
+            d.update(q_flat)  # Junta q1, q2, ...
+            data.append(d)
+
         with open(path, 'w', encoding='utf-8') as file:
-            json.dump([asdict(student) for student in student_list], file, ensure_ascii=False, indent=4)
+            json.dump(data, file, ensure_ascii=False, indent=4)
         log_info(f"Lista de alunos salva com sucesso em {path}")
     except Exception as e:
         log_error(f"Erro ao salvar alunos em {path}: {e}")
