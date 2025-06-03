@@ -31,7 +31,6 @@ def list_questions(sheet_id, sheet_name):
 
         if not rows:
             print(f"A planilha '{sheet_name}' não tem campos preenchidos.\n")
-            return list_questions_default(sheet_id)
 
         questions_dict = {}
         score = {}
@@ -68,10 +67,7 @@ def list_questions(sheet_id, sheet_name):
                 score[f'q{i}'] = row[0].strip()
 
         return questions_dict, i, score
-
-    except WorksheetNotFound:
-        print(f"A aba '{sheet_name}' não foi encontrada na planilha de nomes para as questões.")
-        return list_questions_default(sheet_id)
+    
     except Exception as e:
         log_error(f"Erro em pegar da planilha os nomes das questões: {str(e)}")
-        return list_questions_default(sheet_id)
+        
