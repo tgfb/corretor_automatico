@@ -27,11 +27,11 @@ def main():
 
         folders = folders[::-1]
 
-        print("\nEscolha a lista que deseja rodar o MOSS:")
+        print("\nEscolha a lista que deseja criar a planilha:")
         for idx, folder in enumerate(folders):
             print(f"{idx + 1} - {folder}")
 
-        choice = input("Digite o número da lista: ").strip()
+        choice = input("\n\nDigite o número da lista: ").strip()
         if not choice.isdigit() or not (1 <= int(choice) <= len(folders)):
             print("Opção inválida.")
             return
