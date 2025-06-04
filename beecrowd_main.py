@@ -1,8 +1,6 @@
 import os
-from utils.utils import log_info, log_error
-from infrastructure.spreadsheet_handler import get_google_sheet_if_exists
+from utils.utils import log_error
 from core.models.list_metadata import ListMetadata
-from core.models.student_submission import load_students_from_json
 from infrastructure.beecrowd_handle import (
     read_id_from_file_beecrowd,
     update_grades_json,
@@ -24,17 +22,27 @@ def main():
         folders = folders[::-1]
 
         print("\nEscolha a lista que deseja incluir as notas do Beecrowd:")
-        for idx, folder in enumerate(folders):
-            print(f"{idx + 1} - {folder}")
+        for index, folder in enumerate(folders):
+            print(f"{index} - {folder}")
+        print(f"{len(folders)} - Sair")
 
-
-        choice = input("\n\nDigite o número da lista: ").strip()
-        if not choice.isdigit() or not (1 <= int(choice) <= len(folders)):
-            print("Opção inválida.")
+        choice = input("\nDigite o número da lista: ").strip()
+        if not choice.isdigit():
+            print("Opção inválida.\n")
             return
 
-        selected_folder = folders[int(choice) - 1]
-        downloads_path = os.path.join(downloads_root, selected_folder)
+        choice = int(choice)
+
+        if choice == len(folders):
+            print("Saindo da seleção.\n")
+            return
+
+        if 0 <= choice < len(folders):
+            selected_folder = folders[choice]
+            downloads_path = os.path.join(downloads_root, selected_folder)
+        else:
+            print("Opção inválida.\n")
+            return
 
         turmas = ["A", "B"]
 

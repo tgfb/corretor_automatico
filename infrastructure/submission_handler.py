@@ -1,7 +1,6 @@
 import io
 import os
 import shutil
-import zipfile
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 from core.models.student_submission import StudentSubmission

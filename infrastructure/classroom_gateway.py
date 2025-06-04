@@ -1,6 +1,5 @@
 from googleapiclient.errors import HttpError
 from utils.utils import log_error
-import re
 
 def list_classroom_data(service, semester, turma_type, saved_assignment_title=None):
     try:

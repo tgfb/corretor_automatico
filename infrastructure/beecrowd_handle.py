@@ -6,7 +6,6 @@ from infrastructure.auth_google import get_gspread_client, get_sheet_title
 from core.models.student_submission import StudentSubmission, save_students_to_json, load_students_from_json
 from utils.utils import  extract_turma_name
 
-
 def update_final_grade_for_no_submission_json(json_path):
     try:
         students = load_students_from_json(json_path)

@@ -2,8 +2,6 @@ import os
 import re
 import shutil
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaIoBaseDownload
 from core.models.student_submission import StudentSubmission, save_students_to_json, load_students_from_json
 from services.file_renamer import rename_files, integrate_renaming
 from infrastructure.submission_handler import download_submissions

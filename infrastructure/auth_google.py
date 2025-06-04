@@ -5,21 +5,21 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from utils.utils import log_error, log_info
 
-SCOPES = [
-    "https://www.googleapis.com/auth/classroom.student-submissions.students.readonly",
-    "https://www.googleapis.com/auth/classroom.profile.emails",
-    "https://www.googleapis.com/auth/classroom.rosters.readonly",
-    "https://www.googleapis.com/auth/classroom.courses.readonly",
-    "https://www.googleapis.com/auth/drive",
-    "https://www.googleapis.com/auth/spreadsheets"]
-
-SECRETS_DIR = "secrets"
-CREDENTIALS_PATH = os.path.join(SECRETS_DIR, "credentials.json")
-TOKEN_PATH = os.path.join(SECRETS_DIR, "token.json")
-
 def get_credentials():
     try:
         creds = None
+
+        SCOPES = [
+        "https://www.googleapis.com/auth/classroom.student-submissions.students.readonly",
+        "https://www.googleapis.com/auth/classroom.profile.emails",
+        "https://www.googleapis.com/auth/classroom.rosters.readonly",
+        "https://www.googleapis.com/auth/classroom.courses.readonly",
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/spreadsheets"]
+
+        SECRETS_DIR = "secrets"
+        CREDENTIALS_PATH = os.path.join(SECRETS_DIR, "credentials.json")
+        TOKEN_PATH = os.path.join(SECRETS_DIR, "token.json")
 
         if os.path.exists(TOKEN_PATH):
             creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
