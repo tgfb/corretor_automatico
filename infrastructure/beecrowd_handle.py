@@ -1,7 +1,9 @@
 import re
+import os
 import time
 import json
 from utils.utils import log_info, log_error
+import utils.utils as utils
 from infrastructure.auth_google import get_gspread_client, get_sheet_title
 from core.models.student_submission import StudentSubmission, save_students_to_json, load_students_from_json
 from utils.utils import  extract_turma_name
@@ -135,13 +137,21 @@ def update_grades_json(sheet_id1, student_json_path, score, classroom_name):
         log_error(f"Erro ao atualizar JSON com notas do Beecrowd: {e}")
 
 
-def save_not_found_emails(not_found_emails, classroom_name, filename="output/not_found_emails_100_or_0.txt"):
+def save_not_found_emails(not_found_emails, classroom_name, filename="not_found_emails_100_or_0.txt"):
     if not_found_emails:
-        with open(filename, "a", encoding="utf-8") as file:
+        
+        base_folder = utils.FOLDER_PATH if utils.FOLDER_PATH else "output"
+        output_folder = os.path.join(base_folder, "output") if not base_folder.endswith("output") else base_folder
+
+        os.makedirs(output_folder, exist_ok=True)
+        full_path = os.path.join(output_folder, filename)
+
+        with open(full_path, "a", encoding="utf-8") as file:
             file.write(f"\n{classroom_name}\n")
             for email, percentage in not_found_emails:
                 file.write(f"{email}\t{percentage}\n")
-        print(f"\nAlguns emails não foram encontrados no JSON. Veja o arquivo {filename}.")
+
+        print(f"\nAlguns emails não foram encontrados no JSON. Veja o arquivo {full_path}.")
 
 def compare_emails(sheet_id_beecrowd, student_json_path, classroom_name):
     try:
@@ -158,7 +168,13 @@ def compare_emails(sheet_id_beecrowd, student_json_path, classroom_name):
         only_in_beecrowd = emails_beecrowd - emails_json
         only_in_json = emails_json - emails_beecrowd
 
-        with open("output/email_differences.txt", "a", encoding="utf-8") as file:
+        base_folder = utils.FOLDER_PATH if utils.FOLDER_PATH else "output"
+        output_folder = os.path.join(base_folder, "output") if not base_folder.endswith("output") else base_folder
+
+        os.makedirs(output_folder, exist_ok=True)
+        file_path = os.path.join(output_folder, "email_differences.txt")
+
+        with open(file_path, "a", encoding="utf-8") as file:
             file.write(f"\nClassroom: {classroom_name}\n")
             file.write("Beecrowd\n")
             for email in sorted(only_in_beecrowd):
@@ -168,7 +184,7 @@ def compare_emails(sheet_id_beecrowd, student_json_path, classroom_name):
             for email in sorted(only_in_json):
                 file.write(f"{email}\n")
 
-        print("\nArquivo 'email_differences.txt' criado com sucesso. Nele você confere os e-mails que existem apenas em uma das plataformas.")
+        print(f"\nArquivo '{file_path}' criado com sucesso. Nele você confere os e-mails que existem apenas em uma das plataformas.")
 
     except Exception as e:
         log_error(f"Erro ao comparar e-mails entre Beecrowd e JSON: {str(e)}")

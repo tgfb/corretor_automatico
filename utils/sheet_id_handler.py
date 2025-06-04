@@ -27,14 +27,14 @@ def list_questions(sheet_id, sheet_name):
         spreadsheet = client.open_by_key(sheet_id)
 
         sheet = spreadsheet.worksheet(sheet_name)
-        rows = sheet.get_all_values()[1:]  # Ignora cabeçalho
+        rows = sheet.get_all_values()[1:] 
 
         if not rows:
             print(f"A planilha '{sheet_name}' não tem campos preenchidos.\n")
 
         questions_dict = {}
         score = {}
-        #print("\nO dicionário está assim: ")
+    
         for i, row in enumerate(rows, start=1):
             question_data = []
 
@@ -61,7 +61,6 @@ def list_questions(sheet_id, sheet_name):
 
             if question_data:
                 questions_dict[i] = question_data
-                #print(f"{question_data}")
 
             if row[0].strip():
                 score[f'q{i}'] = row[0].strip()

@@ -7,7 +7,6 @@ def log_small_submissions(submissions_folder, num_questions, base_path):
     output_dir = os.path.join(base_path, "output")
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, "small_files.txt")
-    #output_path = os.path.join(base_path, "small_files.txt")
 
     for i in range(1, num_questions + 1):
         for folder in os.listdir(submissions_folder):

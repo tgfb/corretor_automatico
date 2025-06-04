@@ -1,5 +1,6 @@
 import os
-from utils.utils import log_error
+import sys
+from utils.utils import log_error, set_log_folder
 from core.models.list_metadata import ListMetadata
 from infrastructure.beecrowd_handle import (
     read_id_from_file_beecrowd,
@@ -11,39 +12,21 @@ from infrastructure.beecrowd_handle import (
 
 def main():
     try:
+        if len(sys.argv) < 2:
+            print("\nComo usar: python nome_do_arquivo.py 'LISTA 04'\n")
+            return
+
+        selected_folder = sys.argv[1] 
+
         script_dir = os.path.dirname(os.path.abspath(__file__))
         downloads_root = os.path.join(script_dir, "Downloads")
-
-        folders = [f for f in os.listdir(downloads_root) if os.path.isdir(os.path.join(downloads_root, f))]
-        if not folders:
-            print("Nenhuma pasta encontrada em 'Downloads'.")
+        downloads_path = os.path.join(downloads_root, selected_folder)
+        set_log_folder(downloads_path)
+        
+        if not os.path.exists(downloads_path):
+            print(f"A pasta '{downloads_path}' não foi encontrada.")
             return
-
-        folders = folders[::-1]
-
-        print("\nEscolha a lista que deseja incluir as notas do Beecrowd:")
-        for index, folder in enumerate(folders):
-            print(f"{index} - {folder}")
-        print(f"{len(folders)} - Sair")
-
-        choice = input("\nDigite o número da lista: ").strip()
-        if not choice.isdigit():
-            print("Opção inválida.\n")
-            return
-
-        choice = int(choice)
-
-        if choice == len(folders):
-            print("Saindo da seleção.\n")
-            return
-
-        if 0 <= choice < len(folders):
-            selected_folder = folders[choice]
-            downloads_path = os.path.join(downloads_root, selected_folder)
-        else:
-            print("Opção inválida.\n")
-            return
-
+        
         turmas = ["A", "B"]
 
         for turma in turmas:
