@@ -2,16 +2,26 @@ import os
 import re
 import shutil
 from utils.utils import log_error, log_info
+import utils.utils as utils
 from core.models.student_submission import save_students_to_json, load_students_from_json
+
 
 def verification_renamed(message):
     try:
-        os.makedirs("output", exist_ok=True) 
-        file_path = os.path.join("output", "check_rename.txt")
+        base_folder = utils.FOLDER_PATH if utils.FOLDER_PATH else "output"
+        
+        if not base_folder.endswith("output"):
+            output_folder = os.path.join(base_folder, "output")
+        else:
+            output_folder = base_folder
+
+        os.makedirs(output_folder, exist_ok=True)
+        file_path = os.path.join(output_folder, "check_rename.txt")
+
         with open(file_path, "a", encoding="utf-8") as renamed_verification:
             renamed_verification.write(f"{message}\n")
     except Exception as e:
-        log_error(f"Não foi possível criar ou escrever no arquivo de verificação: {str(e)}")
+        utils.log_error(f"Não foi possível criar ou escrever no arquivo de verificação: {str(e)}")
 
 
 def rename_files_based_on_dictionary(submissions_folder, questions_dict, students, haskell=None):
