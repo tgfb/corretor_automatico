@@ -2,16 +2,19 @@ import os
 import re
 import shutil
 from googleapiclient.discovery import build
+import utils.utils as utils
 from core.models.student_submission import StudentSubmission, save_students_to_json, load_students_from_json
 from services.file_renamer import rename_files, integrate_renaming
 from infrastructure.submission_handler import download_submissions
-from utils.utils import log_error, format_list_title, read_id_from_file, log_info, move_logs_to_base
+from utils.utils import log_error, format_list_title, read_id_from_file, log_info,FOLDER_PATH, set_log_folder
 from infrastructure.auth_google import get_credentials, get_gspread_client
 from infrastructure.classroom_gateway import list_classroom_data
 from utils.sheet_id_handler import semester_informations, list_questions
 from core.models.list_metadata import ListMetadata
 from infrastructure.folders_organizer import (organize_extracted_files, move_non_zip_files, if_there_is_a_folder_inside, delete_subfolders_in_student_folders, remove_empty_folders)
 from services.code_analyzer import log_small_submissions
+
+
 
 def main():
     try:
@@ -65,10 +68,13 @@ def main():
             except Exception as e:
                 print(f"Erro ao carregar dados da planilha: {e}")
                 return
-
+            
+            
             formatted_class = f"turma{class_letter}"
             script_dir = os.path.dirname(os.path.abspath(__file__))
             base_path = os.path.join(script_dir, "Downloads", formatted_list)
+            #set_log_folder(base_path)
+            utils.FOLDER_PATH = os.path.join(base_path, "output") 
             zips_folder = os.path.join(base_path, f"zips_{formatted_class}")
             submissions_folder = os.path.join(zips_folder, f"submissions_{formatted_class}")
 

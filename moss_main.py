@@ -1,32 +1,27 @@
 import os
+import sys
 from infrastructure.moss_handler import moss_script, update_moss_results_json
 from core.models.list_metadata import ListMetadata
+from utils.utils import set_log_folder
 
 
 def moss_main():
     try:
+        if len(sys.argv) < 2:
+            print("\nComo usar: python nome_do_arquivo.py 'LISTA 04'\n")
+            return
+
+        selected_folder = sys.argv[1]
+
         script_dir = os.path.dirname(os.path.abspath(__file__))
         downloads_path = os.path.join(script_dir, "Downloads")
-
-        folders = [f for f in os.listdir(downloads_path) if os.path.isdir(os.path.join(downloads_path, f))]
-        if not folders:
-            print("Nenhuma pasta encontrada em 'Downloads'.")
-            return
-
-        folders = folders[::-1] 
-
-        print("\nEscolha a lista que deseja rodar o MOSS:")
-        for idx, folder in enumerate(folders):
-            print(f"{idx + 1} - {folder}")
-
-        choice = input("Digite o número da lista: ").strip()
-        if not choice.isdigit() or not (1 <= int(choice) <= len(folders)):
-            print("Opção inválida.")
-            return
-
-        selected_folder = folders[int(choice) - 1]
         base_path = os.path.join(downloads_path, selected_folder)
+        set_log_folder(base_path)
         submissions_folder = os.path.join(base_path, "submissions")
+
+        if not os.path.exists(submissions_folder):
+            print(f"Pasta '{submissions_folder}' não encontrada.")
+            return
 
         if not os.path.exists(submissions_folder):
             print(f"Pasta '{submissions_folder}' não encontrada.")

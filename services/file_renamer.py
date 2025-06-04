@@ -6,7 +6,7 @@ from core.models.student_submission import save_students_to_json, load_students_
 
 def verification_renamed(message):
     try:
-        os.makedirs("output", exist_ok=True)  # garante que a pasta exista
+        os.makedirs("output", exist_ok=True) 
         file_path = os.path.join("output", "check_rename.txt")
         with open(file_path, "a", encoding="utf-8") as renamed_verification:
             renamed_verification.write(f"{message}\n")
