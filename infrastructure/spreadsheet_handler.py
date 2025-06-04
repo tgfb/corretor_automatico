@@ -167,13 +167,13 @@ def freeze_and_sort(worksheet):
                     "sortRange": {
                         "range": {
                             "sheetId": sheet_id,
-                            "startRowIndex": 1,
+                            "startRowIndex": 3,  
                             "startColumnIndex": 0,
                             "endColumnIndex": num_columns
                         },
                         "sortSpecs": [
                             {
-                                "dimensionIndex": 2, 
+                                "dimensionIndex": 2,  
                                 "sortOrder": "ASCENDING"
                             }
                         ]

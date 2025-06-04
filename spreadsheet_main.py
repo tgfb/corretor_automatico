@@ -83,10 +83,10 @@ def main():
             header_ok = header_worksheet(worksheet, class_name, list_title, num_questions, score)
 
             if header_ok:
-                freeze_and_sort(worksheet)
                 insert_header_title(worksheet, score, num_questions)
                 fill_worksheet_with_students(worksheet, students, num_questions)
                 apply_dynamic_formula_in_column(worksheet, num_questions)
+                freeze_and_sort(worksheet)
             else:
                 log_error("Erro ao configurar cabeçalho. Dados dos alunos não foram enviados.")
             
