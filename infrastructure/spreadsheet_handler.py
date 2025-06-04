@@ -145,12 +145,17 @@ def insert_header_title(worksheet, score_dict, num_questions):
 def freeze_and_sort(worksheet):
     try:
         spreadsheet = worksheet.spreadsheet
+        sheet_id = worksheet.id
+
+        data = worksheet.get_all_values()
+        num_columns = len(data[0]) if data else 0
+
         spreadsheet.batch_update({
             "requests": [
                 {
                     "updateSheetProperties": {
                         "properties": {
-                            "sheetId": worksheet.id,
+                            "sheetId": sheet_id,
                             "gridProperties": {
                                 "frozenRowCount": 2
                             }
@@ -161,12 +166,14 @@ def freeze_and_sort(worksheet):
                 {
                     "sortRange": {
                         "range": {
-                            "sheetId": worksheet.id,
-                            "startRowIndex": 1
+                            "sheetId": sheet_id,
+                            "startRowIndex": 1,
+                            "startColumnIndex": 0,
+                            "endColumnIndex": num_columns
                         },
                         "sortSpecs": [
                             {
-                                "dimensionIndex": 2,
+                                "dimensionIndex": 2, 
                                 "sortOrder": "ASCENDING"
                             }
                         ]
