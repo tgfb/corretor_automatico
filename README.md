@@ -45,3 +45,17 @@ Execute o script via linha de comando:
 ```bash
 python3 corretor_automatico.py 
 ```
+
+### Executar o `main` que utiliza o JPlag
+
+Para executar o `main` que utiliza o JPlag, siga os passos abaixo:
+
+1. Faça o download do arquivo `plag-6.1.0-jar-with-dependencies.jar` na página oficial do JPlag:  
+   [https://github.com/jplag/JPlag/releases](https://github.com/jplag/JPlag/releases)
+
+2. Mova o arquivo baixado para a pasta `infrastructure/externaltools` do projeto.
+
+3. Execute o script principal com o comando:
+
+   ```bash
+   python main.py
