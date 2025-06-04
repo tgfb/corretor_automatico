@@ -3,6 +3,8 @@ import re
 import shutil
 from datetime import datetime
 
+FOLDER_PATH = None
+
 def read_id_from_file(filename):
     try:
         with open(filename, 'r') as file:
@@ -79,39 +81,23 @@ def log_error(message):
         pass
 
 def log_info(message):
+    global FOLDER_PATH
     try:
-        os.makedirs("output", exist_ok=True)
-        log_path = os.path.join("output", "output_log.txt")
+        base_folder = FOLDER_PATH if FOLDER_PATH else "output"
+        
+        os.makedirs(base_folder, exist_ok=True)
+        log_path = os.path.join(base_folder, "output_log.txt")
 
         with open(log_path, "a", encoding="utf-8") as file:
             file.write(f"{message}\n")
-    except Exception:
-        log_error(f"Erro ao escrever log de info: {message}")
-
-def move_logs_to_base(base_path):
-    try:
-        src_output_dir = "output"
-        dest_output_dir = os.path.join(base_path, "output")
-        os.makedirs(dest_output_dir, exist_ok=True)
-
-        for log_filename in ["output_log.txt", "check_rename.txt", "email_differences.txt", "not_found_emails_100_or_0.txt"]:
-            src_file = os.path.join(src_output_dir, log_filename)
-            if os.path.exists(src_file):
-                shutil.move(src_file, os.path.join(dest_output_dir, log_filename))
-
     except Exception as e:
-        print(f"Erro ao mover os arquivos de log: {e}")
+        print(f"Erro ao escrever log: {message} - {str(e)}")
+
+def set_log_folder(base_path):
+    global FOLDER_PATH
+    FOLDER_PATH = os.path.join(base_path, "output") 
 
 def extract_turma_name(classroom_name):
     match = re.search(r'TURMA\s*[A-Z]', classroom_name)
     return match.group().replace(" ", "_") if match else classroom_name
 
-def get_latest_lista_folder(downloads_dir="Downloads"):
-    folders = [
-        f for f in os.listdir(downloads_dir)
-        if os.path.isdir(os.path.join(downloads_dir, f)) and f.upper().startswith("LISTA")
-    ]
-    if not folders:
-        return None
-    folders.sort(reverse=True)
-    return os.path.join(downloads_dir, folders[0])
