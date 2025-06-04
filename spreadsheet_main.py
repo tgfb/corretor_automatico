@@ -1,6 +1,4 @@
 import os
-from googleapiclient.discovery import build
-from infrastructure.auth_google import get_credentials, get_gspread_client
 from infrastructure.spreadsheet_handler import (
     header_worksheet,
     insert_header_title,
@@ -11,7 +9,7 @@ from infrastructure.spreadsheet_handler import (
     apply_dynamic_formula_in_column
 )
 from core.models.student_submission import load_students_from_json
-from utils.utils import log_error, log_info, read_id_from_file
+from utils.utils import log_error, read_id_from_file
 from core.models.list_metadata import ListMetadata
 
 
@@ -28,16 +26,28 @@ def main():
         folders = folders[::-1]
 
         print("\nEscolha a lista que deseja criar a planilha:")
-        for idx, folder in enumerate(folders):
-            print(f"{idx + 1} - {folder}")
+        for index, folder in enumerate(folders):
+            print(f"{index} - {folder}")
+        print(f"{len(folders)} - Sair")
 
-        choice = input("\n\nDigite o número da lista: ").strip()
-        if not choice.isdigit() or not (1 <= int(choice) <= len(folders)):
-            print("Opção inválida.")
-            return
+        choice = input("\nDigite o número da lista: ").strip()
+        if not choice.isdigit():
+            print("Opção inválida.\n")
+            return 
 
-        selected_folder = folders[int(choice) - 1]
-        downloads_path = os.path.join(downloads_root, selected_folder)
+        choice = int(choice)
+
+        if choice == len(folders):
+            print("Saindo da seleção.\n")
+            return 
+
+        if 0 <= choice < len(folders):
+            selected_folder = folders[choice]
+            downloads_path = os.path.join(downloads_root, selected_folder)    
+        else:
+            print("Opção inválida.\n")
+            return 
+        
         turmas = ["A", "B"]
 
         folder_id = read_id_from_file(os.path.join("input", "folder_id.txt"))

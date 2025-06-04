@@ -6,7 +6,7 @@ def check_error_log(error_log_path):
     return os.path.exists(error_log_path)
 
 def run_script(script_name, error_log_path):
-    print(f"\n==> Executando {script_name}...")
+    print(f"\nExecutando {script_name}...")
     subprocess.run(["python", script_name])
     if check_error_log(error_log_path):
         print(f"\nErro detectado após {script_name}.")
