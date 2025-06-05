@@ -37,42 +37,29 @@ def read_id_from_file_beecrowd(filename, list_name, classroom_name):
     try:
         with open(filename, 'r') as file:
             sheet_ids = file.readlines()
-        
-        matched_ids = []
-        
+
+        normalized_list_name = re.sub(r'[\s_]', '', list_name).upper()  
+        turma = extract_turma_name(classroom_name)  
+        normalized_classroom_name = turma.replace(" ", "_").upper()   
+
         for sheet_id in sheet_ids:
             sheet_id = sheet_id.strip()
-            
             sheet_title = get_sheet_title(sheet_id)
-            
+
             if not sheet_title:
                 log_info(f"Ignorando planilha {sheet_id}, pois não foi possível obter o título.")
                 continue
-            
-            parts = sheet_title.split('_')
-            if len(parts) < 2:
-                log_info(f"Título inesperado: {sheet_title}. Pulando...")
-                continue
-            
-            list_part = parts[0]
-            class_part = '_'.join(parts[1:]) 
-            
-            match = re.search(r'TURMA_[A-Z]', class_part)
-            if match:
-                class_part = match.group()
-            
-            normalized_list_name = list_name.replace(" ", "").upper()
-            normalized_classroom_name = extract_turma_name(classroom_name).replace(" ", "").upper()
-            
-            if list_part.upper() == normalized_list_name and class_part.upper() == normalized_classroom_name:
-                matched_ids.append(sheet_id)
+
+            normalized_title = re.sub(r'[\s_]', '', sheet_title).upper()
+            log_info(f"Verificando título: {normalized_title}")
+
+            if normalized_list_name in normalized_title and normalized_classroom_name in sheet_title.upper():
+                log_info(f"Correspondência encontrada: {sheet_title}")
                 return sheet_id
-        
-        if matched_ids:
-            return matched_ids
-        
+
         print(f"Não foi encontrado o sheet id da planilha do Beecrowd da {list_name}, da {classroom_name}.")
         return None
+
     except FileNotFoundError:
         log_info(f"Arquivo {filename} não encontrado.")
         return None
