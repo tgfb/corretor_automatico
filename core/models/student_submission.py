@@ -51,9 +51,8 @@ def save_students_to_json(student_list, path):
         data = []
         for student in student_list:
             d = asdict(student)
-            # Evita aninhamento de dicionário 
             q_flat = d.pop("questions", {})
-            d.update(q_flat)  # Junta q1, q2, ...
+            d.update(q_flat) 
             data.append(d)
 
         with open(path, 'w', encoding='utf-8') as file:
