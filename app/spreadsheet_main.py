@@ -23,7 +23,8 @@ def main():
         selected_folder = sys.argv[1] 
 
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        downloads_root = os.path.join(script_dir, "Downloads")
+        project_root = os.path.dirname(script_dir)  
+        downloads_root = os.path.join(project_root, "Downloads")
         downloads_path = os.path.join(downloads_root, selected_folder)
         set_log_folder(downloads_path)
 
