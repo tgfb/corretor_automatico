@@ -80,7 +80,7 @@ def header_worksheet(worksheet, class_name, list_title, num_questions, score_dic
 
         headers = ["NOME DO ALUNO", "EMAIL", "STUDENT LOGIN"] + \
                   [f"QUESTÃO {i+1}" for i in range(num_questions)] + \
-                  ["ENTREGA?", "ATRASO?", "FORMATAÇÃO?", "CÓPIA?", "REQUISITO?", "NOTA TOTAL", "COMENTÁRIO"]
+                  ["ENTREGA?", "ATRASO?", "FORMATAÇÃO?", "CÓPIA?", "NOTA TOTAL", "COMENTÁRIO"]
         worksheet.insert_row(headers, index=2)
 
         log_info("Título, cabeçalho adicionados com sucesso.")
@@ -195,19 +195,18 @@ def apply_dynamic_formula_in_column(worksheet, num_questions):
             if row[0]:  
                 last_filled_row = row_idx
 
-        column_final_grades = 8 + num_questions
+        column_final_grades = 7 + num_questions
 
-        columns_to_sum = ['D', 'E', 'F', 'G', 'H'][:num_questions]
+        columns_to_sum = ['D', 'E', 'F', 'G'][:num_questions]
         col_delay = chr(ord('E') + num_questions)
         col_form = chr(ord('F') + num_questions)
         col_copy = chr(ord('G') + num_questions)
-        col_req = chr(ord('H') + num_questions)
 
         for row_idx in range(3, last_filled_row + 1):
             try:
                 sum_formula = '+'.join([f"{col}{row_idx + 1}" for col in columns_to_sum])
                 
-                formula = f"=({sum_formula}) * (1 - (0.15*{col_delay}{row_idx + 1}) - (0.15*{col_form}{row_idx + 1})) * (1 - {col_copy}{row_idx+1}) * (1 - {col_req}{row_idx+1})"
+                formula = f"=({sum_formula}) * (1 - (0.15*{col_delay}{row_idx + 1}) - (0.15*{col_form}{row_idx + 1})) * (1 - {col_copy}{row_idx+1})"
 
                 requests.append({
                     'updateCells': {

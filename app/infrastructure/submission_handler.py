@@ -97,7 +97,6 @@ def download_submissions(classroom_service, drive_service, submissions, download
                 atrasou = 0
                 formatacao = 1
                 copia = 0
-                requisitos = 0
                 state = submission.get('state', 'UNKNOWN')
 
                 log_info(f"\nHistórico de submissão: {submission.get('submissionHistory', [])}")
@@ -113,8 +112,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                     entregou = entregou,
                     atrasou = atrasou,
                     formatacao = formatacao,
-                    copia = copia,
-                    requisitos = requisitos
+                    copia = copia
                 )
 
                 if not attachments:
