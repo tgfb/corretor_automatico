@@ -122,7 +122,7 @@ def main():
 
         integrate_renaming(turma_folders, list_title, questions_data)
 
-        final_submissions_folder = os.path.join(script_dir, "Downloads", formatted_list, "submissions")
+        final_submissions_folder = os.path.join(project_root, "Downloads", formatted_list, "submissions")
         os.makedirs(final_submissions_folder, exist_ok=True)
 
         for zips_folder in turma_folders:
@@ -138,7 +138,7 @@ def main():
 
         print("\nSubmissões unificadas em:", final_submissions_folder)
 
-        final_base_path = os.path.abspath(os.path.join("Downloads", formatted_list))
+        final_base_path = os.path.abspath(os.path.join(project_root, "Downloads", formatted_list))
         log_small_submissions(final_submissions_folder, num_questions, final_base_path)
         
 

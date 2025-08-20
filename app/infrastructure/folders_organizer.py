@@ -3,6 +3,7 @@ import shutil
 import zipfile
 import rarfile
 from utils.utils import log_info, log_error
+from utils.permission_utils import relax_permissions_for_delete, _onerror_chmod_then_retry, safe_move
 from core.models.student_submission import StudentSubmission
 
 def is_real_zip(file_path):
@@ -54,7 +55,8 @@ def extract_rar(student_login, rar_file_path, extraction_path, student_obj):
 def move_file(source, destination):
     try:
         try:
-            shutil.move(source, destination)
+            safe_move(source, os.path.dirname(destination))
+            #shutil.move(source, destination)
         except shutil.Error as e:
             log_info(f"Erro ao mover arquivo: {e}")
     except Exception as e:
@@ -237,6 +239,7 @@ def if_there_is_a_folder_inside(students, submissions_folder):
             folder_name = student.login
             folder_path = os.path.join(submissions_folder, folder_name)
             if os.path.isdir(folder_path) and not folder_name.startswith('.'):
+                relax_permissions_for_delete(folder_path) 
                 move_files_to_inicial_folder(folder_path, folder_name, student)
 
     except Exception as e:
@@ -244,15 +247,24 @@ def if_there_is_a_folder_inside(students, submissions_folder):
 
 def delete_subfolders_in_student_folders(submissions_folder):
     try:
+        if not os.path.isdir(submissions_folder):
+            return
+
         for student_folder in os.listdir(submissions_folder):
+            if student_folder.startswith('.'):
+                continue
+
             student_folder_path = os.path.join(submissions_folder, student_folder)
+            if not os.path.isdir(student_folder_path):
+                continue
 
-            if os.path.isdir(student_folder_path): 
-                for item in os.listdir(student_folder_path):
-                    item_path = os.path.join(student_folder_path, item)
+            relax_permissions_for_delete(student_folder_path)
 
-                    if os.path.isdir(item_path): 
-                        shutil.rmtree(item_path)
+            for item in os.listdir(student_folder_path):
+                item_path = os.path.join(student_folder_path, item)
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path, onerror=_onerror_chmod_then_retry)
+
     except Exception as e:
         log_error(f"Erro ao deletar pastas dentro das pastas dos estudantes: {str(e)}")
 

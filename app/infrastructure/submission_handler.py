@@ -1,9 +1,11 @@
 import io
 import os
 import shutil
+import stat, subprocess
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 from core.models.student_submission import StudentSubmission
+from utils.permission_utils import relax_permissions, relax_permissions_for_delete, _onerror_chmod_then_retry
 from utils.utils import extract_prefix, get_submission_timestamp, calculate_delay, get_due_date, log_info, log_error
 
 def create_student_folder_if_needed(download_folder, student_login):
@@ -27,10 +29,12 @@ def rename_file_if_needed(file_name, student_folder, student_obj):
         student_obj.update_field('formatacao', 0)
         student_obj.add_comment(f"Erro de submissão. Enviou .rar ({file_name}) ao invés de .zip.")
         expected_name = f"{student_login}.rar"
+        relax_permissions(student_folder)
         if file_name != expected_name:
             corrected_path = os.path.join(student_folder, expected_name)
             shutil.move(file_path, corrected_path)
             student_obj.add_comment(f"Renomeado {file_name} para {expected_name}.")
+       
 
 def handle_attachment(file_id, file_name, student_folder, student_obj, drive_service):
     try:
@@ -57,7 +61,7 @@ def handle_attachment(file_id, file_name, student_folder, student_obj, drive_ser
             student_obj.update_field('entregou', 1)
             student_obj.add_comment("Erro de submissão: enviou arquivo(s), mas não enviou numa pasta compactada.")
 
-            student_folder = create_student_folder_if_needed(download_folder, student_login)
+            student_folder = create_student_folder_if_needed(student_folder, student_obj.login)
             new_path = os.path.join(student_folder, file_name)
             shutil.move(file_path, new_path)
             file_path = new_path 
