@@ -71,9 +71,10 @@ def main():
             
             
             formatted_class = f"turma{class_letter}"
+
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            base_path = os.path.join(script_dir, "Downloads", formatted_list)
-            #set_log_folder(base_path)
+            project_root = os.path.dirname(script_dir)  
+            base_path = os.path.join(project_root, "Downloads", formatted_list)
             utils.FOLDER_PATH = os.path.join(base_path, "output") 
             zips_folder = os.path.join(base_path, f"zips_{formatted_class}")
             submissions_folder = os.path.join(zips_folder, f"submissions_{formatted_class}")
