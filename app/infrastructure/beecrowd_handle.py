@@ -32,8 +32,55 @@ def update_final_grade_for_no_submission_json(json_path):
     except Exception as e:
         log_error(f"Erro ao processar o arquivo JSON {json_path}: {e}")
 
-
 def read_id_from_file_beecrowd(filename, list_name, classroom_name):
+    try:
+        with open(filename, 'r') as file:
+            sheet_ids = file.readlines()
+        
+        matched_ids = []
+        
+        for sheet_id in sheet_ids:
+            sheet_id = sheet_id.strip()
+            
+            sheet_title = get_sheet_title(sheet_id)
+            
+            if not sheet_title:
+                log_info(f"Ignorando planilha {sheet_id}, pois não foi possível obter o título.")
+                continue
+            
+            parts = sheet_title.split('_')
+            if len(parts) < 2:
+                log_info(f"Título inesperado: {sheet_title}. Pulando...")
+                continue
+            
+            list_part = parts[0]
+            class_part = '_'.join(parts[1:]) 
+            
+            match = re.search(r'TURMA_[A-Z]', class_part)
+            if match:
+                class_part = match.group()
+            
+            normalized_list_name = list_name.replace(" ", "").upper()
+            normalized_classroom_name = extract_turma_name(classroom_name).replace(" ", "").upper()
+            
+            if list_part.upper() == normalized_list_name and class_part.upper() == normalized_classroom_name:
+                matched_ids.append(sheet_id)
+                return sheet_id
+        
+        if matched_ids:
+            return matched_ids
+        
+        print(f"Não foi encontrado o sheet id da planilha do Beecrowd da {list_name}, da {classroom_name}.")
+        return None
+    except FileNotFoundError:
+        log_info(f"Arquivo {filename} não encontrado.")
+        return None
+    except Exception as e:
+        log_error(f"Erro ao ler o id da planilha do arquivo {filename}: {e}")
+        return None
+
+
+def read_id_from_file_beecrowd2(filename, list_name, classroom_name):
     try:
         with open(filename, 'r') as file:
             sheet_ids = file.readlines()
