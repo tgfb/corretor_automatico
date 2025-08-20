@@ -72,7 +72,7 @@ def list_classroom_data(service, semester, turma_type, saved_assignment_title=No
         list_title = selected["title"]
         list_name = list_title.split(" - ")[0] if " - " in list_title else list_title
 
-        log_info(f"Lista selecionada automaticamente: {list_title}")
+        print(f"Lista selecionada automaticamente: {list_title}")
         return classroom_id, coursework_id, classroom_name, list_name, list_title
 
     except HttpError as http_err:

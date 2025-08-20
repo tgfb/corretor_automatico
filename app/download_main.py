@@ -12,7 +12,7 @@ from infrastructure.classroom_gateway import list_classroom_data
 from utils.sheet_id_handler import semester_informations, list_questions
 from core.models.list_metadata import ListMetadata
 from infrastructure.folders_organizer import (organize_extracted_files, move_non_zip_files, if_there_is_a_folder_inside, delete_subfolders_in_student_folders, remove_empty_folders)
-from services.code_analyzer import log_small_submissions
+from services.code_analyzer import log_small_submissions, apply_small_files_penalties
 
 
 
@@ -35,7 +35,7 @@ def main():
 
         formatted_list = None
         script_dir = os.path.dirname(os.path.abspath(__file__))
-
+        students_paths = {}
         for class_letter in ["A", "B"]:
             turma_type = f"TURMA {class_letter}"
 
@@ -118,8 +118,9 @@ def main():
             metadata_path = os.path.join(base_path, f"metadata_turma{class_letter.upper()}.json")
             ListMetadata.update_language(metadata_path, language)
             save_students_to_json(student_list, students_path)
+            students_paths[class_letter] = students_path
             print("\nProcesso de verificação e renomeação finalizado.")
-
+            
         integrate_renaming(turma_folders, list_title, questions_data)
 
         final_submissions_folder = os.path.join(project_root, "Downloads", formatted_list, "submissions")
@@ -140,6 +141,9 @@ def main():
 
         final_base_path = os.path.abspath(os.path.join(project_root, "Downloads", formatted_list))
         log_small_submissions(final_submissions_folder, num_questions, final_base_path)
+        log_path = os.path.join(final_base_path, "output", "small_files.txt")
+        apply_small_files_penalties(log_path, students_paths["A"])
+        apply_small_files_penalties(log_path, students_paths["B"])
         
 
     except Exception as e:
