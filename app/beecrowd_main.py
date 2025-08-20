@@ -22,6 +22,9 @@ def main():
         project_root = os.path.dirname(script_dir) 
         downloads_root = os.path.join(project_root, "Downloads")
         downloads_path = os.path.join(downloads_root, selected_folder)
+
+        os.makedirs(downloads_path, exist_ok=True)  
+
         set_log_folder(downloads_path)
         
         if not os.path.exists(downloads_path):
@@ -55,7 +58,8 @@ def main():
             score = metadata.score
 
 
-            sheet_id = read_id_from_file_beecrowd("app/input/sheet_id_beecrowd.txt", list_name, class_name)
+            sheet_id_path = os.path.join(project_root, "app", "input", "sheet_id_beecrowd.txt")
+            sheet_id = read_id_from_file_beecrowd(sheet_id_path, list_name, class_name)
             if sheet_id is None:
                 continue
 

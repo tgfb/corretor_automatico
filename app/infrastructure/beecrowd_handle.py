@@ -2,11 +2,11 @@ import re
 import os
 import time
 import json
+import unicodedata
 from utils.utils import log_info, log_error
 import utils.utils as utils
 from infrastructure.auth_google import get_gspread_client, get_sheet_title
 from core.models.student_submission import StudentSubmission, save_students_to_json, load_students_from_json
-from utils.utils import  extract_turma_name
 
 def update_final_grade_for_no_submission_json(json_path):
     try:
@@ -32,75 +32,66 @@ def update_final_grade_for_no_submission_json(json_path):
     except Exception as e:
         log_error(f"Erro ao processar o arquivo JSON {json_path}: {e}")
 
+def normalize_token(s: str) -> str:
+    s = unicodedata.normalize('NFD', s)
+    s = ''.join(c for c in s if unicodedata.category(c) != 'Mn')
+    s = re.sub(r'[^A-Za-z0-9]+', '', s)
+    return s.upper()
+
+def extract_turma_letter(text: str) -> str:
+    m = re.search(r'TURMA\s*([A-Z])', text, re.IGNORECASE)
+    return m.group(1).upper() if m else ''
+
+def title_has_turma(title: str, letter: str) -> bool:
+    if not letter:
+        return True  
+    T = unicodedata.normalize('NFKD', title).encode('ASCII', 'ignore').decode().upper()
+
+    return (
+        re.search(rf'\bTURMA\s*{letter}\b', T) or
+        re.search(rf'\bTURMA{letter}\b', T) or
+        re.search(rf'_TURMA_{letter}\b', T) or
+        re.search(rf'^\s*{letter}\s*[-–—]\s*', T) or
+        re.search(rf'[-–—]\s*{letter}\s*[-–—]', T)
+    )
+
+def list_tokens(list_name: str):
+   
+    base = normalize_token(list_name)                
+    tokens = {base}
+
+    m = re.search(r'LISTA\s*0*([0-9]+)', list_name, re.IGNORECASE)
+    if m:
+        n = m.group(1).lstrip('0') or '0'
+        tokens.add(f'LISTA{n}')                        
+        tokens.add(f'LISTA{int(m.group(1)):02d}')      
+
+    return tokens
+
 def read_id_from_file_beecrowd(filename, list_name, classroom_name):
     try:
-        with open(filename, 'r') as file:
-            sheet_ids = file.readlines()
-        
-        matched_ids = []
-        
-        for sheet_id in sheet_ids:
-            sheet_id = sheet_id.strip()
-            
-            sheet_title = get_sheet_title(sheet_id)
-            
-            if not sheet_title:
-                log_info(f"Ignorando planilha {sheet_id}, pois não foi possível obter o título.")
-                continue
-            
-            parts = sheet_title.split('_')
-            if len(parts) < 2:
-                log_info(f"Título inesperado: {sheet_title}. Pulando...")
-                continue
-            
-            list_part = parts[0]
-            class_part = '_'.join(parts[1:]) 
-            
-            match = re.search(r'TURMA_[A-Z]', class_part)
-            if match:
-                class_part = match.group()
-            
-            normalized_list_name = list_name.replace(" ", "").upper()
-            normalized_classroom_name = extract_turma_name(classroom_name).replace(" ", "").upper()
-            
-            if list_part.upper() == normalized_list_name and class_part.upper() == normalized_classroom_name:
-                matched_ids.append(sheet_id)
-                return sheet_id
-        
-        if matched_ids:
-            return matched_ids
-        
-        print(f"Não foi encontrado o sheet id da planilha do Beecrowd da {list_name}, da {classroom_name}.")
-        return None
-    except FileNotFoundError:
-        log_info(f"Arquivo {filename} não encontrado.")
-        return None
-    except Exception as e:
-        log_error(f"Erro ao ler o id da planilha do arquivo {filename}: {e}")
-        return None
+        with open(filename, 'r', encoding='utf-8') as file:
+            sheet_ids = [line.strip() for line in file if line.strip()]
 
-
-def read_id_from_file_beecrowd2(filename, list_name, classroom_name):
-    try:
-        with open(filename, 'r') as file:
-            sheet_ids = file.readlines()
-
-        normalized_list_name = re.sub(r'[\s_]', '', list_name).upper()  
-        turma = extract_turma_name(classroom_name)  
-        normalized_classroom_name = turma.replace(" ", "_").upper()   
+        turma_letter = extract_turma_letter(classroom_name)  
+        list_name_tokens = list_tokens(list_name)            
 
         for sheet_id in sheet_ids:
-            sheet_id = sheet_id.strip()
             sheet_title = get_sheet_title(sheet_id)
-
             if not sheet_title:
                 log_info(f"Ignorando planilha {sheet_id}, pois não foi possível obter o título.")
                 continue
 
-            normalized_title = re.sub(r'[\s_]', '', sheet_title).upper()
-            log_info(f"Verificando título: {normalized_title}")
+            normalized_title = normalize_token(sheet_title)
 
-            if normalized_list_name in normalized_title and normalized_classroom_name in sheet_title.upper():
+            list_ok = any(token in normalized_title for token in list_name_tokens)
+            turma_ok = title_has_turma(sheet_title, turma_letter)
+
+            if not list_ok and 'LISTA' not in ''.join(list_name_tokens):
+                loose = normalize_token(list_name.replace('-', ' '))
+                list_ok = loose in normalized_title
+
+            if list_ok and turma_ok:
                 log_info(f"Correspondência encontrada: {sheet_title}")
                 return sheet_id
 
