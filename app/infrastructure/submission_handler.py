@@ -97,6 +97,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                 atrasou = 0
                 formatacao = 1
                 copia = 0
+                requisitos = 0
                 state = submission.get('state', 'UNKNOWN')
 
                 log_info(f"\nHistórico de submissão: {submission.get('submissionHistory', [])}")
@@ -105,19 +106,20 @@ def download_submissions(classroom_service, drive_service, submissions, download
                 log_info(f"Due date: {due_date}, Submission date: {submission_date}, State: {state}")
 
                 student_obj = StudentSubmission(
-                    name=student_name,
-                    email=student_email,
-                    login=student_login,
-                    questions={f"q{i+1}": "" for i in range(num_questions)},
-                    entregou=entregou,
-                    atrasou=atrasou,
-                    formatacao=formatacao,
-                    copia=copia
+                    name = student_name,
+                    email = student_email,
+                    login = student_login,
+                    questions = {f"q{i+1}": "" for i in range(num_questions)},
+                    entregou = entregou,
+                    atrasou = atrasou,
+                    formatacao = formatacao,
+                    copia = copia,
+                    requisitos = requisitos
                 )
 
                 if not attachments:
                     student_obj.update_field('entregou', 0)
-                    student_obj.add_comment("Erro de submissão. Não entregou a atividade.")
+                    student_obj.add_comment("Não entregou a atividade.")
                     log_info(f"{student_name} Aluno não entregou submissão.")
                 else:
                     if due_date and submission_date:

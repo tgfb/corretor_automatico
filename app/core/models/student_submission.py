@@ -12,6 +12,7 @@ class StudentSubmission:
     atrasou: int = 0
     formatacao: int = 0
     copia: int = 0
+    requisitos: int = 0
     nota_total: str = ''
     comentario: str = ''
      
@@ -19,7 +20,7 @@ class StudentSubmission:
         try:
             question_scores = [self.questions.get(f"q{i+1}", '') for i in range(num_questions)]
             return [self.name, self.email, self.login] + question_scores + [
-                self.entregou, self.atrasou, self.formatacao, self.copia, self.nota_total, self.comentario
+                self.entregou, self.atrasou, self.formatacao, self.copia, self.requisitos, self.nota_total, self.comentario
             ]
         except Exception as e:
             log_error(f"Erro ao converter student {self.login} para lista: {e}")

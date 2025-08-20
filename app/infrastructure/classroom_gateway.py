@@ -39,21 +39,21 @@ def list_classroom_data(service, semester, turma_type, saved_assignment_title=No
             if not selected:
                 print(f"A lista '{saved_assignment_title}' não foi encontrada.\n")
                 return None, None, None, None, None
-        else:
-            print("\nEscolha a lista de exercícios:")
-            for index, assignment in enumerate(valid_assignments):
-                print(f"{index} - {assignment['title']}")
-            print(f"{len(valid_assignments)} - Sair")
+        # else:
+        #     print("\nEscolha a lista de exercícios:")
+        #     for index, assignment in enumerate(valid_assignments):
+        #         print(f"{index} - {assignment['title']}")
+        #     print(f"{len(valid_assignments)} - Sair")
 
-            choice = int(input("\nDigite o número da lista: ").strip())
-            if choice == len(valid_assignments):
-                print("Saindo da seleção.\n")
-                return None, None, None, None, None
-            if 0 <= choice < len(valid_assignments):
-                selected = valid_assignments[choice]
-            else:
-                print("Opção inválida.\n")
-                return None, None, None, None, None
+        #     choice = int(input("\nDigite o número da lista: ").strip())
+        #     if choice == len(valid_assignments):
+        #         print("Saindo da seleção.\n")
+        #         return None, None, None, None, None
+        #     if 0 <= choice < len(valid_assignments):
+        #         selected = valid_assignments[choice]
+        #     else:
+        #         print("Opção inválida.\n")
+        #         return None, None, None, None, None
 
         coursework_id = selected["id"]
         list_title = selected["title"]
