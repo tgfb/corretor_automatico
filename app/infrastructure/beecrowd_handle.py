@@ -105,7 +105,6 @@ def read_id_from_file_beecrowd(filename, list_name, classroom_name):
         log_error(f"Erro ao ler o id da planilha do arquivo {filename}: {e}")
         return None
     
-
 def update_grades_json(sheet_id1, student_json_path, score, classroom_name):
     try:
         client = get_gspread_client()
@@ -160,7 +159,6 @@ def update_grades_json(sheet_id1, student_json_path, score, classroom_name):
 
     except Exception as e:
         log_error(f"Erro ao atualizar JSON com notas do Beecrowd: {e}")
-
 
 def save_not_found_emails(not_found_emails, classroom_name, filename="not_found_emails_100_or_0.txt"):
     if not_found_emails:
