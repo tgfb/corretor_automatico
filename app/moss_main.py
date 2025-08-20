@@ -14,7 +14,8 @@ def moss_main():
         selected_folder = sys.argv[1]
 
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        downloads_path = os.path.join(script_dir, "Downloads")
+        project_root = os.path.dirname(script_dir) 
+        downloads_path = os.path.join(project_root, "Downloads")
         base_path = os.path.join(downloads_path, selected_folder)
         set_log_folder(base_path)
         submissions_folder = os.path.join(base_path, "submissions")

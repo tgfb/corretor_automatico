@@ -29,9 +29,9 @@ class StudentSubmission:
         try:
             if text and text not in self.comentario:
                 if self.comentario:
-                    self.comentario += f" {text}"
+                    self.comentario += f"\n- {text}"
                 else:
-                    self.comentario = text
+                    self.comentario = f"- {text}"
         except Exception as e:
             log_error(f"Erro ao adicionar comentário para {self.login}: {e}")
 
