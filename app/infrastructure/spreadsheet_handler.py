@@ -247,3 +247,89 @@ def fill_worksheet_with_students(worksheet, students, num_questions):
         log_info(f"{len(rows)} alunos inseridos na planilha com sucesso (linha 4 em diante).")
     except Exception as e:
         log_error(f"Erro ao preencher a planilha com alunos em batch: {e}")
+
+def align_middle_entire_sheet(worksheet):
+
+    try:
+        spreadsheet = worksheet.spreadsheet
+        sheet_id = worksheet.id
+        end_row = worksheet.row_count
+        end_col = worksheet.col_count
+
+        spreadsheet.batch_update({
+            "requests": [
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": 0,
+                            "startColumnIndex": 0,
+                            "endRowIndex": end_row,
+                            "endColumnIndex": end_col
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "verticalAlignment": "MIDDLE",
+
+                            }
+                        },
+                        "fields": "userEnteredFormat.verticalAlignment"
+                    }
+                }
+            ]
+        })
+        log_info("Alinhamento vertical 'Middle' aplicado à planilha inteira.")
+    except Exception as e:
+        log_error(f"Erro ao aplicar alinhamento vertical 'Middle': {e}")
+
+def align_and_resize(worksheet):
+
+    try:
+        spreadsheet = worksheet.spreadsheet
+        sheet_id = worksheet.id
+
+        data = worksheet.get_all_values()
+        if not data or not data[0]:
+            log_info("Planilha vazia, nada para alinhar/redimensionar.")
+            return
+
+        num_columns = len(data[0])
+        end_col = max(1, num_columns - 1) 
+        end_row = worksheet.row_count
+
+        requests = []
+
+        for col in range(3):
+            requests.append({
+                "autoResizeDimensions": {
+                    "dimensions": {
+                        "sheetId": sheet_id,
+                        "dimension": "COLUMNS",
+                        "startIndex": col,
+                        "endIndex": col + 1
+                    }
+                }
+            })
+
+        requests.append({
+            "repeatCell": {
+                "range": {
+                    "sheetId": sheet_id,
+                    "startRowIndex": 0,
+                    "endRowIndex": end_row,
+                    "startColumnIndex": 1,        
+                    "endColumnIndex": end_col     
+                },
+                "cell": {
+                    "userEnteredFormat": {
+                        "horizontalAlignment": "CENTER"
+                    }
+                },
+                "fields": "userEnteredFormat.horizontalAlignment"
+            }
+        })
+
+        spreadsheet.batch_update({"requests": requests})
+        log_info("Auto-resize aplicado nas colunas 1-3 e alinhamento aplicado da coluna 2 até penúltima.")
+    except Exception as e:
+        log_error(f"Erro ao aplicar alinhamento/redimensionamento: {e}")
