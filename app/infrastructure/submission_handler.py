@@ -129,7 +129,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
                         handle_attachment(file_id, file_name, download_folder, student_obj, drive_service)
 
             except Exception as e:
-                log_error(f"Erro ao processar submissão de aluno: {e}")
+                log_error(f"Erro ao processar submissão de aluno: {student_name} ({getattr(student_obj, 'email', 'sem email')}): {e}")
                 student_obj.update_field('entregou', 0)
                 student_obj.add_comment("Erro ao processar submissão.")
                 log_info(f"Nenhum anexo encontrado para {student_name}")
