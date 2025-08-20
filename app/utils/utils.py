@@ -19,7 +19,7 @@ def format_list_title(list_title):
     match = re.search(r'LISTA\s*(\d+)', list_title.upper())
     if match:
         return f"LISTA {match.group(1).zfill(2)}"
-    return "lista"
+    return list_title
 
 def extract_prefix(email):
     try:

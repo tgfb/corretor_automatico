@@ -54,7 +54,7 @@ def main():
             score = metadata.score
 
 
-            sheet_id = read_id_from_file_beecrowd("input/sheet_id_beecrowd.txt", list_name, class_name)
+            sheet_id = read_id_from_file_beecrowd("app/input/sheet_id_beecrowd.txt", list_name, class_name)
             if sheet_id is None:
                 continue
 
