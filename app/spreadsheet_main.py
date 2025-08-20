@@ -7,7 +7,9 @@ from infrastructure.spreadsheet_handler import (
     freeze_and_sort,
     get_google_sheet_if_exists,
     create_google_sheet_and_worksheet,
-    apply_dynamic_formula_in_column
+    apply_dynamic_formula_in_column,
+    align_and_resize,
+    align_middle_entire_sheet
 )
 from core.models.student_submission import load_students_from_json
 from utils.utils import log_error, read_id_from_file, set_log_folder
@@ -88,6 +90,8 @@ def main():
                 fill_worksheet_with_students(worksheet, students, num_questions)
                 apply_dynamic_formula_in_column(worksheet, num_questions)
                 freeze_and_sort(worksheet)
+                align_and_resize(worksheet)
+                align_middle_entire_sheet(worksheet)
             else:
                 log_error("Erro ao configurar cabeçalho. Dados dos alunos não foram enviados.")
             
