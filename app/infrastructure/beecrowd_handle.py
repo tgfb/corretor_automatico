@@ -32,6 +32,7 @@ def update_final_grade_for_no_submission_json(json_path):
     except Exception as e:
         log_error(f"Erro ao processar o arquivo JSON {json_path}: {e}")
 
+
 def normalize_token(s: str) -> str:
     s = unicodedata.normalize('NFD', s)
     s = ''.join(c for c in s if unicodedata.category(c) != 'Mn')
@@ -191,6 +192,18 @@ def compare_emails(sheet_id_beecrowd, student_json_path, classroom_name):
         only_in_beecrowd = emails_beecrowd - emails_json
         only_in_json = emails_json - emails_beecrowd
 
+        students_objs = load_students_from_json(student_json_path)
+        updated_count = 0
+
+        for student in students_objs:
+            email_lower = (student.email or "").strip().lower()
+            if email_lower in only_in_json:
+                student.add_comment("Aluno não está no Beecrowd.")
+                updated_count += 1
+
+        if updated_count > 0:
+            save_students_to_json(students_objs, student_json_path)
+
         base_folder = utils.FOLDER_PATH if utils.FOLDER_PATH else "output"
         output_folder = os.path.join(base_folder, "output") if not base_folder.endswith("output") else base_folder
 
@@ -203,7 +216,7 @@ def compare_emails(sheet_id_beecrowd, student_json_path, classroom_name):
             for email in sorted(only_in_beecrowd):
                 file.write(f"{email}\n")
 
-            file.write("\nClassroom (JSON)\n")
+            file.write("\nClassroom \n")
             for email in sorted(only_in_json):
                 file.write(f"{email}\n")
 
@@ -233,7 +246,9 @@ def fill_scores_for_students_json(json_path, num_questions, score=None):
             if num_questions is not None:
                 if final_score == score_sum:
                     for i in range(num_questions):
-                        student.update_field(f'q{i+1}', score_values.get(f'q{i+1}', 0))
+                        question_key = f'q{i+1}'
+                        if student.questions.get(question_key) != 0:
+                            student.update_field(question_key, score_values.get(question_key, 0))
                 elif final_score == 0:
                     for i in range(num_questions):
                         student.update_field(f'q{i+1}', 0)
@@ -245,3 +260,4 @@ def fill_scores_for_students_json(json_path, num_questions, score=None):
 
     except Exception as e:
         log_error(f"Erro ao preencher pontuações no JSON: {e}")
+    
