@@ -136,3 +136,15 @@ def extract_turma_name(classroom_name):
     match = re.search(r'TURMA\s*[A-Z]', classroom_name)
     return match.group().replace(" ", "_") if match else classroom_name
 
+
+def extract_turma_key(class_name, fallback_letter = None):
+ 
+    if not class_name:
+        return f"TURMA {fallback_letter}" if fallback_letter else None
+
+    up_class = class_name.upper()
+    m = re.search(r"\bTURMA\s+([A-Z])\b", up_class)
+    if m:
+        return f"TURMA {m.group(1)}"
+    return f"TURMA {fallback_letter}" if fallback_letter else None
+
