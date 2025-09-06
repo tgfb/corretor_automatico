@@ -5,7 +5,7 @@ import stat, subprocess
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 from core.models.student_submission import StudentSubmission
-from utils.permission_utils import relax_permissions, relax_permissions_for_delete, _onerror_chmod_then_retry
+from utils.permission_utils import relax_permissions
 from utils.utils import extract_prefix, get_submission_timestamp, calculate_delay, get_due_date, log_info, log_error
 
 def create_student_folder_if_needed(download_folder, student_login):

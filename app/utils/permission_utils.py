@@ -86,3 +86,15 @@ def safe_move(src: str, dst_dir: str):
         relax_permissions_for_delete(os.path.dirname(src))
         relax_permissions_for_delete(dst_dir)
         _retry(shutil.move, src, dst)
+
+
+def _onerror_chmod_then_retry(func, path, excinfo):
+
+    try:
+        if os.path.isdir(path):
+            os.chmod(path, stat.S_IWRITE | stat.S_IREAD | stat.S_IEXEC)  # 0o700
+        else:
+            os.chmod(path, stat.S_IWRITE | stat.S_IREAD)  # 0o600
+        func(path)
+    except Exception:
+        pass
