@@ -93,7 +93,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
 
                 entregou = 1
                 atrasou = 0
-                formatacao = 1
+                formatacao = 0
                 copia = 0
                 state = submission.get('state', 'UNKNOWN')
 

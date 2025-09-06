@@ -150,21 +150,18 @@ def no_c_files_in_directory(submissions_folder, students):
                 if file_name.lower() in ['makefile', 'main', 'main-debug']:
                     log_info(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
-                    student.update_field('formatacao', 0)
                     student.add_comment(f"Erro de formatação: deletado arquivo não permitido: {file_name}")
                     continue
 
                 if file_extension == '.C':
                     new_file_path = os.path.join(root, file_name + '.c')
                     os.rename(file_path, new_file_path)
-                    student.update_field('formatacao', 0)
                     student.add_comment(f"Erro de formatação: renomeado arquivo: de {file_path} para {new_file_path}")
                 
                 if file_extension == '.cpp':
                             new_file_path = os.path.join(root, file_name + '.c')
                             log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                             os.rename(file_path, new_file_path)
-                            student.update_field('formatacao', 0)
                             student.add_comment(f"Erro de formatação: renomeado arquivo: {file_path} para {new_file_path}")
 
                 elif file_extension != '.c':
@@ -173,12 +170,10 @@ def no_c_files_in_directory(submissions_folder, students):
                         new_file_path = os.path.join(root, base_name + '.c')
                         log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                         os.rename(file_path, new_file_path)
-                        student.update_field('formatacao', 0)
                         student.add_comment(f"Erro de formatação: renomeado arquivo: {file_path} para {new_file_path}")
                     else:    
                         log_info(f"Deletando arquivo: {file_path}")
                         os.remove(file_path)
-                        student.update_field('formatacao', 0)
                         student.add_comment(f"Erro de formatação: deletado arquivo inválido: {file_path}")
                     
     except Exception as e:
@@ -204,14 +199,12 @@ def no_hs_files_in_directory(submissions_folder, students):
                 if file_name.lower() in ['makefile', 'main', 'main-debug']:
                     log_info(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
-                    student.update_field('formatacao', 0)
                     student.add_comment(f"Erro de formatação: deletado arquivo não permitido: {file_name}")
                     continue
                 
                 if file_extension == '.HS':
                     new_file_path = os.path.join(root, file_name + '.hs')
                     os.rename(file_path, new_file_path)
-                    student.update_field('formatacao', 0)
                     student.add_comment(f"Erro de formatação: renomeado arquivo: {file_path}")
 
                 elif file_extension != '.hs':
@@ -220,12 +213,10 @@ def no_hs_files_in_directory(submissions_folder, students):
                         new_file_path = os.path.join(root, base_name + '.hs')
                         log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
                         os.rename(file_path, new_file_path)
-                        student.update_field('formatacao', 0)
                         student.add_comment(f"Erro de formatação: renomeado arquivo: {file_path} para {new_file_path}")                        
                     else:
                         log_info(f"Deletando arquivo: {file_path}")
                         os.remove(file_path)
-                        student.update_field('formatacao', 0)
                         student.add_comment(f"Erro de formatação: deletado arquivo inválido: {file_name}")
     except Exception as e:
         log_error(f"Erro no metodo no hs files no diretorio {str(e)}")                    
