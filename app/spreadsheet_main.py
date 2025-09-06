@@ -34,7 +34,7 @@ def main():
             print(f"A pasta '{downloads_path}' não foi encontrada.")
             return
         
-        turmas = get_available_turmas_from_folder(downloads_path) or ["A", "B"]]
+        turmas = get_available_turmas_from_folder(downloads_path) or ["A", "B"]
 
         folder_id = read_id_from_file(os.path.join("input", "folder_id.txt"))
         if not folder_id:
