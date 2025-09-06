@@ -55,8 +55,8 @@ def extract_rar(student_login, rar_file_path, extraction_path, student_obj):
 def move_file(source, destination):
     try:
         try:
-            safe_move(source, os.path.dirname(destination))
-            #shutil.move(source, destination)
+            #safe_move(source, os.path.dirname(destination))
+            shutil.move(source, destination)
         except shutil.Error as e:
             log_info(f"Erro ao mover arquivo: {e}")
     except Exception as e:
