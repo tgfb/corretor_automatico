@@ -20,13 +20,11 @@ def rename_file_if_needed(file_name, student_folder, student_obj):
     if file_name.endswith('.zip'):
         expected_name = f"{student_login}.zip"
         if file_name != expected_name:
-            student_obj.update_field('formatacao', 0)
             student_obj.add_comment(f"Erro de submissão. Nome do zip incorreto: {file_name}.")
             corrected_path = os.path.join(student_folder, expected_name)
             shutil.move(file_path, corrected_path)
 
     elif file_name.endswith('.rar'):
-        student_obj.update_field('formatacao', 0)
         student_obj.add_comment(f"Erro de submissão. Enviou .rar ({file_name}) ao invés de .zip.")
         expected_name = f"{student_login}.rar"
         relax_permissions(student_folder)
