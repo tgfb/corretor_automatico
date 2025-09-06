@@ -39,7 +39,7 @@ def get_available_turma_letters(service, semester, course_name_filter="PIF"):
         if not found:
             print(f"Nenhuma turma encontrada para {semester}.\n")
         else:
-            log_info(f"Turmas encontradas no semestre {semester}: {', '.join(found)}")
+            print(f"Turmas encontradas no semestre {semester}: {', '.join(found)}")
         return found
     except Exception:
         return ["A", "B"]
