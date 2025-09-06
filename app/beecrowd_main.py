@@ -1,6 +1,6 @@
 import os
 import sys
-from utils.utils import log_error, set_log_folder
+from utils.utils import log_error, set_log_folder, get_available_turmas_from_folder
 from core.models.list_metadata import ListMetadata
 from infrastructure.beecrowd_handle import (
     read_id_from_file_beecrowd,
@@ -31,7 +31,7 @@ def main():
             print(f"A pasta '{downloads_path}' não foi encontrada.")
             return
         
-        turmas = ["A", "B"]
+        turmas = get_available_turmas_from_folder(downloads_path) or ["A", "B"]
 
         for turma in turmas:
             students_path = os.path.join(downloads_path, f"students_turma{turma}.json")

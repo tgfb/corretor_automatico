@@ -2,11 +2,11 @@ import os
 import re
 import shutil
 from googleapiclient.discovery import build
-import utils.utils as utils
+import utils.utils as utils 
 from core.models.student_submission import StudentSubmission, save_students_to_json, load_students_from_json
 from services.file_renamer import rename_files, integrate_renaming
 from infrastructure.submission_handler import download_submissions
-from utils.utils import log_error, format_list_title, read_id_from_file, log_info,FOLDER_PATH, set_log_folder
+from utils.utils import log_error, format_list_title, read_id_from_file, log_info, FOLDER_PATH, set_log_folder, get_available_turma_letters
 from infrastructure.auth_google import get_credentials, get_gspread_client
 from infrastructure.classroom_gateway import list_classroom_data
 from utils.sheet_id_handler import semester_informations, list_questions
@@ -36,7 +36,9 @@ def main():
         formatted_list = None
         script_dir = os.path.dirname(os.path.abspath(__file__))
         students_paths = {}
-        for class_letter in ["A", "B"]:
+        class_letters = get_available_turma_letters(classroom_service, semester) or ["A", "B"]
+
+        for class_letter in class_letters:
             turma_type = f"TURMA {class_letter}"
 
             classroom_id, coursework_id, classroom_name, list_name, list_title = list_classroom_data(
