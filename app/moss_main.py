@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from infrastructure.moss_handler import moss_script, update_moss_results_json
 from core.models.list_metadata import ListMetadata
@@ -14,7 +15,7 @@ def moss_main():
         selected_folder = sys.argv[1]
 
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(script_dir) 
+        project_root = os.path.dirname(script_dir)
         downloads_path = os.path.join(project_root, "Downloads")
         base_path = os.path.join(downloads_path, selected_folder)
         set_log_folder(base_path)
@@ -24,21 +25,20 @@ def moss_main():
             print(f"Pasta '{submissions_folder}' não encontrada.")
             return
 
-        if not os.path.exists(submissions_folder):
-            print(f"Pasta '{submissions_folder}' não encontrada.")
-            return
+        metadata_files = [
+            name for name in os.listdir(base_path)
+            if re.fullmatch(r"metadata_turma[A-Z]\.json", name, flags=re.IGNORECASE)
+        ]
 
-        metadata_a_path = os.path.join(base_path, "metadata_turmaA.json")
-        metadata_b_path = os.path.join(base_path, "metadata_turmaB.json")
-
-        if not os.path.exists(metadata_a_path) and not os.path.exists(metadata_b_path):
+        if not metadata_files:
             print("Nenhum arquivo de metadados encontrado.")
             return
 
-        if os.path.exists(metadata_a_path):
-            metadata = ListMetadata.load_metadata_from_json(metadata_a_path)
-        else:
-            metadata = ListMetadata.load_metadata_from_json(metadata_b_path)
+        metadata_path = os.path.join(base_path, metadata_files[0])
+        metadata = ListMetadata.load_metadata_from_json(metadata_path)
+        if metadata is None:
+            print(f"Metadados inválidos em {os.path.basename(metadata_path)}.")
+            return
 
         list_name = metadata.list_name
         num_questions = metadata.num_questions
@@ -56,5 +56,7 @@ def moss_main():
     except Exception as e:
         print(f"Erro ao executar o MOSS: {e}")
 
+
 if __name__ == "__main__":
     moss_main()
+

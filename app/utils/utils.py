@@ -21,6 +21,41 @@ def format_list_title(list_title):
         return f"LISTA {match.group(1).zfill(2)}"
     return list_title
 
+def get_available_turma_letters(service, semester, course_name_filter="PIF"):
+
+    try:
+        results = service.courses().list().execute()
+        courses = results.get("courses", []) or []
+        letters = set()
+
+        for c in courses:
+            name = c.get("name", "") or ""
+            if semester in name and course_name_filter.upper() in name.upper():
+                m = re.search(r'\bTURMA\s*([A-Z])\b', name.upper())
+                if m:
+                    letters.add(m.group(1))
+
+        found = sorted(letters)
+        if not found:
+            print(f"Nenhuma turma encontrada para {semester}.\n")
+        else:
+            print(f"Turmas encontradas no semestre {semester}: {', '.join(found)}")
+        return found
+    except Exception:
+        return ["A", "B"]
+    
+def get_available_turmas_from_folder(downloads_path: str):
+
+    try:
+        letters = set()
+        for name in os.listdir(downloads_path):
+            m = re.match(r'(students|metadata)_turma([A-Z])\.json$', name, re.IGNORECASE)
+            if m:
+                letters.add(m.group(2).upper())
+        return sorted(letters)
+    except Exception:
+        return []
+
 def extract_prefix(email):
     try:
         return email.split('@')[0]
@@ -100,4 +135,15 @@ def set_log_folder(base_path):
 def extract_turma_name(classroom_name):
     match = re.search(r'TURMA\s*[A-Z]', classroom_name)
     return match.group().replace(" ", "_") if match else classroom_name
+
+def extract_turma_key(class_name, fallback_letter = None):
+ 
+    if not class_name:
+        return f"TURMA {fallback_letter}" if fallback_letter else None
+
+    up_class = class_name.upper()
+    m = re.search(r"\bTURMA\s+([A-Z])\b", up_class)
+    if m:
+        return f"TURMA {m.group(1)}"
+    return f"TURMA {fallback_letter}" if fallback_letter else None
 

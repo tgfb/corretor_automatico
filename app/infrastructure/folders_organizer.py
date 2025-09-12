@@ -75,10 +75,9 @@ def rename_directory_if_needed(directory_path, expected_name, student_obj):
             current_name = os.path.basename(directory_path)
             if current_name != expected_name:
                 new_directory_path = os.path.join(os.path.dirname(directory_path), expected_name)
-                os.rename(directory_path, new_directory_path)
+                os.replace(directory_path, new_directory_path)
                 log_info(f"Pasta renomeada de {current_name} para {expected_name}")
                 if current_name.lower() != expected_name:
-                    student_obj.update_field('formatacao', 0)
                     student_obj.add_comment(f"Erro de formatação de pasta: pasta renomeada de {current_name} para {expected_name}.")
                 return new_directory_path
         return directory_path
@@ -107,14 +106,12 @@ def organize_extracted_files(download_folder, students, class_name):
             except (zipfile.BadZipFile, rarfile.Error) as e:
                 log_info(f"Erro ao extrair o arquivo de {student_login}: {e}")
                 student.update_field('entregou', 0)
-                student.update_field('formatacao', 0)
                 student.add_comment("Erro de submissão: compactação com erro")
                 continue
 
             extracted_items = os.listdir(extraction_path)
             if not extracted_items:
                 student.update_field('entregou', 0)
-                student.update_field('formatacao', 0)
                 student.add_comment("Erro de submissão: zip vazio")
                 continue
 
@@ -127,7 +124,6 @@ def organize_extracted_files(download_folder, students, class_name):
 
                 if os.path.exists(extracted_item_path) and os.path.isfile(extracted_item_path):
                     if extracted_item.endswith('.zip'):
-                        student.update_field('formatacao', 0)
                         student.add_comment("Erro de formatação de pasta: zip dentro do zip.")
                         try:
                             extract_zip(student_login, extracted_item_path, extraction_path, student)
@@ -135,7 +131,6 @@ def organize_extracted_files(download_folder, students, class_name):
                         except zipfile.BadZipFile:
                             log_info(f"Erro ao extrair zip: {extracted_item_path}")
                     elif extracted_item.endswith('.rar'):
-                        student.update_field('formatacao', 0)
                         student.add_comment("Erro de formatação de pasta: rar dentro do rar.")
                         try:
                             extract_rar(student_login, extracted_item_path, extraction_path, student)
@@ -171,13 +166,12 @@ def organize_extracted_files(download_folder, students, class_name):
                             log_info(f"Pasta extra deletada: {extracted_folder}")
                             if for_not_executed:
                                 student.update_field('entregou', 0)
-                                student.update_field('formatacao', 0)
                                 student.add_comment("Não tem arquivos dentro da pasta: pasta deletada.")
                         else:
                             log_info(f"Pasta extra {extracted_folder} ainda contém arquivos e não será deletada.")
                     else:
                         log_info(f"A pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}")
-                        student.update_field('formatacao', 0)
+
                         student.add_comment(f"Erro de formatação de pasta: a pasta extraída {extracted_items[0]} é diferente do nome esperado {student_login}.")
 
                         for file in os.listdir(extracted_folder):
@@ -194,7 +188,6 @@ def organize_extracted_files(download_folder, students, class_name):
                         log_info(f"Pasta deletada: {extracted_folder}")
                 else:
                     log_info(f"Erro de formatação: {student_login} enviou arquivos soltos sem pasta.")
-                    student.update_field('formatacao', 0)
                     student.add_comment("Erro de formatação de pasta: enviou sem pasta")
     except Exception as e:
         log_error(f"Erro ao organizar arquivos extraídos: {str(e)}")
@@ -206,45 +199,50 @@ def if_there_is_a_folder_inside(students, submissions_folder):
                 return
 
             items = os.listdir(first_folder)
-            
-            subfolders = [item for item in items if os.path.isdir(os.path.join(first_folder, item)) and not item.startswith('.')]
-            
+            subfolders = [
+                item for item in items
+                if os.path.isdir(os.path.join(first_folder, item)) and not item.startswith('.')
+            ]
             if subfolders:
                 for subfolder in subfolders:
                     subfolder_path = os.path.join(first_folder, subfolder)
 
                     if subfolder in ['output', '.vscode']:
-                        student.update_field('formatacao', 0)
-                        student.add_comment(f"Erro de formatação de pasta: output ou .vscode")
+                        student.add_comment("Erro de formatação de pasta: output ou .vscode")
                     else:
-                        student.update_field('formatacao', 0)
-                        student.add_comment(f"Erro de formatação de pasta: subpastas como {subfolder} foram movidas.")
-                    
+                        student.add_comment(
+                            f"Erro de formatação de pasta: subpastas como {subfolder} foram movidas."
+                        )
+
                     move_files_to_inicial_folder(subfolder_path, folder_name, student)
-            
-            files = [item for item in items if os.path.isfile(os.path.join(first_folder, item)) and not item.startswith('.')]
+
+            files = [
+                item for item in items
+                if os.path.isfile(os.path.join(first_folder, item)) and not item.startswith('.')
+            ]
             for file in files:
                 file_path = os.path.join(first_folder, file)
-                destination = os.path.join(submissions_folder, os.path.basename(first_folder), file)
+                destination = os.path.join(submissions_folder, folder_name, file)
 
-                if not os.path.exists(os.path.dirname(destination)):
-                    os.makedirs(os.path.dirname(destination))
-
+                os.makedirs(os.path.dirname(destination), exist_ok=True)
                 shutil.move(file_path, destination)
-            
-            if first_folder != submissions_folder and not os.listdir(first_folder):
-                os.rmdir(first_folder)
 
+            if first_folder != submissions_folder and not os.listdir(first_folder):
+                try:
+                    os.rmdir(first_folder)
+                except PermissionError:
+                    relax_permissions_for_delete(first_folder)
+                    os.rmdir(first_folder)
         for student in students:
             folder_name = student.login
             folder_path = os.path.join(submissions_folder, folder_name)
             if os.path.isdir(folder_path) and not folder_name.startswith('.'):
-                relax_permissions_for_delete(folder_path) 
+                relax_permissions_for_delete(folder_path)
                 move_files_to_inicial_folder(folder_path, folder_name, student)
 
     except Exception as e:
         log_error(f"Erro se existe uma pasta dentro da pasta: {str(e)}")
-
+        
 def delete_subfolders_in_student_folders(submissions_folder):
     try:
         if not os.path.isdir(submissions_folder):
@@ -276,7 +274,7 @@ def move_non_zip_files(download_folder, class_name):
             if os.path.isdir(item_path) and item != f"submissions_{class_name}":
                 destination_folder = os.path.join(submissions_folder, item)
                 if not os.path.exists(destination_folder):
-                    os.rename(item_path, destination_folder)
+                    os.replace(item_path, destination_folder)
     except Exception as e:
         log_error(f"Erro ao mover arquivos que não estavam zipados: {str(e)}")
 
