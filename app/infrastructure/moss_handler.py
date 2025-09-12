@@ -1,160 +1,211 @@
 import os
+import re
+import shutil
 import subprocess
-import re 
 import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from core.models.student_submission import load_students_from_json, save_students_to_json
 from utils.utils import log_error, log_info
+from utils.moss_utils import norm, extract_login_from_cell_text, extract_percentage
 
 
-def moss_script(submissions_folder, language, list_name, num_questions):
+def moss_script(submissions_folder, language, list_name, num_questions, copy_threshold = 80):
+
     try:
         if not os.path.exists(submissions_folder):
             raise FileNotFoundError(f"A pasta '{submissions_folder}' não existe.")
-         
+
         base_dir = os.path.dirname(os.path.abspath(__file__))
         moss_script_path = os.path.join(base_dir, "external_tools", "moss.pl")
-        
-        links = {} 
-        moss_results = [] 
+
+        perl = shutil.which("perl")
+        if not perl:
+            raise FileNotFoundError("Perl não encontrado no PATH. Instale Strawberry Perl e reabra o terminal.")
+        if not os.path.isfile(moss_script_path):
+            raise FileNotFoundError(f"moss.pl não encontrado: {moss_script_path}")
+
+        links = {}
+        moss_results = []
+
+        language = (language or "").strip().lower() or "c"
 
         for i in range(1, num_questions + 1):
             question_key = f"q{i}"
             files = []
             for folder in os.listdir(submissions_folder):
                 folder_path = os.path.join(submissions_folder, folder)
-                if os.path.isdir(folder_path): 
-                    question_file = f"q{i}_{folder}.c"
-                    question_file_path = os.path.join(folder_path, question_file)
-                    if os.path.isfile(question_file_path):
-                        files.append(question_file_path)
-                    else:
-                        log_info(f"Arquivo não encontrado para q{i}: {question_file_path}")
+                if not os.path.isdir(folder_path) or folder.startswith('.'):
+                    continue
+                question_file = f"q{i}_{folder}.c"
+                question_file_path = os.path.join(folder_path, question_file)
+                if os.path.isfile(question_file_path):
+                    files.append(question_file_path)
+                else:
+                    log_info(f"{question_key}: arquivo não encontrado: {question_file_path}")
 
             if not files:
-                log_info(f"Nenhum arquivo encontrado para a questão {i}. Pulando para a próxima.")
+                log_info(f"[MOSS] {question_key}: nenhum arquivo encontrado. Pulando.")
                 continue
-            
-            comment = f'"Análise de similaridade | {list_name} | Questão {i}"'
-            command = ["perl", moss_script_path, "-l", language, "-c", comment, "-d"] + files
 
-            log_info(f"\nExecutando comando MOSS para questão {i}...")
+            comment = f"Análise de similaridade | {list_name} | Questão {i}"
+            command = [perl, moss_script_path, "-l", language, "-c", comment] + files
+            log_info(f"Executando {question_key} (arquivos={len(files)})")
 
             try:
-                result = subprocess.run(command, capture_output=True, text=True, check=True)
-                output = result.stdout.strip()
-                report_url = output.split("\n")[-1]  
-                links[question_key] = report_url
-            except subprocess.CalledProcessError as e:
-                log_error(f"Erro ao executar o script MOSS para q{i}: {e.stderr}")
+                result = subprocess.run(
+                    command,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                    check=False
+                )
+            except subprocess.TimeoutExpired as e:
+                log_error(f"[MOSS] {question_key}: timeout após {e.timeout}s")
+                continue
+            except Exception as e:
+                log_error(f"[MOSS] {question_key}: falha ao invocar perl/moss.pl: {e}")
                 continue
 
-        if not links:
-            print("\nNenhum relatório foi gerado.")
-        else:
-            print("\nLinks gerados para cada questão:")
-            for question, link in links.items():
-                print(f"\n{question}: {link}")
-                if validate_url(link):  
-                    moss_data = analyze_moss_report(link)
+            if result.returncode != 0:
+                tail_err = "\n".join((result.stderr or "").splitlines()[-10:])
+                log_error(f"[MOSS] {question_key}: retorno {result.returncode}. stderr (fim):\n{tail_err}")
+                continue
 
-                    for student_pair in moss_data:
-                        student1, percentage1 = student_pair[0]
-                        student2, percentage2 = student_pair[1]
+            output = (result.stdout or "").strip()
+            if not output:
+                log_error(f"[MOSS] {question_key}: stdout vazio.")
+                continue
 
+            urls = re.findall(r'https?://[^\s"<>\']+', output)
+            if urls:
+                report_url = urls[-1].strip()
+                links[question_key] = report_url
+                log_info(f"[MOSS] {question_key}: relatório -> {report_url}")
+                continue
+
+            lower = output.lower()
+            if "<html" in lower and "</html>" in lower:
+                inline_pairs = analyze_moss_html(output)
+                for (student1, percentage1), (student2, percentage2) in inline_pairs:
+                    if (percentage1 or 0) >= copy_threshold or (percentage2 or 0) >= copy_threshold:
                         moss_results.append({
-                            "question": f"q{i}",
+                            "question": question_key,
                             "student1": student1,
                             "percentage1": percentage1,
                             "student2": student2,
                             "percentage2": percentage2
                         })
-                else:
-                    log_info(f"URL inválida para questão {i}: {report_url}")
+                continue
+
+            log_error(f"[MOSS] {question_key}: nenhuma URL e stdout não parece HTML.")
 
 
+        for question, link in links.items():
+            if not validate_url(link):
+                log_info(f"[MOSS] URL inválida para {question}: {link}")
+                continue
+            parsed_pairs = analyze_moss_report(link)
+            print(f"\n{question}: {link}\n")
+            print("Arquivo com possíveis cópias detectadas (>=80):\n") 
+            for (student1, percentage1), (student2, percentage2) in parsed_pairs:
+                if (percentage1 or 0) >= copy_threshold or (percentage2 or 0) >= copy_threshold:
+                    moss_results.append({
+                        "question": question,
+                        "student1": student1,
+                        "percentage1": percentage1,
+                        "student2": student2,
+                        "percentage2": percentage2
+                    })
+                    print(f"Student 1: {student1} ({percentage1}%) <-> Student 2: {student2} ({percentage2}%)")
         return moss_results
 
     except Exception as e:
-        log_error(f"Erro ao rodar o script MOSS: {str(e)}")
+        log_error(f"Erro ao rodar o script MOSS: {e}")
+        return []
 
 
 def validate_url(url):
-    try: 
+    try:
         parsed = urlparse(url)
         return bool(parsed.scheme and parsed.netloc)
     except Exception as e:
-        log_error(f"Erro ao validar a URL: {str(e)}")
+        log_error(f"Erro ao validar a URL: {e}")
+        return False
+
+
+def analyze_moss_html(html_content):
+    try:
+        soup = BeautifulSoup(html_content, 'html.parser')
+        results = set()
+
+        for row in soup.find_all('tr'):
+            cols = row.find_all('td')
+            if len(cols) < 2:
+                continue
+
+            file1_text = cols[0].get_text(strip=True)
+            file2_text = cols[1].get_text(strip=True)
+
+            student1 = extract_login_from_cell_text(file1_text)
+            student2 = extract_login_from_cell_text(file2_text)
+            percentage1 = extract_percentage(file1_text)
+            percentage2 = extract_percentage(file2_text)
+
+            results.add(tuple(sorted(
+                [(student1, percentage1), (student2, percentage2)],
+                key=lambda x: norm(x[0])
+            )))
+
+        return list(results)
+    except Exception as e:
+        log_error(f"Erro ao processar HTML do MOSS: {e}")
+        return []
 
 
 def analyze_moss_report(report_url):
+
     try:
-        response = requests.get(report_url)
-        response.raise_for_status()
-        html_content = response.text
-
-        soup = BeautifulSoup(html_content, 'html.parser')
-
-        results = set()
-
-        table_rows = soup.find_all('tr')
-        
-        for row in table_rows:
-            columns = row.find_all('td')
-
-            if len(columns) >= 2:  # Cada linha válida tem pelo menos 2 colunas (arquivo1, arquivo2)
-                file1_text = columns[0].get_text(strip=True)
-                file2_text = columns[1].get_text(strip=True)
-
-                # Student login
-                student1_match = re.search(r"/([^/]+)/\s*\(\d+%\)", file1_text)
-                student2_match = re.search(r"/([^/]+)/\s*\(\d+%\)", file2_text)
-
-                student1 = student1_match.group(1) if student1_match else file1_text
-                student2 = student2_match.group(1) if student2_match else file2_text
-                
-                # Porcentagem
-                match1 = re.search(r"\((\d+)%\)", file1_text)
-                match2 = re.search(r"\((\d+)%\)", file2_text)
-
-                percentage_file1 = int(match1.group(1)) if match1 else None
-                percentage_file2 = int(match2.group(1)) if match2 else None
-
-                # porcentagem  >= 80%
-                if (percentage_file1 and percentage_file1 >= 80) or (percentage_file2 and percentage_file2 >= 80):
-                    pair = tuple(sorted([(student1, percentage_file1), (student2, percentage_file2)]))
-                    results.add(pair)
-
-        print("\nArquivos com possível cópia detectada (>=80%):\n")
-        for student_pair in results:
-            student1, percentage1 = student_pair[0]
-            student2, percentage2 = student_pair[1]
-            print(f"Student 1: {student1} ({percentage1}%) <-> "
-                  f"Student 2: {student2} ({percentage2}%)")
-
-        return list(results)          
-
+        resp = requests.get(report_url, timeout=30)
+        resp.raise_for_status()
+        return analyze_moss_html(resp.text)
     except Exception as e:
-        print(f"Erro ao processar o relatório Moss: {e}")
+        print(f"Erro ao processar o relatório MOSS: {e}")
+        return []
 
-def update_moss_results_json(base_path, moss_results, num_questions):
+
+def update_moss_results_json(base_path, moss_results, copy_threshold = 80):
     try:
-        for turma in ["A", "B"]:
+        turmas = ["A", "B", "C"]  # se tiver mais turmas, adicione aqui
+        for turma in turmas:
             json_path = os.path.join(base_path, f"students_turma{turma}.json")
             if not os.path.exists(json_path):
-                log_info(f"Arquivo JSON não encontrado para turma {turma}")
+                log_info(f"JSON não encontrado para turma {turma}.")
                 continue
-            updated = False
+
             students = load_students_from_json(json_path)
+            updated = False
 
             for result in moss_results:
-                question = result["question"]  
+                percentage1 = result.get("percentage1")
+                percentage2 = result.get("percentage2")
+                if (percentage1 or 0) < copy_threshold and (percentage2 or 0) < copy_threshold:
+                    continue  
+
+                question = result["question"]
+                student1_raw = result["student1"]
+                student2_raw = result["student2"]
+                student1 = norm(student1_raw)
+                student2 = norm(student2_raw)
+
                 for student in students:
-                    if student.login == result["student1"] or student.login == result["student2"]:
+                    login = norm(student.login)
+                    if login == student1 or login == student2:
                         student.update_field("copia", 1)
-                        student.add_comment(f"{question} | Cópia detectada: {result['student1']} ({result['percentage1']}%) <-> "f"{result['student2']} ({result['percentage2']}%)")
-                        updated = True 
+                        student.add_comment(
+                            f"{question} | Cópia detectada: {student1_raw} ({percentage1}%) <-> {student2_raw} ({percentage2}%)"
+                        )
+                        updated = True
 
             if updated:
                 save_students_to_json(students, json_path)
@@ -162,4 +213,3 @@ def update_moss_results_json(base_path, moss_results, num_questions):
 
     except Exception as e:
         print(f"Erro ao atualizar JSON com resultados do Moss: {e}")
-

@@ -75,7 +75,8 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, student
                                         new_file_path = os.path.join(student_folder_path, new_filename)
 
                                         if filename != new_filename:
-                                            os.rename(file_path, new_file_path)
+                                            os.replace(file_path, new_file_path)
+
                                             log_info(f"Renomeando: '{filename}' para '{new_filename}' para o estudante '{student_login}'")
                                             used_questions.add(question_number) 
                                             student.update_field('formatacao', 1)
@@ -110,7 +111,7 @@ def rename_files_based_on_dictionary(submissions_folder, questions_dict, student
                                                 student.update_field('formatacao', 1)
                                                 student.add_comment(f"Erro de formatação no arquivo: tentando correspondência parcial {student_login}: de {filename} para {new_filename}")
                                                 verification_renamed(f"{student_login}: de {filename} para {new_filename}")
-                                                os.rename(file_path, new_file_path)
+                                                os.replace(file_path, new_file_path)
                                                 log_info(f"Renomeando'{filename}' para '{new_filename}' para o estudante '{student_login}'")
                                                 used_questions.add(question_number) 
                                             else:
@@ -141,46 +142,42 @@ def no_c_files_in_directory(submissions_folder, students):
             for file in files:
                 file_path = os.path.join(root, file)
                 file_name, file_extension = os.path.splitext(file)
+                old_name = os.path.basename(file_path)
 
                 if file.startswith("."):
                     log_info(f"Deletando arquivo oculto: {file_path}")
                     os.remove(file_path)
                     continue
 
-                if file_name.lower() in ['makefile', 'main', 'main-debug']:
+                elif file_name.lower() in ['makefile', 'main', 'main-debug']:
                     log_info(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
-                    student.update_field('formatacao', 0)
                     student.add_comment(f"Erro de formatação: deletado arquivo não permitido: {file_name}")
                     continue
 
-                if file_extension == '.C':
-                    new_file_path = os.path.join(root, file_name + '.c')
-                    os.rename(file_path, new_file_path)
-                    student.update_field('formatacao', 0)
-                    student.add_comment(f"Erro de formatação: renomeado arquivo: de {file_path} para {new_file_path}")
-                
-                if file_extension == '.cpp':
-                            new_file_path = os.path.join(root, file_name + '.c')
-                            log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
-                            os.rename(file_path, new_file_path)
-                            student.update_field('formatacao', 0)
-                            student.add_comment(f"Erro de formatação: renomeado arquivo: {file_path} para {new_file_path}")
+                elif file_extension == '.C':
+                    base = os.path.splitext(file_name)[0]
+                    new_file_path = os.path.join(root, base + '.c')
+                    new_name = os.path.basename(new_file_path)
+                    os.replace(file_path, new_file_path)
+                    verification_renamed(f"Renomeando: {old_name} -> {new_name}")
+                    student.add_comment(f"Erro de formatação: renomeado arquivo: de {old_name} para {new_name}")
+
+                elif file_extension.lower() == '.cpp':
+                    base = os.path.splitext(file_name)[0]          
+                    new_file_path = os.path.join(root, base + '.c') 
+                    new_name = os.path.basename(new_file_path)
+                    os.replace(file_path, new_file_path)
+                    verification_renamed(f"Renomeando: {old_name} -> {new_name}")
+                    student.add_comment(f"Erro de formatação: renomeado arquivo: de {old_name} para {new_name}")
 
                 elif file_extension != '.c':
-                    if '.c' in file_name:
-                        base_name = file_name.split('.c')[0] 
-                        new_file_path = os.path.join(root, base_name + '.c')
-                        log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
-                        os.rename(file_path, new_file_path)
-                        student.update_field('formatacao', 0)
-                        student.add_comment(f"Erro de formatação: renomeado arquivo: {file_path} para {new_file_path}")
-                    else:    
-                        log_info(f"Deletando arquivo: {file_path}")
-                        os.remove(file_path)
-                        student.update_field('formatacao', 0)
-                        student.add_comment(f"Erro de formatação: deletado arquivo inválido: {file_path}")
-                    
+                    log_info(f"Deletando arquivo: {old_name}")
+                    os.remove(file_path)
+                    student.update_field('formatacao', 1)
+                    verification_renamed(f"Deletando arquivo: {old_name}")
+                    student.add_comment(f"Erro de formatação: deletado arquivo inválido: {old_name}")
+
     except Exception as e:
         log_error(f"Erro no metodo no c files no diretorio {str(e)}")
 
@@ -195,38 +192,33 @@ def no_hs_files_in_directory(submissions_folder, students):
             for file in files:
                 file_path = os.path.join(root, file)
                 file_name, file_extension = os.path.splitext(file)
+                old_name = os.path.basename(file_path)
+
 
                 if file.startswith("."):
                     log_info(f"Deletando arquivo oculto: {file_path}")
                     os.remove(file_path)
                     continue
 
-                if file_name.lower() in ['makefile', 'main', 'main-debug']:
+                elif file_name.lower() in ['makefile', 'main', 'main-debug']:
                     log_info(f"Deletando arquivo: {file_path}")
                     os.remove(file_path)
-                    student.update_field('formatacao', 0)
                     student.add_comment(f"Erro de formatação: deletado arquivo não permitido: {file_name}")
                     continue
                 
-                if file_extension == '.HS':
+                elif file_extension == '.HS':
                     new_file_path = os.path.join(root, file_name + '.hs')
-                    os.rename(file_path, new_file_path)
-                    student.update_field('formatacao', 0)
+                    os.replace(file_path, new_file_path)
                     student.add_comment(f"Erro de formatação: renomeado arquivo: {file_path}")
 
                 elif file_extension != '.hs':
-                    if '.hs' in file_name:
-                        base_name = file_name.split('.hs')[0] 
-                        new_file_path = os.path.join(root, base_name + '.hs')
-                        log_info(f"Renomeando arquivo: {file_path} -> {new_file_path}")
-                        os.rename(file_path, new_file_path)
-                        student.update_field('formatacao', 0)
-                        student.add_comment(f"Erro de formatação: renomeado arquivo: {file_path} para {new_file_path}")                        
-                    else:
-                        log_info(f"Deletando arquivo: {file_path}")
-                        os.remove(file_path)
-                        student.update_field('formatacao', 0)
-                        student.add_comment(f"Erro de formatação: deletado arquivo inválido: {file_name}")
+                    log_info(f"Deletando arquivo: {file_path}")
+                    os.remove(file_path)
+                    student.update_field('formatacao', 1)
+                    old_name = os.path.basename(file_path)
+                    verification_renamed(f"Deletando arquivo: {old_name}")
+                    student.add_comment(f"Erro de formatação: deletado arquivo inválido: {file_name}")
+
     except Exception as e:
         log_error(f"Erro no metodo no hs files no diretorio {str(e)}")                    
                  

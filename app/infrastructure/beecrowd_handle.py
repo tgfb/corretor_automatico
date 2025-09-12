@@ -73,24 +73,40 @@ def read_id_from_file_beecrowd(filename, list_name, classroom_name):
     try:
         with open(filename, 'r', encoding='utf-8') as file:
             sheet_ids = [line.strip() for line in file if line.strip()]
+        up_class = (classroom_name or "").upper()
+        m = re.search(r"\bTURMA\s+([A-Z])\b", up_class)
+        turma_letter = m.group(1) if m else extract_turma_letter(classroom_name)
 
-        turma_letter = extract_turma_letter(classroom_name)  
-        list_name_tokens = list_tokens(list_name)            
+        def normalize_token(s: str) -> str:
+            return re.sub(r"[\s_\-]+", "", (s or "").strip().upper())
+
+        def lista_variants(name: str):
+            base = (name or "").strip().upper()
+            variants = {normalize_token(base)}
+            m = re.search(r"\bLISTA\s*(\d+)\b", base)
+            if m:
+                n = int(m.group(1))
+                v_no_pad = normalize_token(f"LISTA {n}")
+                v_pad    = normalize_token(f"LISTA {n:02d}")
+                variants.update([v_no_pad, v_pad])
+            return variants
+
+        list_variants = lista_variants(list_name)
 
         for sheet_id in sheet_ids:
             sheet_title = get_sheet_title(sheet_id)
             if not sheet_title:
                 log_info(f"Ignorando planilha {sheet_id}, pois não foi possível obter o título.")
                 continue
+            norm_title = normalize_token(sheet_title)
 
-            normalized_title = normalize_token(sheet_title)
+            list_ok = any(v in norm_title for v in list_variants)
 
-            list_ok = any(token in normalized_title for token in list_name_tokens)
-            turma_ok = title_has_turma(sheet_title, turma_letter)
-
-            if not list_ok and 'LISTA' not in ''.join(list_name_tokens):
+            if not list_ok and "LISTA" not in (list_name or "").upper():
                 loose = normalize_token(list_name.replace('-', ' '))
-                list_ok = loose in normalized_title
+                list_ok = loose in norm_title
+
+            turma_ok = bool(re.search(fr"TURMA{turma_letter}", norm_title))
 
             if list_ok and turma_ok:
                 log_info(f"Correspondência encontrada: {sheet_title}")

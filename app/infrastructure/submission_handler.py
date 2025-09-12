@@ -5,7 +5,7 @@ import stat, subprocess
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 from core.models.student_submission import StudentSubmission
-from utils.permission_utils import relax_permissions, relax_permissions_for_delete, _onerror_chmod_then_retry
+from utils.permission_utils import relax_permissions
 from utils.utils import extract_prefix, get_submission_timestamp, calculate_delay, get_due_date, log_info, log_error
 
 def create_student_folder_if_needed(download_folder, student_login):
@@ -20,13 +20,11 @@ def rename_file_if_needed(file_name, student_folder, student_obj):
     if file_name.endswith('.zip'):
         expected_name = f"{student_login}.zip"
         if file_name != expected_name:
-            student_obj.update_field('formatacao', 0)
             student_obj.add_comment(f"Erro de submissão. Nome do zip incorreto: {file_name}.")
             corrected_path = os.path.join(student_folder, expected_name)
             shutil.move(file_path, corrected_path)
 
     elif file_name.endswith('.rar'):
-        student_obj.update_field('formatacao', 0)
         student_obj.add_comment(f"Erro de submissão. Enviou .rar ({file_name}) ao invés de .zip.")
         expected_name = f"{student_login}.rar"
         relax_permissions(student_folder)
@@ -95,7 +93,7 @@ def download_submissions(classroom_service, drive_service, submissions, download
 
                 entregou = 1
                 atrasou = 0
-                formatacao = 1
+                formatacao = 0
                 copia = 0
                 state = submission.get('state', 'UNKNOWN')
 
