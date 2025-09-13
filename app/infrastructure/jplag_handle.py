@@ -1,97 +1,137 @@
+import csv
 import os
 import shutil
+from shutil import which
 from subprocess import run, CalledProcessError
 
 
-import os
-import shutil
-
-def prepare_jplag_input_by_question(submissions_folder, question_number):
-   
+def prepare_inputs_by_question(submissions_dir, question_num):
+  
     try:
-        if not os.path.exists(submissions_folder):
-            raise FileNotFoundError(f"Pasta de submissões não encontrada: {submissions_folder}")
+        if not os.path.isdir(submissions_dir):
+            raise FileNotFoundError(f"Submissions não encontrado: {submissions_dir}")
 
-        base_folder = os.path.dirname(submissions_folder)
+        base_dir = os.path.dirname(submissions_dir)
+        temporary_root = os.path.join(base_dir, "temporary")
+        question_dir = os.path.join(temporary_root, f"q{question_num}")
 
-        temporary_root = os.path.join(base_folder, "temporary")
-        temporary_folder = os.path.join(temporary_root, f"q{question_number}")
+        if os.path.exists(question_dir):
+            shutil.rmtree(question_dir)
+        os.makedirs(question_dir, exist_ok=True)
 
-        if os.path.exists(temporary_folder):
-            shutil.rmtree(temporary_folder)
-        os.makedirs(temporary_folder, exist_ok=True)
-
-        arquivos_encontrados = 0
-
-        for folder in os.listdir(submissions_folder):
-            student_path = os.path.join(submissions_folder, folder)
-            if not os.path.isdir(student_path):
+        copied = 0
+        for login in os.listdir(submissions_dir):
+            student_dir = os.path.join(submissions_dir, login)
+            if not os.path.isdir(student_dir) or login.startswith("."):
                 continue
 
-            question_file = f"q{question_number}_{folder}.c"
-            source_file = os.path.join(student_path, question_file)
+            filename = f"q{question_num}_{login}.c"
+            source = os.path.join(student_dir, filename)
+            if os.path.isfile(source):
+                dest_dir = os.path.join(question_dir, login)
+                os.makedirs(dest_dir, exist_ok=True)
+                shutil.copy(source, os.path.join(dest_dir, filename))
+                copied += 1
 
-            if os.path.isfile(source_file):
-                dest_folder = os.path.join(temporary_folder, folder)
-                os.makedirs(dest_folder, exist_ok=True)
-                shutil.copy(source_file, os.path.join(dest_folder, question_file))
-                arquivos_encontrados += 1
-            else:
-                print(f"Arquivo não encontrado para aluno '{folder}' na questão q{question_number}.")
-
-        if arquivos_encontrados == 0:
-            print(f"Nenhum arquivo encontrado para q{question_number}.")
-        else:
-            print(f"{arquivos_encontrados} arquivos copiados para análise da q{question_number}.")
-
-        return temporary_folder  
-
+        print(f"q{question_num}: {copied} arquivos copiados.")
+        return question_dir if copied > 0 else None
     except Exception as e:
-        print(f"Erro ao preparar arquivos da questão q{question_number}: {str(e)}")
+        print(f"Erro preparando q{question_num}: {e}")
         return None
 
-def run_jplag_for_all_questions(submissions_folder, language, list_name, num_questions, jplag_jar_path="jplag.jar"):
-    
-    report_urls = []
 
-    base_folder = os.path.dirname(submissions_folder)
-    result_root = os.path.join(base_folder, "result")
-    os.makedirs(result_root, exist_ok=True)
+def parse_results_csv(result_dir, threshold_0_1):
+   
+    pairs = []
+    csv_path = os.path.join(result_dir, "results.csv")
+    if not os.path.isfile(csv_path):
+        return pairs
 
-    for i in range(1, num_questions + 1):
-        question_id = f"q{i}"
+    try:
+        with open(csv_path, "r", encoding="utf-8", newline="") as fh:
+            reader = csv.reader(fh)
+            for row in reader:
+                if not row or row[0].startswith("#") or len(row) < 4:
+                    continue
+                student1, student2 = row[0].strip(), row[1].strip()
+                try:
+                    student1_result, student2_result = float(row[2]), float(row[3])
+                except ValueError:
+                    continue
+                if max(student1_result, student2_result) >= threshold_0_1:
+                    pairs.append((student1, student2, student1_result, student2_result))
+    except Exception as e:
+        print(f"Falha lendo CSV '{csv_path}': {e}")
+    return pairs
 
-        print(f"\nPreparando arquivos para {question_id}...")
-        temporary_folder = prepare_jplag_input_by_question(submissions_folder, i)
 
-        if not temporary_folder or not os.listdir(temporary_folder):
-            print(f"Nenhum arquivo preparado para {question_id}. Pulando.")
-            continue
+def run_jplag_for_questions(submissions_dir, language, num_questions, jplag_jar_path, threshold_percent = 80):
+   
+    report_artifacts = []
+    results = []
 
-        result_folder = os.path.join(result_root, f"jplag_results_{question_id}")
-        print(f"Executando JPlag para {question_id}...")
+    try:
+        if not os.path.isdir(submissions_dir):
+            raise FileNotFoundError(f"Submissions não encontrado: {submissions_dir}")
+        if not os.path.isfile(jplag_jar_path):
+            raise FileNotFoundError(f"JAR do JPlag não encontrado: {jplag_jar_path}")
+        if which("java") is None:
+            raise EnvironmentError("Java não encontrado no PATH. Instale o Java (JRE/JDK) e tente novamente.")
 
-        cmd = [
-            "java",
-            "-jar", jplag_jar_path,
-            "-l", language,
-            "-r", result_folder,
-            "-M", "RUN_AND_VIEW",
-            "--csv-export",
-            "--min-tokens", "15",
-            "--similarity-threshold", "0.6", 
-            temporary_folder
-        ]
+        base_dir = os.path.dirname(submissions_dir)
+        result_root = os.path.join(base_dir, "result")
+        os.makedirs(result_root, exist_ok=True)
 
-        try:
-            run(cmd, check=True)
-            index_path = os.path.abspath(os.path.join(result_folder, "index.html"))
-            if os.path.exists(index_path):
-                report_urls.append((question_id, index_path))
-                print(f"Relatório gerado para {question_id}: {index_path}")
-            else:
-                print(f"index.html não encontrado para {question_id}.")
-        except CalledProcessError as e:
-            print(f"Erro ao executar JPlag para {question_id}: {e}")
+        threshold_0_1 = threshold_percent / 100.0
 
-    return report_urls
+        for question in range(1, num_questions + 1):
+            qid = f"q{question}"
+            print(f"\nPreparando {qid}…")
+            input_dir = prepare_inputs_by_question(submissions_dir, question)
+            if not input_dir or not os.listdir(input_dir):
+                print(f"{qid}: sem arquivos. Pulando.")
+                continue
+
+            result_dir = os.path.join(result_root, f"jplag_results_{qid}")
+            cmd = [
+                "java", "-jar", jplag_jar_path,
+                "-l", language,
+                "--mode", "run",
+                "--overwrite",
+                "-r", result_dir,
+                "--csv-export",
+                "--min-tokens", "15",
+                input_dir,
+            ]
+
+            try:
+                completed = run(cmd, check=False, capture_output=True, text=True)
+                if completed.returncode != 0:
+                    print(f"{qid}: retorno {completed.returncode}.")
+                    continue
+            except Exception as e:
+                print(f"{qid}: Erro ao executar JPlag: {e}")
+                continue
+
+            index_html = os.path.join(result_dir, "index.html")
+            bundle = os.path.join(result_dir, f"{qid}.jplag")
+            if os.path.exists(index_html):
+                report_artifacts.append((qid, os.path.abspath(index_html)))
+            elif os.path.exists(bundle):
+                report_artifacts.append((qid, os.path.abspath(bundle)))
+
+            for student1, student2, stud1_result, stud2_result in parse_results_csv(result_dir, threshold_0_1):
+                results.append({
+                    "question": qid,
+                    "student1": student1,
+                    "percentage1": int(round(stud1_result * 100)),
+                    "student2": student2,
+                    "percentage2": int(round(stud2_result * 100)),
+                })
+
+            print(f"{qid}: pares ≥ {threshold_percent}%:", sum(1 for r in results if r["question"] == qid))
+
+    except Exception as e:
+        print(f"Erro geral: {e}")
+
+    return report_artifacts, results
