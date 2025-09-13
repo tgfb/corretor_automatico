@@ -1,10 +1,11 @@
 import os
 import sys
+from utils.utils import log_error, log_info, set_log_folder
 from core.models.student_submission import load_students_from_json, save_students_to_json
 from infrastructure.jplag_handle import run_jplag_for_questions
 
 
-def _update_json_with_pairs(base_path, pairs, threshold_percent = 80):
+def update_json_with_pairs(base_path, pairs, threshold_percent = 80):
     
     if not pairs:
         print("Nenhum par acima de 80% para atualizar nos JSONs.")
@@ -14,7 +15,7 @@ def _update_json_with_pairs(base_path, pairs, threshold_percent = 80):
     for turma in turmas:
         json_path = os.path.join(base_path, f"students_turma{turma}.json")
         if not os.path.isfile(json_path):
-            print(f"JSON não encontrado (turma {turma}). Pulando.")
+            log_info(f"JSON não encontrado (turma {turma}). Pulando.")
             continue
 
         try:
@@ -39,12 +40,13 @@ def _update_json_with_pairs(base_path, pairs, threshold_percent = 80):
                         obj.update_field("copia", 1)
                         obj.add_comment(f"{qid} | Cópia detectada: {student1_raw} ({percentage1}%) ↔ {student2_raw} ({percentage2}%)")
                         touched = True
-
-            if touched:
+     
+            if touched:  
                 save_students_to_json(students, json_path)
                 print(f"Atualizado: {json_path}")
+            
         except Exception as e:
-            print(f"Falha ao atualizar {json_path}: {e}")
+            log_error(f"Falha ao atualizar {json_path}: {e}")
 
 
 def main():
@@ -64,6 +66,7 @@ def main():
     project_root = os.path.dirname(script_dir)
     downloads_dir = os.path.join(project_root, "Downloads")
     base_path = os.path.join(downloads_dir, selected_folder)
+    set_log_folder(base_path)
     submissions_dir = os.path.join(base_path, "submissions")
 
     jplag_jar_path = os.path.join(script_dir, "infrastructure", "external_tools", "jplag-6.1.0-jar-with-dependencies.jar")
@@ -73,7 +76,7 @@ def main():
         return
 
     print("\nRodando JPlag…")
-    artifacts, pairs = run_jplag_for_questions(
+    report_artifacts, pairs = run_jplag_for_questions(
         submissions_dir=submissions_dir,
         language="c",          
         num_questions=num_questions,
@@ -81,11 +84,13 @@ def main():
         threshold_percent=80,       
     )
 
-    print("\nRelatórios:")
-    for qid, path in artifacts:
-        print(f"{qid}: file://{path}")
-
-    _update_json_with_pairs(base_path, pairs, threshold_percent=80)
+    print("\nRelatórios :")
+    for qid, path in report_artifacts:
+        print(f"{qid}: {path}")
+    print("\n")
+    
+    update_json_with_pairs(base_path, pairs, threshold_percent=80)
+    print("\n")
 
 
 if __name__ == "__main__":
