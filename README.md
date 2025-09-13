@@ -4,7 +4,7 @@ Esta aplicação acessa uma turma do Google Classroom, lista as atividades dos a
 
 ## Como Usar
 
-### Pre-requisitos
+## Pré-requisitos
 
 Esta aplicação depende das [APIs do Google](https://developers.google.com/workspace/guides/get-started). É necessário seguir os passos do [Quick Start Guide python](https://developers.google.com/docs/api/quickstart/python) para criar o arquivo `credentials.json` contendo os seguintes escopos:
 
@@ -16,6 +16,11 @@ Esta aplicação depende das [APIs do Google](https://developers.google.com/work
     "https://www.googleapis.com/auth/drive"
     "https://www.googleapis.com/auth/spreadsheets"
 ```
+
+- Python 3.10+ (ver `requirements.txt` para dependências Python)
+- Java 11 ou superior instalado e acessível no PATH (`java -version`)
+- Arquivo `jplag-6.1.0-jar-with-dependencies.jar` baixado manualmente
+  e colocado em `app/infrastructure/external_tools/`
 
 Para usar esta aplicação, é necessário instalar as bibliotecas python listadas no arquivo `requirements.txt`:
 
