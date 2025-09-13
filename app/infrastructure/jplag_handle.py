@@ -2,6 +2,7 @@ import csv
 import os
 import shutil
 from shutil import which
+from utils.utils import log_error, log_info
 from subprocess import run, CalledProcessError
 
 
@@ -36,7 +37,7 @@ def prepare_inputs_by_question(submissions_dir, question_num):
         print(f"q{question_num}: {copied} arquivos copiados.")
         return question_dir if copied > 0 else None
     except Exception as e:
-        print(f"Erro preparando q{question_num}: {e}")
+        log_error(f"Erro preparando q{question_num}: {e}")
         return None
 
 
@@ -61,7 +62,7 @@ def parse_results_csv(result_dir, threshold_0_1):
                 if max(student1_result, student2_result) >= threshold_0_1:
                     pairs.append((student1, student2, student1_result, student2_result))
     except Exception as e:
-        print(f"Falha lendo CSV '{csv_path}': {e}")
+        log_error(f"Falha lendo CSV '{csv_path}': {e}")
     return pairs
 
 
@@ -89,7 +90,7 @@ def run_jplag_for_questions(submissions_dir, language, num_questions, jplag_jar_
             print(f"\nPreparando {qid}…")
             input_dir = prepare_inputs_by_question(submissions_dir, question)
             if not input_dir or not os.listdir(input_dir):
-                print(f"{qid}: sem arquivos. Pulando.")
+                log_info(f"{qid}: sem arquivos. Pulando.")
                 continue
 
             result_dir = os.path.join(result_root, f"jplag_results_{qid}")
@@ -107,18 +108,20 @@ def run_jplag_for_questions(submissions_dir, language, num_questions, jplag_jar_
             try:
                 completed = run(cmd, check=False, capture_output=True, text=True)
                 if completed.returncode != 0:
-                    print(f"{qid}: retorno {completed.returncode}.")
+                    log_info(f"{qid}: retorno {completed.returncode}.")
                     continue
+
+                html_path = os.path.join(result_dir, "index.html")
+                zip_path = result_dir + ".jplag"  
+
+                artifact = html_path if os.path.isfile(html_path) else (zip_path if os.path.isfile(zip_path) else None)
+                if artifact:
+                    report_artifacts.append((qid, os.path.abspath(artifact)))
+
             except Exception as e:
-                print(f"{qid}: Erro ao executar JPlag: {e}")
+                log_error(f"{qid}: Erro ao executar JPlag: {e}")
                 continue
 
-            index_html = os.path.join(result_dir, "index.html")
-            bundle = os.path.join(result_dir, f"{qid}.jplag")
-            if os.path.exists(index_html):
-                report_artifacts.append((qid, os.path.abspath(index_html)))
-            elif os.path.exists(bundle):
-                report_artifacts.append((qid, os.path.abspath(bundle)))
 
             for student1, student2, stud1_result, stud2_result in parse_results_csv(result_dir, threshold_0_1):
                 results.append({
@@ -132,6 +135,6 @@ def run_jplag_for_questions(submissions_dir, language, num_questions, jplag_jar_
             print(f"{qid}: pares ≥ {threshold_percent}%:", sum(1 for r in results if r["question"] == qid))
 
     except Exception as e:
-        print(f"Erro geral: {e}")
+        log_error(f"Erro geral: {e}")
 
     return report_artifacts, results
