@@ -1,8 +1,8 @@
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
-gspread
-oauth2client
-rarfile
-beautifulsoup4
-requests
+google-api-python-client==2.147.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1
+gspread==6.1.2
+oauth2client==4.1.3
+rarfile==4.2
+beautifulsoup4==4.12.3
+requests==2.32.3
