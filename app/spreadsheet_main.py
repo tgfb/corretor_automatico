@@ -14,6 +14,7 @@ from infrastructure.spreadsheet_handler import (
 from core.models.student_submission import load_students_from_json
 from utils.utils import log_error, read_id_from_file, set_log_folder, get_available_turmas_from_folder
 from core.models.list_metadata import ListMetadata
+from services.laudo_spreadsheet import highlight_rows_by_names_from_laudo
 
 
 def main():
@@ -92,6 +93,8 @@ def main():
                 freeze_and_sort(worksheet)
                 align_and_resize(worksheet)
                 align_middle_entire_sheet(worksheet)
+                highlighted_count = highlight_rows_by_names_from_laudo(worksheet)
+                print(f"{highlighted_count} linhas destacadas na aba '{list_name}'.")
             else:
                 log_error("Erro ao configurar cabeçalho. Dados dos alunos não foram enviados.")
             
