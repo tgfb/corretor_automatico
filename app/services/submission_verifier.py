@@ -81,7 +81,7 @@ def verify_and_comment_valid_questions_considering_penalties(
     penalty_logs = None,
     treat_zero_as_invalid = True
 ):
-  
+   
     summary = {}
 
     penalized_map = parse_penalty_logs(penalty_logs or [])
@@ -90,6 +90,7 @@ def verify_and_comment_valid_questions_considering_penalties(
         for class_letter, students_json_path in students_json_by_class.items():
             students = load_students_from_json(students_json_path)
             commented_count = 0
+            zeroed_missing_count = 0
 
             for student in students:
                 student_login = getattr(student, "login", None) or getattr(student, "student_login", "")
@@ -105,7 +106,7 @@ def verify_and_comment_valid_questions_considering_penalties(
 
                 penalized_for_login = penalized_map.get(student_login, set())
 
-                zero_scored_questions: Set[int] = set()
+                zero_scored_questions = set()
                 if treat_zero_as_invalid:
                     for qnum in range(1, num_questions + 1):
                         score_value = question_score(student, qnum)
@@ -117,8 +118,20 @@ def verify_and_comment_valid_questions_considering_penalties(
                             zero_scored_questions.add(qnum)
 
                 valid_questions = present_questions - penalized_for_login - zero_scored_questions
-
                 expected_set = set(range(1, num_questions + 1))
+
+                missing_questions = expected_set - present_questions
+                for qnum in sorted(missing_questions):
+                    qkey = f"q{qnum}"
+                    try:
+                        student.update_field(qkey, 0)
+                    except Exception:
+                        try:
+                            setattr(student, qkey, 0)
+                        except Exception as e:
+                            log_error(f"Falha ao zerar {qkey} de {student_login}: {e}")
+                            continue
+                    zeroed_missing_count += 1
 
                 if valid_questions != expected_set:
                     sorted_valid = sorted(valid_questions)
@@ -138,9 +151,10 @@ def verify_and_comment_valid_questions_considering_penalties(
                 log_error(f"Falha ao salvar JSON da turma {class_letter}: {e}")
 
             summary[class_letter] = commented_count
-            log_info(f"Turma {class_letter}: {commented_count} alunos comentados.")
+            log_info(f"Turma {class_letter}: {commented_count} aluno(s) comentado(s); {zeroed_missing_count} questão(ões) faltante(s) zerada(s).")
 
     except Exception as e:
-        log_error(f"Erro na verificação de questões válidas (com penalidades): {e}")
+        log_error(f"Erro na verificação (penalidades + zerar faltantes): {e}")
 
-    return summary
+  
+
