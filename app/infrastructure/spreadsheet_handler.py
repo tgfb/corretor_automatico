@@ -173,7 +173,7 @@ def freeze_and_sort(worksheet):
                         },
                         "sortSpecs": [
                             {
-                                "dimensionIndex": 2,  
+                                "dimensionIndex": 0,  #ordenar pelo nome
                                 "sortOrder": "ASCENDING"
                             }
                         ]
