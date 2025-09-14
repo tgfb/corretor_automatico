@@ -20,6 +20,7 @@ from infrastructure.folders_organizer import (
     remove_empty_folders
 )
 from services.code_analyzer import log_small_submissions, apply_small_files_penalties
+from services.submission_verifier import verify_and_comment_valid_questions_considering_penalties
 
 def main():
     try:
@@ -161,10 +162,19 @@ def main():
         final_base_path = os.path.abspath(os.path.join(project_root, "Downloads", formatted_list))
         log_small_submissions(final_submissions_folder, num_questions, final_base_path)
         log_path = os.path.join(final_base_path, "output", "small_files.txt")
+        
+        for turma, json_path in students_paths.items():
+            apply_small_files_penalties(log_path, json_path)
 
-        for turma in students_paths:
-            apply_small_files_penalties(log_path, students_paths[turma])
+        verify_and_comment_valid_questions_considering_penalties(
+            final_submissions_folder=final_submissions_folder,
+            students_json_by_class=students_paths,  
+            num_questions=num_questions,
+            penalty_logs=[log_path],
+            treat_zero_as_invalid=True
+        )
 
+    
     except Exception as e:
         log_error(f"Erro no fluxo principal: {e}")
 
