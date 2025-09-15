@@ -14,7 +14,7 @@ from infrastructure.spreadsheet_handler import (
 from core.models.student_submission import load_students_from_json
 from utils.utils import log_error, read_id_from_file, set_log_folder, get_available_turmas_from_folder
 from core.models.list_metadata import ListMetadata
-from services.laudo_spreadsheet import highlight_rows_by_names_from_laudo
+from services.laudo_spreadsheet import highlight_rows_by_names_from_laudo, log_laudo_names_not_found
 
 
 def main():
@@ -41,6 +41,8 @@ def main():
         if not folder_id:
             print("Arquivo 'folder_id.txt' não encontrado ou inválido.\n")
             return
+        
+        audit_worksheets = []
 
         for turma in turmas:
             students_path = os.path.join(downloads_path, f"students_turma{turma}.json")
@@ -79,7 +81,8 @@ def main():
                 print("Não foi possível obter ou criar a planilha e aba.\n")
                 return
 
-            existing_values = worksheet.get_all_values()
+            audit_worksheets.append(worksheet)
+            existing_values = worksheet.get_all_values()         
             if len(existing_values) > 3:
                 print(f"A aba '{list_name}' já está preenchida. Pulando preenchimento.")
                 continue
@@ -97,8 +100,10 @@ def main():
                 print(f"{highlighted_count} linhas destacadas na aba '{list_name}'.")
             else:
                 log_error("Erro ao configurar cabeçalho. Dados dos alunos não foram enviados.")
-            
-            print("\nProcesso finalizado com sucesso.\n")
+
+        if audit_worksheets:
+            log_laudo_names_not_found(audit_worksheets)   
+        print("\nProcesso finalizado com sucesso.\n")
 
     except Exception as e:
         log_error(f"Erro no fluxo spreadsheet main: {e}")
