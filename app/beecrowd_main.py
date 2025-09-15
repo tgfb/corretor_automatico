@@ -19,7 +19,6 @@ def main():
 
         selected_folder = sys.argv[1].strip()
 
-        # Paths base
         script_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.dirname(script_dir)
         downloads_root = os.path.join(project_root, "Downloads")
