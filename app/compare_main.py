@@ -1,5 +1,4 @@
 import os
-import numpy as np
 from pycparser import c_parser, c_ast
 import re
 import math
@@ -90,15 +89,18 @@ def jaccard_similarity(commom_tokens, all_tokens):
 
 def weighted_cosine_similarity(seq1, seq2, all_tokens):
     idx = {t: i for i, t in enumerate(all_tokens)}
-    v1 = np.zeros(len(all_tokens))
-    v2 = np.zeros(len(all_tokens))
+    v1 = [0.0] * len(all_tokens)
+    v2 = [0.0] * len(all_tokens)
+
     for t in seq1:
         v1[idx[t]] += TOKEN_PESOS.get(t, 1.0)
     for t in seq2:
         v2[idx[t]] += TOKEN_PESOS.get(t, 1.0)
-    dot = np.dot(v1, v2)
-    norm = np.linalg.norm(v1) * np.linalg.norm(v2) + 1e-9
-    return dot / norm
+
+    dot = sum(a * b for a, b in zip(v1, v2))
+    norm1 = math.sqrt(sum(a * a for a in v1))
+    norm2 = math.sqrt(sum(b * b for b in v2))
+    return dot / (norm1 * norm2 + 1e-9)
 
 def ngram_similarity(seq1, seq2, n=4):
     if len(seq1) < n or len(seq2) < n:
@@ -291,8 +293,9 @@ def salvar_json(lista: str, alunos: list[Aluno]):
 # Main
 # -------------------------------
 def main():
-    _, lista_nome, dificuldade = sys.argv
-    dificuldade = int(dificuldade)
+    lista_nome = sys.argv[1] if len(sys.argv) > 1 else "padrao.txt"
+    dificuldade = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else 2
+    
     start_time = time.time()
     alunos = carregar_questoes(lista_nome)
     print(f"Tempo de carregamento: {(time.time() - start_time):.2f}s")
