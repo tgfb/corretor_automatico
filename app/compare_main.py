@@ -14,17 +14,20 @@ import sys
 # -------------------------------
 PARSER = c_parser.CParser()
 
+
 def gerar_ast(code: str):
     try:
         return PARSER.parse(code)
     except Exception as e:
         return None
 
+
 # -------------------------------
 # AST Signature
 # -------------------------------
 class ASTSignature(c_ast.NodeVisitor):
     """Cria uma assinatura normalizada da AST"""
+
     def __init__(self):
         self.tokens = []
 
@@ -53,10 +56,12 @@ class ASTSignature(c_ast.NodeVisitor):
 
         super().generic_visit(node)
 
+
 def extrair_assinatura(ast):
     visitor = ASTSignature()
     visitor.visit(ast)
     return visitor.tokens
+
 
 # -------------------------------
 # Funções por função
@@ -72,6 +77,7 @@ class ASTFunctionVisitor(c_ast.NodeVisitor):
         self.functions[nome_func] = sig_visitor.tokens
         self.generic_visit(node)
 
+
 # -------------------------------
 # Similaridade
 # -------------------------------
@@ -84,8 +90,10 @@ TOKEN_PESOS = {
     "CONST_STR": 0.5,
 }
 
+
 def jaccard_similarity(commom_tokens, all_tokens):
     return len(commom_tokens) / len(all_tokens)
+
 
 def weighted_cosine_similarity(seq1, seq2, all_tokens):
     idx = {t: i for i, t in enumerate(all_tokens)}
@@ -102,17 +110,21 @@ def weighted_cosine_similarity(seq1, seq2, all_tokens):
     norm2 = math.sqrt(sum(b * b for b in v2))
     return dot / (norm1 * norm2 + 1e-9)
 
+
 def ngram_similarity(seq1, seq2, n=4):
     if len(seq1) < n or len(seq2) < n:
         return 0.0
+
     def ngrams(seq, n):
-        return [" ".join(seq[i:i+n]) for i in range(len(seq) - n + 1)]
+        return [" ".join(seq[i : i + n]) for i in range(len(seq) - n + 1)]
+
     c1, c2 = Counter(ngrams(seq1, n)), Counter(ngrams(seq2, n))
     all_keys = set(c1) | set(c2)
     dot = sum(c1[k] * c2[k] for k in all_keys)
-    norm1 = math.sqrt(sum(v*v for v in c1.values()))
-    norm2 = math.sqrt(sum(v*v for v in c2.values()))
+    norm1 = math.sqrt(sum(v * v for v in c1.values()))
+    norm2 = math.sqrt(sum(v * v for v in c2.values()))
     return dot / (norm1 * norm2 + 1e-9)
+
 
 def similaridade_combinada(seq1, seq2):
     if len(seq1) == 0 or len(seq2) == 0:
@@ -130,6 +142,7 @@ def similaridade_combinada(seq1, seq2):
     ngram = ngram_similarity(seq1, seq2, n=4)
     return 0.7 * ngram + 0.1 * cos + 0.2 * jacc
 
+
 def similaridade_funcoes(funcoes1, funcoes2):
     comuns = set(funcoes1) & set(funcoes2)
     if not comuns:
@@ -144,11 +157,16 @@ def similaridade_funcoes(funcoes1, funcoes2):
 RE_COMENTARIOS = re.compile(r"/\*.*?\*/", re.DOTALL)
 RE_BARRA = re.compile(r"//.*")
 
+
 def remover_comentarios(codigo):
     return RE_COMENTARIOS.sub("", RE_BARRA.sub("", codigo))
 
+
 def remover_hashtag(codigo):
-    return "\n".join(linha for linha in codigo.splitlines() if not linha.strip().startswith("#"))
+    return "\n".join(
+        linha for linha in codigo.splitlines() if not linha.strip().startswith("#")
+    )
+
 
 # -------------------------------
 # Classes
@@ -158,23 +176,26 @@ class Questao:
         self.numero = numero
         self.assinatura = assinatura
         self.funcoes = funcoes
+        self.max_sim = 0
+
 
 class Aluno:
     def __init__(self, email):
         self.email = email
-        self.questoes = [None for _ in range(4)]
+        self.questoes: list[Questao] = [None for _ in range(4)]
         self.comentarios = []
 
     def addQuestao(self, questao):
         self.questoes[questao.numero - 1] = questao
+
 
 # -------------------------------
 # Carregar dados
 # -------------------------------
 def carregar_questoes(lista):
     alunos = []
-    base = os.path.dirname(__file__)          
-    raiz = os.path.abspath(os.path.join(base, "..")) 
+    base = os.path.dirname(__file__)
+    raiz = os.path.abspath(os.path.join(base, ".."))
     downloads = os.path.join(raiz, "Downloads", lista, "submissions")
     for aluno in os.listdir(downloads):
         caminho_aluno = os.path.join(downloads, aluno)
@@ -199,15 +220,18 @@ def carregar_questoes(lista):
                 func_visitor = ASTFunctionVisitor()
                 func_visitor.visit(ast)
                 q_numero = int(arquivo.split("_")[0][1:])
-                questao = Questao(q_numero, assinatura, func_visitor.functions)
-                aluno_obj.addQuestao(questao)
+                if 0 <= q_numero <= 4:
+                    questao = Questao(q_numero, assinatura, func_visitor.functions)
+                    aluno_obj.addQuestao(questao)
+
         alunos.append(aluno_obj)
     return alunos
+
 
 # -------------------------------
 # Otimização: Comparação em chunks
 # -------------------------------
-def comparar_par_chunk(chunk, alunos_serializavel, threshold):
+def comparar_par_chunk(chunk, alunos_serializavel):
     resultados = []
     for i, j in chunk:
         aluno_a, aluno_b = alunos_serializavel[i], alunos_serializavel[j]
@@ -218,25 +242,24 @@ def comparar_par_chunk(chunk, alunos_serializavel, threshold):
             sim_arquivo = similaridade_combinada(qa["assinatura"], qb["assinatura"])
             sim_funcoes = similaridade_funcoes(qa["funcoes"], qb["funcoes"])
             sim_final = round((sim_arquivo + sim_funcoes) / 2, 4)
-            if sim_final >= threshold:
-                resultados.append((i, j, k, sim_final))
+            resultados.append((i, j, k, sim_final))
     return resultados
+
 
 # -------------------------------
 # Comparar todas as questões
 # -------------------------------
-def comparar_questoes(alunos, threshold=0.85):
+def comparar_questoes(alunos):
     # Serializar alunos para envio leve
     alunos_serializavel = [
         {
             "email": a.email,
             "questoes": [
-                {
-                    "assinatura": q.assinatura,
-                    "funcoes": q.funcoes
-                } if q else None for q in a.questoes
-            ]
-        } for a in alunos
+                {"assinatura": q.assinatura, "funcoes": q.funcoes} if q else None
+                for q in a.questoes
+            ],
+        }
+        for a in alunos
     ]
 
     pares = list(combinations(range(len(alunos)), 2))
@@ -244,25 +267,52 @@ def comparar_questoes(alunos, threshold=0.85):
     resultados = []
 
     with ProcessPoolExecutor() as executor:
-        chunks = [pares[i:i+chunk_size] for i in range(0, len(pares), chunk_size)]
-        futures = [executor.submit(comparar_par_chunk, c, alunos_serializavel, threshold) for c in chunks]
+        chunks = [pares[i : i + chunk_size] for i in range(0, len(pares), chunk_size)]
+        futures = [
+            executor.submit(comparar_par_chunk, c, alunos_serializavel) for c in chunks
+        ]
         for f in futures:
             resultados.extend(f.result())
 
     # Adicionar comentários finais
     for i, j, k, sim_final in resultados:
         aluno_a, aluno_b = alunos[i], alunos[j]
+        if sim_final > aluno_a.questoes[k].max_sim:
+            aluno_a.questoes[k].max_sim = sim_final
+        if sim_final > aluno_b.questoes[k].max_sim:
+            aluno_b.questoes[k].max_sim = sim_final
+
+    q_count = [0] * 4
+    avg_list = [0] * 4
+
+    for aluno in alunos:
+        for i, q in enumerate(aluno.questoes):
+            if q == None:
+                continue
+            avg_list[i] += q.max_sim
+            q_count[i] += 1
+
+    for i in range(4):
+        if q_count[i] > 0:
+            avg_list[i] /= q_count[i]
+
+    for i, j, k, sim_final in resultados:
+        if sim_final < avg_list[k] + 0.1:
+            continue
+        aluno_a, aluno_b = alunos[i], alunos[j]
         msg = f"SIMILARIDADE q{k + 1}_{aluno_b.email} {sim_final * 100:.2f}%"
         aluno_a.comentarios.append(msg)
         aluno_b.comentarios.append(msg.replace(aluno_b.email, aluno_a.email))
+
 
 # -------------------------------
 # Salvar
 # -------------------------------
 
+
 def salvar_json(lista: str, alunos: list[Aluno]):
-    base = os.path.dirname(__file__)          
-    raiz = os.path.abspath(os.path.join(base, "..")) 
+    base = os.path.dirname(__file__)
+    raiz = os.path.abspath(os.path.join(base, ".."))
     downloads = os.path.join(raiz, "Downloads", lista)
 
     arquivos = ["students_turmaA.json", "students_turmaB.json", "students_turmaC.json"]
@@ -280,7 +330,9 @@ def salvar_json(lista: str, alunos: list[Aluno]):
         for arq in arquivos:
             if aluno.email in dados[arq]:
                 if not dados[arq][aluno.email]["copia"]:
-                    dados[arq][aluno.email]["comentario"] += "\n" + "\n".join(aluno.comentarios)
+                    dados[arq][aluno.email]["comentario"] += "\n" + "\n".join(
+                        aluno.comentarios
+                    )
                     dados[arq][aluno.email]["copia"] = 1
                 break
 
@@ -289,26 +341,26 @@ def salvar_json(lista: str, alunos: list[Aluno]):
         with open(caminho, "w", encoding="utf-8") as f:
             lista_alunos = [dados[arq][key] for key in dados[arq].keys()]
             json.dump(lista_alunos, f, indent=4, ensure_ascii=False)
+
+
 # -------------------------------
 # Main
 # -------------------------------
 def main():
-    lista_nome = sys.argv[1] if len(sys.argv) > 1 else "padrao.txt"
-    dificuldade = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else 2
-    
+    lista_nome = sys.argv[1] if len(sys.argv) > 0 else "LISTA 01"
+
     start_time = time.time()
     alunos = carregar_questoes(lista_nome)
     print(f"Tempo de carregamento: {(time.time() - start_time):.2f}s")
 
-    threshold = 1 - (dificuldade - 1) / 20
-
     start_time = time.time()
-    comparar_questoes(alunos, threshold)
+    comparar_questoes(alunos)
     print(f"Tempo de comparação: {(time.time() - start_time):.2f}s")
 
     start_time = time.time()
     salvar_json(lista_nome, alunos)
     print(f"Tempo de salvar: {(time.time() - start_time):.2f}s")
+
 
 if __name__ == "__main__":
     main()
