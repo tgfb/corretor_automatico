@@ -1,150 +1,199 @@
-import tkinter as tk
+import customtkinter as ctk
 import subprocess
 import sys
 import threading
 import time
 
-# Lista de scripts na ordem
+# --- Lista de scripts na ordem ---
 scripts_ordem = [
     "download_main.py",
     "beecrowd_main.py",
     "compare_main.py",
-    "spreadsheet_main.py"
+    "spreadsheet_main.py",
 ]
 
-def rodar_sequencia(input_text, dificuldade):
-    """Executa os scripts selecionados na ordem, enviando input_text e (se for compare) também dificuldade"""
+# --- Aparência global ---
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+# --- Janela principal ---
+root = ctk.CTk()
+root.title("Executar Scripts")
+root.attributes("-fullscreen", True)  # inicia em tela cheia
+root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
+
+
+# --- Funções ---
+def rodar_sequencia(input_text):
     scripts = [
         (scripts_ordem[0], check1_var),
         (scripts_ordem[1], check2_var),
-        (scripts_ordem[2], check3_var),  # Compare
-        (scripts_ordem[3], check4_var)
+        (scripts_ordem[2], check3_var),
+        (scripts_ordem[3], check4_var),
     ]
 
     def task():
-        for script, var in scripts:
-            if var.get():
-                # Monta os argumentos
-                if script == "compare_main.py":
-                    args = [sys.executable, "-u", script, input_text, str(dificuldade)]
-                    terminal.insert(tk.END, f"\nExecutando {script} com argumentos '{input_text}' e dificuldade {dificuldade}...\n")
-                else:
-                    args = [sys.executable, "-u", script, input_text]
-                    terminal.insert(tk.END, f"\nExecutando {script} com argumento '{input_text}'...\n")
+        total_scripts = sum(var.get() for _, var in scripts)
+        executed_count = 0
+        total_start = time.time()
 
-                terminal.see(tk.END)
+        for idx, (script, var) in enumerate(scripts, start=1):
+            if var.get():
+                terminal.insert(
+                    "end",
+                    f"\n[Script {idx}/{len(scripts_ordem)}] ▶ Executando {script} com argumento '{input_text}'\n",
+                    "running",
+                )
+                terminal.see("end")
 
                 start_time = time.time()
                 process = subprocess.Popen(
-                    args,
+                    [sys.executable, "-u", script, input_text],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
-                    bufsize=1
+                    bufsize=1,
                 )
 
                 # Saída em tempo real
-                for line in iter(process.stdout.readline, ''):
-                    terminal.insert(tk.END, line)
-                    terminal.see(tk.END)
-                for line in iter(process.stderr.readline, ''):
-                    terminal.insert(tk.END, "ERRO: " + line)
-                    terminal.see(tk.END)
+                for line in iter(process.stdout.readline, ""):
+                    if line.strip():
+                        terminal.insert("end", f"[STDOUT] {line}", "running")
+                        terminal.see("end")
+                        terminal.update_idletasks()
+                for line in iter(process.stderr.readline, ""):
+                    if line.strip():
+                        terminal.insert("end", f"[ERRO] {line}", "error")
+                        terminal.see("end")
+                        terminal.update_idletasks()
 
                 process.stdout.close()
                 process.stderr.close()
                 process.wait()
                 elapsed = time.time() - start_time
+                executed_count += 1
 
-                terminal.insert(tk.END, f"{script} finalizado em {elapsed:.2f} segundos.\n")
-                terminal.see(tk.END)
+                terminal.insert(
+                    "end",
+                    f"✓ [Script {idx}] {script} finalizado em {elapsed:.2f}s\n",
+                    "success",
+                )
+                terminal.see("end")
+
+        total_elapsed = time.time() - total_start
+        terminal.insert("end", f"\n=== Resumo Final ===\n", "info")
+        terminal.insert(
+            "end", f"Scripts executados: {executed_count}/{total_scripts}\n", "info"
+        )
+        terminal.insert("end", f"Tempo total: {total_elapsed:.2f}s\n", "info")
+        terminal.see("end")
 
     threading.Thread(target=task, daemon=True).start()
 
+
 def enviar_input():
     texto = entrada.get()
-    dificuldade = entrada_dificuldade.get()
-
     if not texto:
-        terminal.insert(tk.END, "Por favor, digite algum texto para enviar como argumento.\n")
+        terminal.insert(
+            "end", "⚠ Digite algum texto para enviar como argumento.\n", "warn"
+        )
         return
+    rodar_sequencia(texto)
+    entrada.delete(0, "end")
 
-    if not dificuldade.isdigit() or not (1 <= int(dificuldade) <= 10):
-        terminal.insert(tk.END, "Por favor, insira uma dificuldade válida (1 a 10).\n")
-        return
-
-    terminal.insert(tk.END, f"> Enviando '{texto}' (dificuldade {dificuldade} apenas para Compare) para os scripts selecionados\n")
-    rodar_sequencia(texto, int(dificuldade))
-    entrada.delete(0, tk.END)
 
 def limpar_terminal():
-    terminal.delete("1.0", tk.END)
+    terminal.delete("1.0", "end")
 
-# --- Configuração da janela ---
-root = tk.Tk()
-root.title("Executar Scripts")
-root.attributes("-fullscreen", True)
-root.configure(bg="#f0f0f0")
-root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
 
-# --- Frame de checkboxes ---
-frame_check = tk.LabelFrame(root, text="Scripts", font=("Arial", 16, "bold"), padx=10, pady=10, bg="#f0f0f0")
-frame_check.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+def exportar_log():
+    with open("log.txt", "w", encoding="utf-8") as f:
+        f.write(terminal.get("1.0", "end"))
+    terminal.insert("end", "✅ Log exportado para log.txt\n", "success")
+    terminal.see("end")
 
-check1_var = tk.BooleanVar(value=True)
-check2_var = tk.BooleanVar(value=True)
-check3_var = tk.BooleanVar(value=True)
-check4_var = tk.BooleanVar(value=True)
 
-check1 = tk.Checkbutton(frame_check, text="Download", variable=check1_var, font=("Arial", 16, "bold"),
-                        height=3, width=20, bg="#f0f0f0")
-check1.pack(side=tk.LEFT, padx=5)
+# --- Frame checkboxes ---
+frame_check = ctk.CTkFrame(root)
+frame_check.pack(pady=20, padx=20, fill="x")
 
-check2 = tk.Checkbutton(frame_check, text="Beecrowd", variable=check2_var, font=("Arial", 16, "bold"),
-                        height=3, width=20, bg="#f0f0f0")
-check2.pack(side=tk.LEFT, padx=5)
+check1_var = ctk.BooleanVar(value=True)
+check2_var = ctk.BooleanVar(value=True)
+check3_var = ctk.BooleanVar(value=True)
+check4_var = ctk.BooleanVar(value=True)
 
-check3 = tk.Checkbutton(frame_check, text="Compare", variable=check3_var, font=("Arial", 16, "bold"),
-                        height=3, width=20, bg="#f0f0f0")
-check3.pack(side=tk.LEFT, padx=5)
+check1 = ctk.CTkCheckBox(
+    frame_check, text="Download", variable=check1_var, font=("Arial", 16)
+)
+check1.pack(side="left", padx=15, pady=15)
 
-check4 = tk.Checkbutton(frame_check, text="Spreadsheet", variable=check4_var, font=("Arial", 16, "bold"),
-                        height=3, width=20, bg="#f0f0f0")
-check4.pack(side=tk.LEFT, padx=5)
+check2 = ctk.CTkCheckBox(
+    frame_check, text="Beecrowd", variable=check2_var, font=("Arial", 16)
+)
+check2.pack(side="left", padx=15, pady=15)
 
-# --- Frame de input e botão de execução ---
-frame_input_config = tk.LabelFrame(root, text="Configuração", font=("Arial", 16, "bold"),
-                                padx=10, pady=10, bg="#f0f0f0")
-frame_input_config.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+check3 = ctk.CTkCheckBox(
+    frame_check, text="Compare", variable=check3_var, font=("Arial", 16)
+)
+check3.pack(side="left", padx=15, pady=15)
 
-lbl_input = tk.Label(frame_input_config, text="Nome da lista:", font=("Arial", 14), bg="#f0f0f0")
-lbl_input.pack(side=tk.LEFT, padx=5)
+check4 = ctk.CTkCheckBox(
+    frame_check, text="Spreadsheet", variable=check4_var, font=("Arial", 16)
+)
+check4.pack(side="left", padx=15, pady=15)
 
-entrada = tk.Entry(frame_input_config, font=("Arial", 14), width=25)
-entrada.pack(side=tk.LEFT, padx=5)
+# --- Frame input ---
+frame_input = ctk.CTkFrame(root)
+frame_input.pack(pady=10, padx=20, fill="x")
 
-lbl_dificuldade = tk.Label(frame_input_config, text="Dificuldade (1-10):", font=("Arial", 14), bg="#f0f0f0")
-lbl_dificuldade.pack(side=tk.LEFT, padx=5)
+lbl_input = ctk.CTkLabel(frame_input, text="Nome da lista:", font=("Arial", 18, "bold"))
+lbl_input.pack(side="left", padx=10)
 
-# Spinbox em vez de Entry, com valor padrão 5
-entrada_dificuldade = tk.Spinbox(frame_input_config, from_=1, to=10, font=("Arial", 14), width=5)
-entrada_dificuldade.delete(0, tk.END)
-entrada_dificuldade.insert(0, "2")  # valor padrão
-entrada_dificuldade.pack(side=tk.LEFT, padx=5)
+entrada = ctk.CTkEntry(frame_input, width=300)
+entrada.pack(side="left", padx=10)
 
-btn_enviar = tk.Button(frame_input_config, text="Executar Selecionados", command=enviar_input,
-                       height=2, width=25, font=("Arial", 14, "bold"),
-                       bg="#4CAF50", fg="white", activebackground="#45a049")
-btn_enviar.pack(side=tk.LEFT, padx=5)
+btn_enviar = ctk.CTkButton(
+    frame_input,
+    text="Executar Selecionados",
+    command=enviar_input,
+    font=("Arial", 16, "bold"),
+)
+btn_enviar.pack(side="left", padx=10)
 
-btn_limpar = tk.Button(frame_input_config, text="Limpar Terminal", command=limpar_terminal,
-                       height=2, width=15, font=("Arial", 14, "bold"),
-                       bg="#f44336", fg="white", activebackground="#e53935")
-btn_limpar.pack(side=tk.LEFT, padx=5)
+btn_limpar = ctk.CTkButton(
+    frame_input,
+    text="Limpar Terminal",
+    fg_color="#d9534f",
+    hover_color="#c9302c",
+    command=limpar_terminal,
+    font=("Arial", 16, "bold"),
+)
+btn_limpar.pack(side="left", padx=10)
 
-# --- Área de texto para saída ---
-terminal = tk.Text(root, wrap="word", bg="#111111", fg="#00FF00", font=("Consolas", 12),
-                   bd=5, relief=tk.SUNKEN)
-terminal.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+btn_exportar = ctk.CTkButton(
+    frame_input,
+    text="Exportar Log",
+    fg_color="#5cb85c",
+    hover_color="#4cae4c",
+    command=exportar_log,
+    font=("Arial", 16, "bold"),
+)
+btn_exportar.pack(side="left", padx=10)
+
+# --- Terminal ---
+frame_terminal = ctk.CTkFrame(root)
+frame_terminal.pack(padx=20, pady=20, fill="both", expand=True)
+
+terminal = ctk.CTkTextbox(
+    frame_terminal, wrap="word", text_color="#00FF00", font=("Consolas", 14)
+)
+terminal.pack(padx=10, pady=10, fill="both", expand=True)
+
+# Tags para cores
+terminal.tag_config("error", foreground="#FF4500")  # laranja/vermelho
+terminal.tag_config("warn", foreground="#FFFF00")  # amarelo
+terminal.tag_config("success", foreground="#00FF00")  # verde
+terminal.tag_config("running", foreground="#00BFFF")  # azul
+terminal.tag_config("info", foreground="#00FF00")  # verde padrão
 
 root.mainloop()
