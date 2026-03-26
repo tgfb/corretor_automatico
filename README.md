@@ -1,10 +1,102 @@
 # Corretor Automático de Listas de Exercicios
 
-Esta aplicação acessa uma turma do Google Classroom, lista as atividades dos alunos, baixa o código submetido para a atividade escolhida, verifica a formatação, verifica cópia e verifica se o código executa corretamente.
+Ferramenta para professores corrigirem automaticamente listas de exercícios de programação integrada ao Google Classroom, com verificação de formatação, organização dos arquivos, detecção de plágio, estruturando todo o resultado da submissão em planilhas do Google Sheets. Também é possível incluir as notas da plataforma do Beecrowd.
 
-## Como Usar
+## Funcionalidades
+
+🏫 Integração com Google Classroom — acessa turmas, atividades e submissões dos alunos automaticamente
+📥 Download automático — baixa os códigos submetidos para a atividade escolhida
+🗂️ Organização das atividades — organiza todas as pastas deixando os arquivos prontos para execução
+🎨 Verificação de formatação — checa se o código segue as convenções exigidas e detecta arquivos enviados vazios
+🔍 Detecção de plágio — utiliza JPlag e MOSS (Stanford) para identificar similaridade entre submissões
+🐝 Integração com Beecrowd — exporta o resultado da avaliação da plataforma, adicionando na planilha a pontuação de cada aluno
+📊 Exportação de resultados — salva as notas e relatórios diretamente no Google Sheets
+
+## Estrutura do projeto 
+
+```bash
+corretor_automatico/
+├── app/
+│   ├── core/
+│   │   └── models/              # Modelos de dados da aplicação
+│   ├── infrastructure/
+│   │   └── external_tools/      # Coloque aqui o jplag.jar e o moss.pl
+│   ├── input/                   # Arquivos de entrada/configuração
+│   ├── secrets/                 # Credenciais (credentials.json, token, etc.)
+│   ├── services/                # Lógica de negócio e integrações
+│   ├── utils/                   # Funções utilitárias
+│   ├── __init__.py
+│   ├── beecrowd_main.py         # Entrada para correção via Beecrowd
+│   ├── download_main.py         # Entrada para download das submissões
+│   ├── jplag_main.py            # Entrada para detecção de plágio com JPlag
+│   ├── moss_main.py             # Entrada para detecção de plágio com MOSS
+│   └── spreadsheet_main.py      # Entrada para exportação no Google Sheets
+├── old_app/
+│   └── old_script/              # Versão legada do script
+├── .gitignore
+├── LICENSE
+├── README.md
+└── requirements.txt
+```
 
 ## Pré-requisitos
+
+| Requisito | Versão mínima | Observação |
+|---|---|---|
+| Python | 3.10+ | Ver `requirements.txt` |
+| Java | 11+ | Deve estar acessível no PATH (`java -version`) |
+| Perl | 5+ | Necessário para o MOSS |
+| UnRAR | — | Instalação detalhada abaixo |
+| `credentials.json` | — | Credenciais da API do Google |
+| `jplag-6.1.0-jar-with-dependencies.jar` | 6.1.0 | Download manual no GitHub do JPlag |
+| `moss.pl` | — | Solicitado por e-mail ao time do MOSS/Stanford |
+
+
+## Instalação
+
+1. Clone o repositório
+
+```bash
+git clone https://github.com/tgfb/corretor_automatico.git
+cd corretor_automatico
+```
+
+2. Crie e ative um ambiente virtual
+   
+```bash
+python3 -m venv venv
+```
+ - Linux/macOS:
+   
+```bash
+source venv/bin/activate
+```
+
+- Windowns
+```bash
+venv\Scripts\activate
+```
+
+3. Instale as dependências Python
+```bash
+pip3 install -r requirements.txt
+```
+
+4. Instale o UnRAR
+ - Linux:
+   
+```bash
+sudo apt-get install unrar
+```
+
+- MacOS
+```bash
+brew install unrar
+```
+Windows:
+Baixe e instale em: https://www.rarlab.com/rar_add.htm
+
+5. Configure as credenciais do Google
 
 Esta aplicação depende das [APIs do Google](https://developers.google.com/workspace/guides/get-started). É necessário seguir os passos do [Quick Start Guide python](https://developers.google.com/docs/api/quickstart/python) para criar o arquivo `credentials.json` contendo os seguintes escopos:
 
@@ -17,55 +109,28 @@ Esta aplicação depende das [APIs do Google](https://developers.google.com/work
     "https://www.googleapis.com/auth/spreadsheets"
 ```
 
-- Python 3.10+ (ver `requirements.txt` para dependências Python)
-- Java 11 ou superior instalado e acessível no PATH (`java -version`)
-- Arquivo `jplag-6.1.0-jar-with-dependencies.jar` baixado manualmente
-  e colocado em `app/infrastructure/external_tools/`
+Coloque o arquivo credentials.json na raiz do projeto.
 
-Para usar esta aplicação, é necessário instalar as bibliotecas python listadas no arquivo `requirements.txt`:
-
-```bash
-pip3 install -r requirements.txt
-```
-
-Instale o UnRAR de acordo com o seu sistema operacional:
-
-#Linux 
-```bash
-sudo apt-get install unrar
-```
-
-#MacOS
-```bash
-brew install unrar
-```
-
-#Windows
-https://www.rarlab.com/rar_add.htm
-
-### Execução do script
-
-Execute o script via linha de comando:
-
-```bash
-python3 corretor_automatico.py 
-```
-
-### Esse projeto utiliza o **JPlag**
+6. Configure o JPlag
 
 Para executar o `main` que utiliza o JPlag, siga os passos abaixo:
 
-1. Faça o download do arquivo `plag-6.1.0-jar-with-dependencies.jar` na página oficial do JPlag:  
+- Faça o download do arquivo `plag-6.1.0-jar-with-dependencies.jar` na página oficial do JPlag:  
    [https://github.com/jplag/JPlag/releases](https://github.com/jplag/JPlag/releases)
+- Mova o arquivo baixado para a pasta `infrastructure/externaltools` do projeto.
 
-2. Mova o arquivo baixado para a pasta `infrastructure/externaltools` do projeto.
+7. Configure o MOSS (Measure of Software Similarity)**, da Universidade de Stanford, para análise de similaridade em códigos de programação submetidos por alunos.
 
+Solicite suas credenciais no site oficial do MOSS — o script moss.pl será enviado por e-mail
+Mova o arquivo moss.pl para app/infrastructure/external_tools/
 
-   
-### Este projeto utiliza o **MOSS (Measure of Software Similarity)**, da Universidade de Stanford, para análise de similaridade em códigos de programação submetidos por alunos.
+⚠️ O arquivo moss.pl não está versionado neste repositório e não pode ser redistribuído publicamente. Cada usuário deve obtê-lo diretamente do MOSS.
 
+## Conta no MOSS
+O professor/administrador deve solicitar credenciais no [site oficial do MOSS](https://theory.stanford.edu/~aiken/moss/).
+O time do MOSS enviará o script `moss.pl` por e-mail.
 
-## Requisitos
+## Instale o Perl (caso necessário):
 
 - **Perl instalado**
   - **Windows**: instale o [Strawberry Perl](http://strawberryperl.com/).
@@ -85,17 +150,6 @@ sudo apt-get install perl
 sudo dnf install perl
 ```
 
-## Conta no MOSS
-O professor/administrador deve solicitar credenciais no [site oficial do MOSS](https://theory.stanford.edu/~aiken/moss/).
-O time do MOSS enviará o script `moss.pl` por e-mail.
-
-## Estrutura do Projeto
-
-Coloque o arquivo `moss.pl` dentro da pasta `infrastructure/externaltools` do projeto.
-
-**Importante:** 
-O arquivo `moss.pl` **não é versionado neste repositório**. Cada usuário deve obtê-lo diretamente do MOSS, pois não pode ser redistribuído publicamente.
-
 ## Testando a Instalação
 
 Depois de configurar, teste se o `perl` e o `moss.pl` estão funcionando:
@@ -113,5 +167,13 @@ perl app/infrastructure/external_tools/moss.pl -l c -c "teste" path/to/file1.c p
 ```
 Se estiver tudo certo, o MOSS retornará um link como: http://moss.stanford.edu/results/123456789
 
+
+Execute o script via linha de comando:
+
+## Preparativos para a execurção
+
+```bash
+python3 corretor_automatico.py 
+```
 
 
