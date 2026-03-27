@@ -8,9 +8,10 @@ Ferramenta para professores corrigirem automaticamente listas de exercícios de 
 📥 Download automático — baixa os códigos submetidos para a atividade escolhida
 🗂️ Organização das atividades — organiza todas as pastas deixando os arquivos prontos para execução
 🎨 Verificação de formatação — checa se o código segue as convenções exigidas e detecta arquivos enviados vazios
-🔍 Detecção de plágio — utiliza JPlag e MOSS (Stanford) para identificar similaridade entre submissões
+🔍 Detecção de plágio — utiliza JPlag e MOSS (Stanford) ou algorítmo local para identificar similaridade entre submissões
 🐝 Integração com Beecrowd — exporta o resultado da avaliação da plataforma, adicionando na planilha a pontuação de cada aluno
 📊 Exportação de resultados — salva as notas e relatórios diretamente no Google Sheets
+📺 Interface gráfica (UI) - Executar scripts de uma forma simplificada
 
 ## Estrutura do projeto 
 
@@ -27,9 +28,11 @@ corretor_automatico/
 │   ├── utils/                   # Funções utilitárias
 │   ├── __init__.py
 │   ├── beecrowd_main.py         # Entrada para correção via Beecrowd
+│   ├── graphical_main.py        # Entrada para interface gráfica
 │   ├── download_main.py         # Entrada para download das submissões
 │   ├── jplag_main.py            # Entrada para detecção de plágio com JPlag
 │   ├── moss_main.py             # Entrada para detecção de plágio com MOSS
+│   ├── compare_main.py          # Entrada para detecção de plágio (processamento local)
 │   └── spreadsheet_main.py      # Entrada para exportação no Google Sheets
 ├── old_app/
 │   └── old_script/              # Versão legada do script
@@ -340,8 +343,10 @@ Cada funcionalidade também pode ser executada individualmente:
 | `download_main.py` | `python3 download_main.py "LISTA 01"` | Baixa e organiza as submissões do Classroom |
 | `jplag_main.py` | `python3 jplag_main.py "LISTA 01"` | Executa a detecção de plágio com JPlag |
 | `moss_main.py` | `python3 moss_main.py "LISTA 01"` | Executa a detecção de plágio com MOSS |
+| `compare_main.py` | `python3 compare_main.py` | Executa a detecção de plágio com algorítmo local |
 | `spreadsheet_main.py` | `python3 spreadsheet_main.py "LISTA 01"` | Exporta os resultados para o Google Sheets |
 | `beecrowd_main.py` | `python3 beecrowd_main.py "LISTA 01"` | Importa as notas do Beecrowd para a planilha |
+| `graphical_main.py` | `python3 graphical_main.py` | Abre a interface gráfica para executar outros scripts |
 
 ## 📊 Integração com Google Sheets
  
