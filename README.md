@@ -1,17 +1,17 @@
 # Corretor Automático de Listas de Exercicios
 
-Ferramenta para professores corrigirem automaticamente listas de exercícios de programação integrada ao Google Classroom, com verificação de formatação, organização dos arquivos, detecção de plágio, estruturando todo o resultado da submissão em planilhas do Google Sheets. Também é possível incluir as notas da plataforma do Beecrowd.
+Ferramenta para professores corrigirem automaticamente listas de exercícios de programação integrada ao Google Classroom, com verificação de formatação, organização dos arquivos, detecção de plágio, calculo das notas, estruturando todo o resultado da submissão em planilhas do Google Sheets. 
 
 ## Funcionalidades
 
-🏫 Integração com Google Classroom — acessa turmas, atividades e submissões dos alunos automaticamente
-📥 Download automático — baixa os códigos submetidos para a atividade escolhida
-🗂️ Organização das atividades — organiza todas as pastas deixando os arquivos prontos para execução
-🎨 Verificação de formatação — checa se o código segue as convenções exigidas e detecta arquivos enviados vazios
-🔍 Detecção de plágio — utiliza JPlag e MOSS (Stanford) ou algorítmo local para identificar similaridade entre submissões
-🐝 Integração com Beecrowd — exporta o resultado da avaliação da plataforma, adicionando na planilha a pontuação de cada aluno
-📊 Exportação de resultados — salva as notas e relatórios diretamente no Google Sheets
-📺 Interface gráfica (UI) - Executar scripts de uma forma simplificada
+- Integração com Google Classroom — acessa turmas, atividades e submissões dos alunos automaticamente
+- Download automático — baixa os códigos submetidos para a atividade escolhida
+- Organização das atividades — organiza todas as pastas deixando os arquivos prontos para execução
+- Verificação de formatação — checa se o código segue as convenções exigidas e detecta arquivos enviados vazios
+- Detecção de plágio — utiliza JPlag e MOSS (Stanford) ou algorítmo local para identificar similaridade entre submissões
+- Integração com Beecrowd — exporta o resultado da avaliação da plataforma, adicionando na planilha a pontuação de cada aluno
+- Exportação de resultados — salva as notas e relatórios diretamente no Google Sheets
+- Interface gráfica (UI) - Executar scripts de uma forma simplificada
 
 ## Estrutura do projeto 
 
